@@ -399,6 +399,15 @@
     text.append(el('h3', '', game.title), el('p', 'kind', game.kind));
     if (game.about) text.append(el('p', 'about', game.about));
     li.append(text);
+    if (game.web) {
+      if (coarse) li.append(el('span', 'status', 'Chơi trên web cần bàn phím'));
+      else {
+        var webPlay = el('button', 'play-btn', 'Chơi trên web');
+        webPlay.type = 'button';
+        webPlay.addEventListener('click', function () { openGame(game.web, webPlay, game); });
+        li.append(webPlay);
+      }
+    }
     if (game.download) {
       var link = el('a', 'ghost-btn', 'Tải bản Windows');
       link.href = game.download;

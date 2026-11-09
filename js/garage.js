@@ -26,7 +26,7 @@ window.Garage = (function () {
   let worker = null, jobId = 0;
   const handlers = new Map();
   function spawn() {
-    worker = new Worker('js/ai-worker.js?v=20261110j', { type: 'module' });
+    worker = new Worker('js/ai-worker.js?v=20261110k', { type: 'module' });
     worker.onmessage = (e) => { const m = e.data, cb = handlers.get(m.id); if (m.type === 'progress') handlers.forEach((c) => c.progress && c.progress(m)); else if (cb) cb.on(m); };
     worker.onerror = (e) => { handlers.forEach((c) => c.on({ type: 'error', message: e.message || 'Không khởi động được trình chạy AI.' })); };
   }
