@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xưởng của Thức</title>
+<meta name="description" content="Xưởng của Thức: Phòng Nhạc, Phòng Sách, Phòng Học, Phòng Giải Trí và Phòng Công Nghệ trong một căn nhà 3D.">
+<meta name="theme-color" content="#05070d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-26 -30 160 160'%3E%3Crect x='-26' y='-30' width='160' height='160' rx='30' fill='%2305070d'/%3E%3Cpath fill='%234fdcff' fill-rule='evenodd' d='M0 0H78A30 30 0 0 1 78 60H62V100H48V14H34V100H20V14H0Z M62 14V46H76A16 16 0 0 0 76 14Z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Saira:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-room="">
+
+<canvas id="world" aria-hidden="true"></canvas>
+<div class="world-labels" aria-hidden="true">
+  <span class="world-label" data-room="nhac">Phòng Nhạc</span>
+  <span class="world-label" data-room="sach">Phòng Sách</span>
+  <span class="world-label" data-room="cong">Phòng Công Nghệ</span>
+  <span class="world-label" data-room="game">Phòng Giải Trí</span>
+  <span class="world-label" data-room="hoc">Phòng Học</span>
+</div>
+<p class="hotspot-tip" id="hotspotTip" aria-hidden="true" hidden></p>
+
+<div class="loader" id="loader" aria-hidden="true">
+  <svg class="mark" viewBox="-2 -2 112 104"><path fill-rule="evenodd" d="M0 0H78A30 30 0 0 1 78 60H62V100H48V14H34V100H20V14H0Z M62 14V46H76A16 16 0 0 0 76 14Z"/></svg>
+</div>
+
+<header class="topbar" id="topbar" hidden>
+  <a class="brand" href="#" aria-label="TP, về sảnh"><svg class="mark" viewBox="0 0 108 100" aria-hidden="true"><path fill-rule="evenodd" d="M0 0H78A30 30 0 0 1 78 60H62V100H48V14H34V100H20V14H0Z M62 14V46H76A16 16 0 0 0 76 14Z"/></svg></a>
+  <div class="minimap" id="minimap" aria-hidden="true"></div>
+  <nav class="roomnav" aria-label="Các phòng">
+    <a href="#nhac" data-room="nhac">Nhạc</a>
+    <a href="#sach" data-room="sach">Sách</a>
+    <a href="#hoc" data-room="hoc">Học</a>
+    <a href="#game" data-room="game">Giải Trí</a>
+    <a href="#cong" data-room="cong">Công Nghệ</a>
+  </nav>
+  <button class="switch" id="lightSwitch" type="button" aria-pressed="true"><i aria-hidden="true"></i><span>Đèn</span></button>
+  <a class="mini-timer" id="miniTimer" href="#hoc" hidden></a>
+  <div class="mini-player" id="miniPlayer" hidden>
+    <button class="icon-btn" id="miniToggle" type="button" aria-label="Phát nhạc">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-play" d="M8 5l12 7-12 7z"/><path class="i-pause" d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+    </button>
+    <span class="mini-title" id="miniTitle"></span>
+  </div>
+</header>
+
+<main>
+  <section class="view home" id="view-sanh">
+    <div class="intro">
+      <svg class="mark hero-mark" viewBox="0 0 108 100" aria-hidden="true"><path fill-rule="evenodd" d="M0 0H78A30 30 0 0 1 78 60H62V100H48V14H34V100H20V14H0Z M62 14V46H76A16 16 0 0 0 76 14Z"/></svg>
+      <h1 id="ownerTitle" tabindex="-1">Xưởng của Thức</h1>
+      <p id="tagline"></p>
+      <ul class="room-list" id="roomList"></ul>
+      <p class="walk-tip">Bấm vào một phòng để đi vào, kéo chuột để xoay nhà.</p>
+    </div>
+
+    <!-- Mặt bằng 2D: chỉ hiện khi máy không chạy được 3D -->
+    <figure class="plan-wrap">
+      <svg class="plan" id="plan" viewBox="0 0 1000 620" role="group" aria-label="Mặt bằng căn nhà">
+        <rect class="floor" x="40" y="30" width="920" height="560"/>
+        <a class="room" href="#nhac" data-room="nhac" aria-label="Vào Phòng Nhạc"><rect class="glow" x="40" y="30" width="450" height="310"/><text class="label" x="72" y="90"><tspan class="name">Phòng Nhạc</tspan></text></a>
+        <a class="room" href="#sach" data-room="sach" aria-label="Vào Phòng Sách"><rect class="glow" x="570" y="30" width="390" height="180"/><text class="label" x="646" y="90"><tspan class="name">Phòng Sách</tspan></text></a>
+        <a class="room" href="#cong" data-room="cong" aria-label="Vào Phòng Công Nghệ"><rect class="glow" x="570" y="210" width="390" height="190"/><text class="label" x="646" y="270"><tspan class="name">Phòng Công Nghệ</tspan></text></a>
+        <a class="room" href="#game" data-room="game" aria-label="Vào Phòng Giải Trí"><rect class="glow" x="570" y="400" width="390" height="190"/><text class="label" x="646" y="460"><tspan class="name">Phòng Giải Trí</tspan></text></a>
+        <a class="room" href="#hoc" data-room="hoc" aria-label="Vào Phòng Học"><rect class="glow" x="40" y="340" width="250" height="250"/><text class="label" x="72" y="400"><tspan class="name">Phòng Học</tspan></text></a>
+        <text class="label" x="322" y="396" aria-hidden="true"><tspan class="name">Sảnh</tspan></text>
+        <path class="wall" d="M390 590H40V30H960V590H470"/>
+        <path class="wall inner" d="M40 340H490M490 340V260M490 200V30M570 30V90M570 150V280M570 340V465M570 525V590M570 210H960M570 400H960M290 340V430M290 490V590"/>
+        <g class="walker" id="walker" aria-hidden="true"><circle class="here" r="7"/><text class="here-text" id="walkerText" x="16" y="6">Bạn đang ở đây</text></g>
+      </svg>
+    </figure>
+  </section>
+
+  <section class="view room-view music-room" id="view-nhac" hidden>
+    <div class="music-top">
+      <h1 tabindex="-1">Phòng Nhạc</h1>
+      <form class="yt-search" id="ytForm" role="search">
+        <label class="sr-only" for="ytQuery">Tìm tên bài hát hoặc dán link YouTube</label>
+        <input id="ytQuery" type="search" placeholder="Tìm tên bài hát hoặc dán link YouTube" autocomplete="off">
+        <button class="play-btn" type="submit">Tìm</button>
+      </form>
+    </div>
+    <div class="genre-row" id="genreRow" role="group" aria-label="Thể loại"></div>
+    <p class="yt-note" id="ytNote" role="status" hidden></p>
+    <div class="yt-main">
+      <div class="yt-stage">
+        <div class="player-slot" id="playerSlot"><p>Chọn một bài ở danh sách để phát</p></div>
+        <div class="now">
+          <p class="now-title" id="nowTitle">Chưa phát bài nào</p>
+          <p class="now-channel" id="nowChannel"></p>
+          <div class="controls">
+            <button class="ghost-btn" id="prevTrack" type="button">Bài trước</button>
+            <button class="play-btn" id="playToggle" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-play" d="M8 5l12 7-12 7z"/><path class="i-pause" d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg><span id="playText">Phát</span></button>
+            <button class="ghost-btn" id="nextTrack" type="button">Bài tiếp</button>
+            <label class="volume">Âm lượng<input id="volume" type="range" min="0" max="100" value="70"></label>
+            <a class="yt-open" id="ytOpen" target="_blank" rel="noopener" hidden>Mở trên YouTube</a>
+          </div>
+        </div>
+      </div>
+      <aside class="yt-list" aria-labelledby="listTitle">
+        <h2 id="listTitle"></h2>
+        <ol class="tracks" id="trackList"></ol>
+      </aside>
+    </div>
+  </section>
+
+  <section class="view room-view" id="view-sach" hidden>
+    <div class="room-head"><h1 tabindex="-1">Phòng Sách</h1><p id="sachIntro"></p></div>
+    <div class="shelf-wrap">
+      <div class="shelf" id="shelf"></div>
+      <article class="book-note" id="bookNote" aria-live="polite"></article>
+    </div>
+  </section>
+
+  <section class="view room-view" id="view-game" hidden>
+    <div class="room-head"><h1 tabindex="-1">Phòng Giải Trí</h1><p id="gameIntro"></p></div>
+    <div class="game-layout">
+      <div class="featured" id="featuredGame"></div>
+      <ul class="game-list" id="gameList"></ul>
+    </div>
+  </section>
+
+  <section class="view room-view" id="view-cong" hidden>
+    <div class="room-head"><h1 tabindex="-1">Phòng Công Nghệ</h1><p id="congIntro"></p></div>
+    <div class="tech-layout">
+      <div class="terminal" id="terminal">
+        <div class="term-output" id="termOutput" role="log" aria-live="polite"></div>
+        <form class="term-line" id="termForm"><label for="termInput">thuc@xuong:~$</label><input id="termInput" autocomplete="off" spellcheck="false"></form>
+      </div>
+      <ul class="game-list" id="projectList"></ul>
+    </div>
+  </section>
+
+  <section class="view study" id="view-hoc" hidden>
+    <canvas class="scene" id="sceneCanvas" aria-hidden="true"></canvas>
+    <h1 tabindex="-1">Phòng Học</h1>
+    <p class="star-count" id="starCount"></p>
+    <div class="stage" id="stage"></div>
+    <div class="message" id="message" hidden></div>
+    <nav class="toolbar" id="toolbar" aria-label="Công cụ học"></nav>
+  </section>
+</main>
+
+<div class="yt-dock off" id="ytDock"><button class="yt-close" id="ytClose" type="button">Đóng</button><div id="ytPlayer"></div></div>
+
+<div class="game-overlay" id="gameOverlay" hidden>
+  <button class="exit-game" id="exitGame" type="button">Ra khỏi game</button>
+</div>
+
+<aside class="guide" id="guide" aria-label="Robot trợ lí TP" hidden>
+  <div class="bubble" id="bubble" role="status" hidden>
+    <p id="bubbleText"></p>
+    <div class="bubble-actions" id="bubbleActions"></div>
+  </div>
+  <button class="buddy" id="buddy" type="button" aria-label="Hỏi robot TP"><canvas id="buddyCanvas"></canvas></button>
+</aside>
+<button class="call-tp" id="callTP" type="button" aria-label="Gọi robot TP" hidden><svg class="mark" viewBox="0 0 108 100" aria-hidden="true"><path fill-rule="evenodd" d="M0 0H78A30 30 0 0 1 78 60H62V100H48V14H34V100H20V14H0Z M62 14V46H76A16 16 0 0 0 76 14Z"/></svg></button>
+
+<script type="importmap">{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+} }</script>
+<script src="data/site.js"></script>
+<script src="js/music.js"></script>
+<script src="js/study.js"></script>
+<script src="js/walk.js"></script>
+<script src="js/tech.js"></script>
+<script src="js/app.js"></script>
+<script type="module" src="js/world.js"></script>
+<script type="module" src="js/guide.js"></script>
+<script>
+  /* Cất màn hình chờ khi nhà 3D sẵn sàng; nếu không tải được 3D thì dùng mặt bằng 2D. */
+  (function () {
+    var loader = document.getElementById('loader');
+    function done() { loader.classList.add('gone'); setTimeout(function () { loader.remove(); }, 700); }
+    document.addEventListener('tp:ready', done, { once: true });
+    setTimeout(function () { if (loader.isConnected) done(); }, 7000);
+  })();
+</script>
+</body>
+</html>
