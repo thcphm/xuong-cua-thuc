@@ -71,6 +71,101 @@ window.StudyScenes = (function () {
     return cloudImages;
   }
 
+  /* Thú trong rừng: vẽ quanh điểm chân chạm đất, mặt quay sang phải */
+  function rabbit(g, t) {
+    var phase = t * 5.2, hop = Math.abs(Math.sin(phase));
+    g.translate(0, -hop * 30);
+    g.rotate((Math.cos(phase) * (Math.sin(phase) >= 0 ? 1 : -1)) * -0.2);
+    g.fillStyle = '#a08e78';
+    g.beginPath(); g.ellipse(-2, -14, 18, 11, 0, 0, 6.29); g.fill();
+    g.beginPath(); g.ellipse(-11, -12, 11, 11, 0, 0, 6.29); g.fill();
+    g.beginPath(); g.ellipse(15, -24, 8.5, 7, 0.2, 0, 6.29); g.fill();
+    g.beginPath(); g.ellipse(11, -39, 2.8, 11, -0.2, 0, 6.29); g.fill();
+    g.beginPath(); g.ellipse(16, -38, 2.8, 11, 0.12, 0, 6.29); g.fill();
+    g.strokeStyle = '#a08e78';
+    g.lineWidth = 4;
+    g.lineCap = 'round';
+    var reach = 5 + hop * 12;
+    g.beginPath(); g.moveTo(10, -6); g.lineTo(10 + reach, 0); g.moveTo(-12, -4); g.lineTo(-12 - reach, 0); g.stroke();
+    g.fillStyle = '#f1ece2';
+    g.beginPath(); g.arc(-21, -17, 4.5, 0, 6.29); g.fill();
+    g.fillStyle = '#20180f';
+    g.beginPath(); g.arc(18, -26, 1.3, 0, 6.29); g.fill();
+  }
+  function deer(g, t) {
+    var phase = t * 3.4;
+    g.translate(0, Math.sin(phase * 2) * 1.5);
+    g.strokeStyle = '#5b3f28';
+    g.lineCap = 'round';
+    g.lineWidth = 4.6;
+    [[-27, 0], [-20, 3.14], [22, 3.14], [29, 0]].forEach(function (leg) {
+      var a = Math.sin(phase + leg[1]) * 0.34, kx = leg[0] + Math.sin(a) * 26, ky = -52 + Math.cos(a) * 26;
+      g.beginPath(); g.moveTo(leg[0], -52); g.lineTo(kx, ky); g.lineTo(kx + Math.sin(a * 0.4) * 26, ky + 26); g.stroke();
+    });
+    g.fillStyle = '#7a5636';
+    g.beginPath(); g.ellipse(0, -62, 37, 15, 0, 0, 6.29); g.fill();
+    g.beginPath(); g.moveTo(22, -72); g.lineTo(39, -108); g.lineTo(50, -102); g.lineTo(36, -56); g.closePath(); g.fill();
+    g.beginPath(); g.ellipse(50, -108, 13, 7, 0.2, 0, 6.29); g.fill();
+    g.beginPath(); g.ellipse(36, -113, 3.2, 8, -0.8, 0, 6.29); g.fill();
+    g.fillStyle = '#c9ab85';
+    g.beginPath(); g.ellipse(0, -54, 28, 6, 0, 0, 6.29); g.fill();
+    g.fillStyle = '#efe6d6';
+    g.beginPath(); g.ellipse(-38, -68, 5, 7, 0.5, 0, 6.29); g.fill();
+    g.strokeStyle = '#4a3322';
+    g.lineWidth = 2.2;
+    g.beginPath();
+    g.moveTo(44, -113); g.lineTo(38, -136); g.moveTo(40, -124); g.lineTo(31, -130); g.moveTo(38, -136); g.lineTo(31, -143);
+    g.moveTo(49, -114); g.lineTo(52, -136); g.moveTo(51, -126); g.lineTo(60, -131); g.moveTo(52, -136); g.lineTo(59, -143);
+    g.stroke();
+    g.fillStyle = '#20180f';
+    g.beginPath(); g.arc(52, -110, 1.5, 0, 6.29); g.fill();
+  }
+  function bird(g, t) {
+    var flap = Math.sin(t * 11) * 15;
+    g.fillStyle = '#1b2c2e';
+    g.strokeStyle = '#1b2c2e';
+    g.beginPath(); g.ellipse(0, 0, 13, 4.2, -0.08, 0, 6.29); g.fill();
+    g.beginPath(); g.moveTo(11, -2); g.lineTo(20, -1); g.lineTo(11, 2); g.fill();
+    g.beginPath(); g.moveTo(-11, 0); g.lineTo(-23, -5); g.lineTo(-22, 4); g.fill();
+    g.beginPath(); g.moveTo(5, -2); g.quadraticCurveTo(-4, -12 - flap * 0.5, -14, -22 - flap); g.quadraticCurveTo(-10, -6 - flap * 0.3, -6, -1); g.fill();
+    g.globalAlpha = 0.7;
+    g.beginPath(); g.moveTo(5, 1); g.quadraticCurveTo(0, -8 - flap * 0.4, -8, -15 - flap * 0.8); g.quadraticCurveTo(-5, -4, -5, 2); g.fill();
+    g.globalAlpha = 1;
+  }
+  var FOREST_ANIMALS = {
+    tho: { draw: rabbit, speed: 130, gap: 70, size: 1 },
+    huou: { draw: deer, speed: 62, gap: 150, size: 1.15 },
+    chim: { draw: bird, speed: 230, gap: 90, size: 1.6 }
+  };
+  function spawnAnimals() {
+    var r = item.rand;
+    if (!item.bag.length) item.bag = ['tho', 'huou', 'chim'].sort(function () { return r() - 0.5; });
+    var kind = item.bag.pop(), type = FOREST_ANIMALS[kind], count = r() < 0.5 ? 1 : 2, dir = r() < 0.5 ? 1 : -1, unit = H / 900;
+    var base = kind === 'chim' ? H * (0.34 + r() * 0.2) : H * (0.81 + r() * 0.03), margin = 180 * unit;
+    for (var i = 0; i < count; i++) {
+      item.animals.push({
+        type: type, dir: dir, size: unit * type.size * (0.9 + r() * 0.2), p: r() * 6.28, margin: margin,
+        x: dir > 0 ? -margin - i * type.gap * unit : W + margin + i * type.gap * unit,
+        y: base + (kind === 'chim' ? (r() - 0.5) * 50 * unit : i * 5 * unit),
+        v: type.speed * unit * (0.92 + r() * 0.16)
+      });
+    }
+  }
+  function drawAnimals(g, now, dt) {
+    item.nextAnimal -= dt;
+    if (item.nextAnimal <= 0 && dt > 0) { spawnAnimals(); item.nextAnimal = 9 + item.rand() * 10; }
+    item.animals = item.animals.filter(function (a) { return a.dir > 0 ? a.x < W + a.margin * 2 : a.x > -a.margin * 2; });
+    item.animals.forEach(function (a) {
+      a.x += a.v * a.dir * dt;
+      g.save();
+      g.translate(a.x, a.y);
+      g.scale(a.dir * a.size, a.size);
+      a.type.draw(g, now / 1000 + a.p);
+      g.restore();
+    });
+    g.lineCap = 'butt';
+  }
+
   /* Sinh vật biển của Thủy cung */
   function reef(c, r, cx, width, height, color, count) {
     c.fillStyle = color;
@@ -327,8 +422,13 @@ window.StudyScenes = (function () {
       init: function (r) {
         item.motes = [];
         for (var i = 0; i < 60; i++) item.motes.push({ x: r() * W, y: H * (0.2 + r() * 0.62), p: r() * 6.28, r: 1 + r() * 1.6 });
+        item.animals = [];
+        item.bag = [];
+        item.rand = r;
+        item.nextAnimal = 2.5;
       },
-      tick: function (g, now) {
+      tick: function (g, now, dt) {
+        drawAnimals(g, now, dt);
         g.save();
         g.globalCompositeOperation = 'lighter';
         g.fillStyle = '#f4f5cf';
