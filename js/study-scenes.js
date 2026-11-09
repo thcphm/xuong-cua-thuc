@@ -1,119 +1,17 @@
-/* Các cảnh tranh động của Phòng Học. Mỗi tranh có các vùng chuyển động: nước, mây, lá.
-   Vùng ghi theo tọa độ tranh từ 0 đến 1: [tâm x, tâm y, bán kính x, bán kính y, hướng x, hướng y, tốc độ, độ lay].
-   Tranh chỉ tải khi được chọn. Trình duyệt không có WebGL thì hiện tranh tĩnh. */
+/* Các cảnh tranh của Phòng Học: tranh nét, thêm đốm sáng bay; Thủy cung có cá bơi lặp. Tranh chỉ tải khi được chọn. */
 window.StudyScenes = (function () {
   'use strict';
   var W = 0, H = 0, dpr = 1, current = '', images = {}, item = {};
-  var SIZE = 1680 / 944, ZONES = 8;
 
   var SCENES = {
-    co: { name: 'Đồng cỏ', mote: '#fff3c4', motes: 34, zones: [
-      [0.6, 0.24, 0.72, 0.25, 0.05, 0, 0.09, 0],
-      [0.55, 0.84, 0.72, 0.24, 0, 0, 0, 0.0045]
-    ] },
-    suoi: { name: 'Suối', mote: '#eef8d8', motes: 20, zones: [
-      [0.55, 0.52, 0.1, 0.1, 0, 0.1, 0.9, 0],
-      [0.56, 0.7, 0.27, 0.09, -0.02, 0.05, 0.7, 0],
-      [0.56, 0.9, 0.46, 0.14, -0.012, 0.035, 0.55, 0],
-      [0.3, 0.07, 0.32, 0.12, 0, 0, 0, 0.003],
-      [0.86, 0.56, 0.15, 0.2, 0, 0, 0, 0.0035]
-    ] },
-    rung: { name: 'Rừng', mote: '#fbf3b6', motes: 60, zones: [
-      [0.71, 0.81, 0.14, 0.05, 0.01, 0.05, 0.8, 0],
-      [0.75, 0.94, 0.22, 0.07, 0, 0.022, 0.5, 0],
-      [0.6, 0.18, 0.36, 0.22, 0, 0, 0, 0.0022],
-      [0.09, 0.87, 0.14, 0.14, 0, 0, 0, 0.004]
-    ] },
-    thac: { name: 'Thác núi', mote: '#f2fbff', motes: 28, zones: [
-      [0.38, 0.4, 0.13, 0.42, 0, 0.14, 1.1, 0],
-      [0.58, 0.47, 0.05, 0.3, 0, 0.1, 1, 0],
-      [0.68, 0.93, 0.46, 0.13, 0.06, 0.012, 0.8, 0],
-      [0.45, 0.79, 0.3, 0.1, 0.03, -0.04, 0.35, 0],
-      [0.85, 0.1, 0.22, 0.11, 0.03, 0, 0.1, 0],
-      [0.08, 0.2, 0.13, 0.26, 0, 0, 0, 0.003],
-      [0.93, 0.55, 0.09, 0.2, 0, 0, 0, 0.0025]
-    ] },
-    bien: { name: 'Bờ biển', mote: '#fff4e0', motes: 14, zones: [
-      [0.7, 0.55, 0.52, 0.17, 0.02, 0.02, 0.55, 0],
-      [0.6, 0.86, 0.58, 0.19, -0.02, 0.05, 0.5, 0],
-      [0.36, 0.2, 0.32, 0.15, 0.03, 0, 0.09, 0],
-      [0.12, 0.12, 0.16, 0.22, 0, 0, 0, 0.005]
-    ] },
-    lop: { name: 'Lớp học', mote: '#fff0cf', motes: 40, zones: [
-      [0.155, 0.2, 0.05, 0.26, 0, 0, 0, 0.002]
-    ] },
-    thuy: { name: 'Thủy cung', mote: '#e6fbff', motes: 0, zones: [
-      [0.62, 0.34, 0.62, 0.42, 0, 0, 0, 0.0032]
-    ] }
+    co: { name: 'Đồng cỏ', mote: '#fff3c4', motes: 34 },
+    suoi: { name: 'Suối', mote: '#eef8d8', motes: 20 },
+    rung: { name: 'Rừng', mote: '#fbf3b6', motes: 60 },
+    thac: { name: 'Thác núi', mote: '#f2fbff', motes: 28 },
+    bien: { name: 'Bờ biển', mote: '#fff4e0', motes: 14 },
+    lop: { name: 'Lớp học', mote: '#fff0cf', motes: 40 },
+    thuy: { name: 'Thủy cung', mote: '#e6fbff', motes: 0 }
   };
-
-  var VERTEX = 'attribute vec2 p;varying vec2 v;void main(){v=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}';
-  var FRAGMENT = [
-    '#ifdef GL_FRAGMENT_PRECISION_HIGH', 'precision highp float;', '#else', 'precision mediump float;', '#endif',
-    'varying vec2 v;uniform sampler2D img;uniform vec2 fit;uniform float t;',
-    'uniform vec4 zone[' + ZONES + '];uniform vec4 move[' + ZONES + '];',
-    'float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
-    'float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}',
-    'void main(){',
-    'vec2 uv=(v-.5)*fit+.5,F=vec2(0.);float sway=0.,sp=0.,w=0.;',
-    'for(int i=0;i<' + ZONES + ';i++){if(zone[i].z<=0.)continue;float m=1.-smoothstep(.5,1.,length((uv-zone[i].xy)/zone[i].zw));F+=m*move[i].xy;sp+=m*move[i].z;sway+=m*move[i].w;w+=m;}',
-    'vec2 s=uv+sway*vec2(sin(t*1.6+uv.y*38.+uv.x*14.),cos(t*1.25+uv.x*30.+uv.y*9.));',
-    'if(dot(F,F)<1e-7){gl_FragColor=texture2D(img,s);return;}',
-    'float speed=sp/max(w,.001),p0=fract(t*speed),p1=fract(t*speed+.5);',
-    'vec2 f=F*(.62+.76*n(uv*vec2(30.,10.)+vec2(0.,-t*speed*.5)));',
-    'gl_FragColor=mix(texture2D(img,s-f*p1),texture2D(img,s-f*p0),1.-abs(2.*p0-1.));',
-    '}'
-  ].join('\n');
-
-  var gl = null, glCanvas = null, uniforms = {}, glFailed = false, shownImage = null;
-  function setupGL() {
-    if (gl || glFailed) return;
-    glCanvas = document.createElement('canvas');
-    gl = glCanvas.getContext('webgl', { alpha: false, antialias: false });
-    if (!gl) { glFailed = true; return; }
-    function shader(type, source) { var s = gl.createShader(type); gl.shaderSource(s, source); gl.compileShader(s); return s; }
-    var prog = gl.createProgram();
-    gl.attachShader(prog, shader(gl.VERTEX_SHADER, VERTEX));
-    gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, FRAGMENT));
-    gl.linkProgram(prog);
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { gl = null; glFailed = true; return; }
-    gl.useProgram(prog);
-    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    var at = gl.getAttribLocation(prog, 'p');
-    gl.enableVertexAttribArray(at);
-    gl.vertexAttribPointer(at, 2, gl.FLOAT, false, 0, 0);
-    ['fit', 't', 'zone', 'move'].forEach(function (name) { uniforms[name] = gl.getUniformLocation(prog, name); });
-    gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  }
-  function useScene(id) {
-    var img = images[id];
-    if (!gl || !img || !img.naturalWidth) return;
-    if (shownImage !== img) {
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
-      shownImage = img;
-    }
-    var zone = new Float32Array(ZONES * 4), move = new Float32Array(ZONES * 4);
-    SCENES[id].zones.forEach(function (z, i) {
-      zone.set([z[0], z[1], z[2], z[3]], i * 4);
-      move.set([z[4], z[5], z[6], z[7]], i * 4);
-    });
-    gl.uniform4fv(uniforms.zone, zone);
-    gl.uniform4fv(uniforms.move, move);
-  }
-  function sizeGL() {
-    if (!gl) return;
-    var scale = Math.min(1, 1680 / (W * dpr));
-    glCanvas.width = Math.round(W * dpr * scale);
-    glCanvas.height = Math.round(H * dpr * scale);
-    gl.viewport(0, 0, glCanvas.width, glCanvas.height);
-    var aspect = W / H;
-    gl.uniform2f(uniforms.fit, aspect > SIZE ? 1 : aspect / SIZE, aspect > SIZE ? SIZE / aspect : 1);
-  }
 
   function seeded(s) { return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
   function initMotes(scene) {
@@ -243,32 +141,23 @@ window.StudyScenes = (function () {
   function prepare(id, width, height, ratio, redraw) {
     W = width; H = height; dpr = ratio; current = id;
     item = {};
-    setupGL();
-    sizeGL();
     initMotes(SCENES[id]);
     if (id === 'thuy') initSea();
     var img = images[id];
-    if (img && img.naturalWidth) { useScene(id); return; }
     if (!img) {
       img = images[id] = new Image();
-      img.onload = function () { if (current === id) { useScene(id); if (redraw) redraw(); } };
+      img.onload = function () { if (current === id && redraw) redraw(); };
       img.src = 'assets/scenes/' + id + '.jpg?v=2';
     }
   }
-  function drawPicture(g, img, now) {
-    if (gl) {
-      gl.uniform1f(uniforms.t, (now / 1000) % 3600);
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
-      g.drawImage(glCanvas, 0, 0, W, H);
-      return;
-    }
+  function drawPicture(g, img) {
     var scale = Math.max(W / img.naturalWidth, H / img.naturalHeight), w = img.naturalWidth * scale, h = img.naturalHeight * scale;
     g.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
   }
   function draw(g, id, now, dt) {
     var scene = SCENES[id], img = images[id];
     if (!img || !img.naturalWidth) { g.fillStyle = '#0b1a2b'; g.fillRect(0, 0, W, H); return; }
-    drawPicture(g, img, now);
+    drawPicture(g, img);
     var shade = g.createLinearGradient(0, 0, 0, H * 0.14);
     shade.addColorStop(0, 'rgba(5,7,13,.6)');
     shade.addColorStop(1, 'rgba(5,7,13,0)');

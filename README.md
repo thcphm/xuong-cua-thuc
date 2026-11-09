@@ -50,7 +50,7 @@ Hai file trong `assets/sounds/` đều là CC0, lấy từ Freesound: `rain.mp3`
 
 ## Ảnh nền Phòng Học
 
-Tranh trong `assets/scenes/` được tạo bằng Canva. Vùng nước, mây và lá chuyển động khai báo trong `js/study-scenes.js`.
+Tranh trong `assets/scenes/` được tạo bằng Canva.
 
 ## Tài khoản và admin
 
