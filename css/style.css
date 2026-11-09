@@ -473,6 +473,7 @@ body[data-room="hoc"] .call-tp { bottom: 64px; }
 .has-3d main, .has-3d .view { pointer-events: none; }
 .has-3d .room-view > * { pointer-events: auto; }
 .has-3d .study, .has-3d .study > * { pointer-events: auto; }
+.has-3d .fc-main { pointer-events: auto; }
 body.has-3d:not([data-room=""])::before {
   background: linear-gradient(90deg, rgba(5,7,13,.94) 0, rgba(5,7,13,.86) 40%, rgba(5,7,13,.1) 62%, transparent 100%);
 }
