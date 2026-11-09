@@ -48,6 +48,10 @@ Key nằm công khai trong trang, nên bắt buộc làm bước 3. Hạn mức 
 
 Hai file trong `assets/sounds/` đều là CC0, lấy từ Freesound: `rain.mp3` là "Rain from Indoors - Perfect loop" của samesamesame, `lofi.mp3` là "Chill Lofi Melody Loop 95 BPM" của holizna.
 
+## Ảnh nền Phòng Học
+
+Tranh trong `assets/scenes/` được tạo bằng Canva. Vùng nước, mây và lá chuyển động khai báo trong `js/study-scenes.js`.
+
 ## Tài khoản và admin
 
 - Tài khoản và tiến độ lưu trên Firebase (Authentication, Firestore), dùng được trên mọi máy. Mật khẩu không lấy lại được.
