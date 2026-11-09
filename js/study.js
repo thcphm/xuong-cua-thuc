@@ -126,8 +126,7 @@ window.Study = (function () {
     { id: 'scene', name: 'Cảnh', w: 270, fx: 0.15, fy: 0.72, build: buildScene },
     { id: 'notes', name: 'Ghi chú', w: 300, fx: 0.85, fy: 0.28, build: buildNotes },
     { id: 'tasks', name: 'Việc cần làm', w: 300, fx: 0.85, fy: 0.68, build: buildTasks },
-    { id: 'calendar', name: 'Lịch', w: 300, fx: 0.3, fy: 0.5, build: buildCalendar },
-    { id: 'cards', name: 'Flashcard', w: 320, fx: 0.68, fy: 0.5, build: buildCards }
+    { id: 'calendar', name: 'Lịch', w: 300, fx: 0.3, fy: 0.5, build: buildCalendar }
   ];
   var widgets = {}, topZ = 5, stage, toolButtons = {};
 
@@ -451,60 +450,6 @@ window.Study = (function () {
     body.append(nav, grid, info);
   }
 
-  function buildCards(body) {
-    var index = 0, flipped = false;
-    var card = el('button', 'flash');
-    card.type = 'button';
-    var inner = el('span', 'flash-inner');
-    var front = el('span', 'flash-face'), back = el('span', 'flash-face back');
-    inner.append(front, back);
-    card.append(inner);
-    card.addEventListener('click', function () { flipped = !flipped; card.classList.toggle('flipped', flipped); });
-    var count = el('span', 'flash-count');
-    var nav = el('div', 'w-row between');
-    function go(by) {
-      if (!data.cards.length) return;
-      index = (index + by + data.cards.length) % data.cards.length;
-      flipped = false;
-      card.classList.remove('flipped');
-      draw();
-    }
-    nav.append(button('Thẻ trước', 'ghost-btn', function () { go(-1); }), count, button('Thẻ sau', 'ghost-btn', function () { go(1); }));
-
-    var form = el('form', 'flash-form');
-    var q = el('input', 'field'), a = el('input', 'field');
-    q.placeholder = 'Mặt trước'; a.placeholder = 'Mặt sau';
-    q.setAttribute('aria-label', 'Mặt trước'); a.setAttribute('aria-label', 'Mặt sau');
-    var row = el('div', 'w-row between');
-    var add = el('button', 'ghost-btn', 'Thêm thẻ');
-    add.type = 'submit';
-    row.append(add, button('Xoá thẻ này', 'w-close', function () {
-      if (!data.cards.length) return;
-      data.cards.splice(index, 1);
-      index = 0; save(); draw();
-    }));
-    form.append(q, a, row);
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      if (!q.value.trim() || !a.value.trim()) return;
-      data.cards.push({ front: q.value.trim(), back: a.value.trim() });
-      index = data.cards.length - 1;
-      q.value = a.value = '';
-      flipped = false;
-      card.classList.remove('flipped');
-      save();
-      draw();
-    });
-    function draw() {
-      var c = data.cards[index];
-      front.textContent = c ? c.front : 'Chưa có thẻ nào';
-      back.textContent = c ? c.back : 'Thêm thẻ ở ô bên dưới.';
-      count.textContent = data.cards.length ? (index + 1) + ' / ' + data.cards.length : '0';
-    }
-    draw();
-    body.append(card, nav, form);
-  }
-
   function paintStars() { $('starCount').textContent = data.stars + ' sao'; }
 
   /* Thông điệp mỗi ngày */
@@ -629,7 +574,9 @@ window.Study = (function () {
       toolButtons[tool.id] = b;
       $('toolbar').append(b);
     });
+    $('toolbar').append(button('Flashcard', 'tool', function () { window.Flashcard.open(); }));
     $('toolbar').append(button('Thông điệp', 'tool', showMessage));
+    window.Flashcard.adopt(data.cards.filter(function (c) { return !DEFAULTS.cards.some(function (d) { return d.front === c.front; }); }));
     window.addEventListener('resize', function () {
       if (document.body.dataset.room !== 'hoc') return;
       startScene();

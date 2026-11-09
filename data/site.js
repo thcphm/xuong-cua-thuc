@@ -6,12 +6,15 @@ window.SITE = {
   /* Robot trợ lí TP: màu vỏ và màu nhấn. */
   mascot: { shell: '#e6eaf1', accent: '#1fb5b0', mark: '#e6fbf9' },
 
-  /* Phòng đang khóa. Xoá 'cong' khỏi danh sách này để mở lại Phòng Công Nghệ. */
-  lockedRooms: ['cong'],
+  /* Tên tài khoản của chủ Xưởng. Tài khoản đăng ký đúng tên này là admin. */
+  admin: 'Thức',
+
+  /* Phòng đang khóa, ví dụ: ['cong']. Admin vẫn vào được. */
+  lockedRooms: [],
 
   music: {
     /* API key của YouTube Data API v3, xem README. Để trống thì vẫn chọn thể loại và dán link được. */
-    apiKey: '',
+    apiKey: 'AIzaSyA601Sw0rzdW1UN55-gi8Ml9FjEPsKyWTM',
     region: 'VN',
     /* query: từ khoá tìm khi có API key. seed: video có sẵn khi chưa có key hoặc khi tìm lỗi. */
     genres: [
@@ -19,7 +22,18 @@ window.SITE = {
         { id: 'DWcJFNfaw9c', title: 'lofi hip hop radio - beats to sleep/chill to', channel: 'Lofi Girl' },
         { id: '4xDzrJKXOOY', title: 'synthwave radio - beats to chill/game to', channel: 'Lofi Girl' }
       ] },
-      { name: 'Nhạc Việt', query: 'nhạc việt hay nhất', seed: [
+      { name: 'Nhạc Việt', query: 'nhạc việt hay nhất', sub: [
+        /* chart: true lấy bảng video phổ biến của YouTube Việt Nam, query dùng khi bảng lỗi */
+        { name: 'Thịnh hành', chart: true, query: 'nhạc việt thịnh hành' },
+        { name: 'Nhạc trẻ', query: 'nhạc trẻ hay nhất' },
+        { name: 'Ballad', query: 'nhạc ballad việt' },
+        { name: 'Remix', query: 'nhạc việt remix' },
+        { name: 'Bolero', query: 'nhạc bolero trữ tình' },
+        { name: 'Rap', query: 'rap việt' },
+        { name: 'Indie', query: 'nhạc indie việt' },
+        { name: 'Acoustic', query: 'nhạc acoustic việt' },
+        { name: 'Lofi Việt', query: 'nhạc lofi việt' }
+      ], seed: [
         { id: 'Llw9Q6akRo4', title: 'Lạc Trôi', channel: 'Sơn Tùng M-TP Official' },
         { id: 'FN7ALfpGxiI', title: 'Nơi Này Có Anh', channel: 'Sơn Tùng M-TP Official' },
         { id: 'knW7-x7Y7RE', title: 'Hãy Trao Cho Anh ft. Snoop Dogg', channel: 'Sơn Tùng M-TP Official' }
@@ -56,6 +70,98 @@ window.SITE = {
     ]
   },
 
+  /* Thư viện mở. page: tên trang trên vi.wikisource.org; không có page nghĩa là chưa có bản miễn phí. */
+  library: {
+    intro: 'Thư viện mở: chỉ dẫn tới sách được phép đọc và tải tự do. Sách còn bản quyền có link mua.',
+    vietnam: [
+      { name: 'Truyện thơ, ngâm khúc', items: [
+        { title: 'Truyện Kiều', author: 'Nguyễn Du', page: true },
+        { title: 'Lục Vân Tiên', author: 'Nguyễn Đình Chiểu', page: 'Lục Vân Tiên (bản Quốc ngữ 2082 câu)' },
+        { title: 'Chinh phụ ngâm', author: 'Đặng Trần Côn', page: true },
+        { title: 'Cung oán ngâm khúc', author: 'Nguyễn Gia Thiều', page: 'Cung oán ngâm khúc (bản phổ biến)' }
+      ] },
+      { name: 'Văn chương, sử cổ', items: [
+        { title: 'Nam quốc sơn hà', author: 'Khuyết danh', page: true },
+        { title: 'Hịch tướng sĩ', author: 'Trần Hưng Đạo', page: true },
+        { title: 'Bình Ngô đại cáo', author: 'Nguyễn Trãi', page: true },
+        { title: 'Truyền kỳ mạn lục', author: 'Nguyễn Dữ', page: true },
+        { title: 'Hoàng Lê nhất thống chí', author: 'Ngô gia văn phái', page: true },
+        { title: 'Đại Việt sử ký toàn thư', author: 'Ngô Sĩ Liên', page: true }
+      ] },
+      { name: 'Văn xuôi 1930 đến 1945', items: [
+        { title: 'Tắt đèn', author: 'Ngô Tất Tố', page: true },
+        { title: 'Chí Phèo', author: 'Nam Cao', page: true },
+        { title: 'Lão Hạc', author: 'Nam Cao', page: true },
+        { title: 'Hai đứa trẻ', author: 'Thạch Lam', page: true },
+        { title: 'Số đỏ', author: 'Vũ Trọng Phụng' },
+        { title: 'Giông tố', author: 'Vũ Trọng Phụng' }
+      ] },
+      { name: 'Hiện đại, đương đại', items: [
+        { title: 'Dế Mèn phiêu lưu ký', author: 'Tô Hoài' },
+        { title: 'Đất rừng phương Nam', author: 'Đoàn Giỏi' },
+        { title: 'Tuổi thơ dữ dội', author: 'Phùng Quán' },
+        { title: 'Nỗi buồn chiến tranh', author: 'Bảo Ninh' },
+        { title: 'Mắt biếc', author: 'Nguyễn Nhật Ánh' },
+        { title: 'Cho tôi xin một vé đi tuổi thơ', author: 'Nguyễn Nhật Ánh' }
+      ] }
+    ],
+    /* Truyện tranh chọn tay: nhãn public domain trên Internet Archive không đáng tin nên không tìm tự động.
+       origin khớp id trong origins. read/epub/pdf: chỉ thêm khi chắc chắn truyện được phát hành tự do. */
+    comics: [
+      { name: 'Đọc miễn phí', origin: 'us', items: [
+        { title: 'Hạt Tiêu & Cà Rốt', author: 'David Revoy', note: 'Truyện mở CC BY, có bản tiếng Việt', source: 'Pepper&Carrot', read: 'https://www.peppercarrot.com/vi/webcomics/index.html' },
+        { title: 'Little Nemo 1905-1914', author: 'Winsor McCay', source: 'Internet Archive', read: 'https://archive.org/details/LittleNemo1905-1914ByWinsorMccay', pdf: 'https://archive.org/download/LittleNemo1905-1914ByWinsorMccay/little-nemo.pdf' },
+        { title: 'Buster Brown 1903', author: 'R. F. Outcault', source: 'Internet Archive', read: 'https://archive.org/details/BusterBrownnewspaperStrip-Year1903', epub: 'https://archive.org/download/BusterBrownnewspaperStrip-Year1903/Buster_Brown_1903.epub', pdf: 'https://archive.org/download/BusterBrownnewspaperStrip-Year1903/Buster_Brown_1903.pdf' }
+      ] },
+      { name: 'Truyện tranh Việt Nam', origin: 'vn', items: [
+        { title: 'Thần đồng đất Việt', author: 'Lê Linh' },
+        { title: 'Dũng sĩ Hesman', author: 'Hùng Lân' },
+        { title: 'Long Thần Tướng', author: 'Nguyễn Thành Phong' }
+      ] },
+      { name: 'Manga Nhật Bản', origin: 'jp', items: [
+        { title: 'Doraemon', author: 'Fujiko F. Fujio' },
+        { title: 'Thám tử lừng danh Conan', author: 'Aoyama Gosho' },
+        { title: 'Dragon Ball', author: 'Toriyama Akira' },
+        { title: 'One Piece', author: 'Oda Eiichiro' },
+        { title: 'Naruto', author: 'Kishimoto Masashi' },
+        { title: 'Slam Dunk', author: 'Inoue Takehiko' }
+      ] },
+      { name: 'Comic Âu Mỹ', origin: 'us', items: [
+        { title: 'Tintin', author: 'Hergé' },
+        { title: 'Asterix', author: 'René Goscinny' },
+        { title: 'Watchmen', author: 'Alan Moore' },
+        { title: 'Batman: The Dark Knight Returns', author: 'Frank Miller' }
+      ] }
+    ],
+    /* subject: chủ đề trên Open Library, sắp theo số người đọc nhiều nhất */
+    foreign: [
+      { name: 'Kinh điển', subject: 'Classic Literature' },
+      { name: 'Trinh thám', subject: 'Detective and mystery stories' },
+      { name: 'Khoa học viễn tưởng', subject: 'Science fiction' },
+      { name: 'Giả tưởng', subject: 'Fantasy fiction' },
+      { name: 'Lãng mạn', subject: 'Love stories' },
+      { name: 'Phiêu lưu', subject: 'Adventure stories' },
+      { name: 'Kinh dị', subject: 'Horror tales' },
+      { name: 'Thiếu nhi', subject: "Children's fiction" },
+      { name: 'Cổ tích', subject: 'Fairy tales' },
+      { name: 'Thần thoại', subject: 'Mythology' },
+      { name: 'Triết học', subject: 'Philosophy' }
+    ],
+    origins: [
+      { id: 'vn', name: 'Việt Nam' },
+      { id: 'en', name: 'Anh', subject: 'English fiction' },
+      { id: 'us', name: 'Mỹ', subject: 'American fiction' },
+      { id: 'fr', name: 'Pháp', subject: 'French fiction' },
+      { id: 'ru', name: 'Nga', subject: 'Russian fiction' },
+      { id: 'de', name: 'Đức', subject: 'German fiction' },
+      { id: 'it', name: 'Ý', subject: 'Italian fiction' },
+      { id: 'es', name: 'Tây Ban Nha', subject: 'Spanish fiction' },
+      { id: 'gr', name: 'Hy Lạp', subject: 'Greek literature' },
+      { id: 'jp', name: 'Nhật Bản', subject: 'Japanese fiction' },
+      { id: 'cn', name: 'Trung Quốc', subject: 'Chinese fiction' }
+    ]
+  },
+
   books: {
     intro: 'Bấm vào cuốn sách nổi trên kệ để rút ra xem.',
     list: [
@@ -73,17 +179,6 @@ window.SITE = {
       }
     ],
     emptySlots: 0
-  },
-
-  tech: {
-    intro: 'Terminal này gõ lệnh được. Bấm vào tủ máy chủ hoặc màn hình để bắt đầu.',
-    whoami: 'Thức. Thích tự code game, làm trò chơi nhỏ và dựng mọi thứ từ đầu.',
-    stack: ['Python + pygame: game pixel kể chuyện', 'Three.js: game 3D và chính căn nhà này', 'HTML, CSS, JavaScript: các trò chơi trên web'],
-    projects: [
-      { name: 'Đoán đi chờ chi', about: 'Trò diễn tả, đoán chữ cho cặp đôi', url: 'https://github.com/thcphm/doan-di-cho-chi' },
-      { name: 'Thức, hay Ngân?', about: 'Trò đoán ý nhau cho cặp đôi', url: 'https://github.com/thcphm/thuc-hay-ngan' },
-      { name: 'Hai Mình', about: '46 lá bài trò chuyện cho cặp đôi', url: 'https://github.com/thcphm/hai-minh' }
-    ]
   },
 
   games: {

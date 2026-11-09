@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return signedIn() && request.auth.token.email == '1a6f9842320aee806e0e4740ca94eb6107b031ad@xuong.example.com';
+    }
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+    function notBlocked(uid) {
+      let path = /databases/$(database)/documents/profiles/$(uid);
+      return !exists(path) || get(path).data.blocked != true;
+    }
+    function validKey(key) {
+      return key in ['tp-lab-v1', 'tp-san-v1', 'tp-vuon-v1', 'tp-flashcard-v1', 'nha-cua-tp.phong-hoc.v1', 'nha-cua-tp.guide.v1'];
+    }
+
+    match /profiles/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['name', 'blocked', 'at'])
+        && request.resource.data.blocked == false
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 24;
+      allow update: if isAdmin()
+        || (isOwner(uid) && resource.data.blocked == false && request.resource.data.blocked == false);
+      allow delete: if isAdmin();
+    }
+
+    match /users/{uid}/progress/{key} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create, update: if validKey(key)
+        && request.resource.data.keys().hasOnly(['v', 'at'])
+        && request.resource.data.v is string
+        && request.resource.data.v.size() <= 900000
+        && request.resource.data.at is number
+        && (isAdmin() || (isOwner(uid) && notBlocked(uid)));
+      allow delete: if isAdmin() || isOwner(uid);
+    }
+  }
+}

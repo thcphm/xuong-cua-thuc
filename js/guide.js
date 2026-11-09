@@ -86,8 +86,12 @@ function hush() {
   mascot.talk(false);
   spot(null);
 }
-function say(text, { actions = [], anim = 'idle', target = null, hold = 7000 } = {}) {
+/* Đã đăng nhập thì gọi bằng tên tài khoản thay cho "bạn" */
+const person = window.Session.name;
+const personal = (text) => (person ? text.replace(/(^|[^\p{L}])[Bb]ạn(?![\p{L}])/gu, '$1' + person) : text);
+function say(rawText, { actions = [], anim = 'idle', target = null, hold = 7000 } = {}) {
   if (seen.hidden) return;
+  const text = personal(rawText);
   clearTimeout(hideTimer);
   clearInterval(typing);
   bubble.hidden = false;
@@ -117,14 +121,17 @@ function say(text, { actions = [], anim = 'idle', target = null, hold = 7000 } =
   if (!actions.length && hold) hideTimer = setTimeout(hush, hold);
 }
 
-const ROOM_NAMES = { nhac: 'Phòng Nhạc', sach: 'Phòng Sách', hoc: 'Phòng Học', game: 'Phòng Giải Trí', cong: 'Phòng Công Nghệ' };
+const ROOM_NAMES = { nhac: 'Phòng Nhạc', sach: 'Phòng Sách', hoc: 'Phòng Học', game: 'Phòng Giải Trí', cong: 'Phòng Công Nghệ', garage: 'Garage AI', san: 'Sân Thượng', vuon: 'Sân Vườn' };
 const TIPS = {
   '': { text: 'Bấm vào một phòng, mình sẽ đi vào trước. Kéo chuột để xoay căn nhà.', target: '#roomList' },
   nhac: { text: 'Gõ tên bài, dán link YouTube hoặc chọn thể loại. Sang phòng khác nhạc vẫn chạy ở khung nhỏ.', target: '#ytForm', anim: 'point' },
-  sach: { text: 'Bấm vào cuốn sách nổi trên kệ để rút ra xem ghi chú.', target: '#shelf', anim: 'point' },
+  sach: { text: 'Bấm một tủ sách để xem sách tiêu biểu, hoặc tìm theo tên sách, tác giả, xuất xứ.', target: '#libForm', anim: 'point' },
   game: { text: matchMedia('(pointer: coarse)').matches ? 'Game này cần bàn phím. Mở xưởng trên máy tính để chơi nhé.' : 'Bấm vào máy arcade để chơi game Thức tự code. Muốn thoát thì bấm Ra khỏi game ở mép trái.', target: '#featuredGame .play-btn', anim: 'point' },
   hoc: { text: 'Kéo nút tròn trên đồng hồ để đặt số phút. Thanh dưới cùng bật thêm âm nền, ghi chú, flashcard. Xong một phiên được một sao.', target: '#toolbar', anim: 'point' },
-  cong: { text: 'Gõ help vào terminal, hoặc bấm vào tủ máy chủ để bắt đầu.', target: '#terminal', anim: 'point' }
+  cong: { text: 'Chọn ngôn ngữ, rồi vào tab Thực hành để viết code ngay trên trang.', target: '#labLangs', anim: 'point' },
+  garage: { text: 'Chọn một bàn bên trái. Lần đầu cần tải mô hình, sau đó chạy ngay trên máy bạn.', target: '#garageBenches', anim: 'point' },
+  san: { text: 'Đây là bầu trời thật lúc này. Kéo để nhìn quanh, bấm vào một ngôi sao để xem nó là ai.', target: '#skyFind', anim: 'point' },
+  vuon: { text: 'Bấm vào một cây để xem thông tin. Cây nào khát thì tưới, nhưng đừng tưới quá tay.', target: '#gardenList', anim: 'point' }
 };
 const OPEN_ROOMS = Object.keys(ROOM_NAMES).filter((id) => !(window.SITE.lockedRooms || []).includes(id));
 const room = () => document.body.dataset.room || '';
@@ -199,6 +206,8 @@ Music.subscribe((state, track) => {
   if (state.playing) mascot.play('dance', 0);
   else if (mascot.state() === 'dance') mascot.idle();
 });
+document.addEventListener('tp:lab-solved', (e) => say('Chuẩn rồi! Cộng ' + e.detail + ' điểm.', { anim: 'cheer', hold: 2600 }));
+document.addEventListener('tp:ready', () => { if (window.Rooftop.dueCount()) setTimeout(() => say('Có thư bạn gửi cho chính mình đã đến hạn. Lên Sân Thượng đọc nhé.', { anim: 'wave', hold: 6000 }), 2500); });
 document.addEventListener('tp:locked', () => say('Phòng này đang khóa. Thức chưa làm xong, quay lại sau nhé.', { anim: 'shake', hold: 3500 }));
 document.addEventListener('tp:focus-done', () => say('Xong một phiên, thêm một sao. Nghỉ chút đi.', { anim: 'cheer', hold: 6000 }));
 document.addEventListener('tp:lights', (e) => {
@@ -221,9 +230,10 @@ if (seen.hidden) {
   guide.hidden = false;
   fit();
   previousRoom = room();
-  setTimeout(() => {
+  window.Session.whenOpen(() => setTimeout(() => {
     if (!seen.tour && room() === '') tour();
     else if (room() && !seen.rooms[room()]) { seen.rooms[room()] = true; remember(); tip(); }
+    else if (person) say('Chào ' + person + '!', { anim: 'wave', hold: 4000 });
     else mascot.play('wave', 1.6);
-  }, 1500);
+  }, 1500));
 }

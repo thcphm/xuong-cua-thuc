@@ -5,6 +5,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { createMascot, tpShape, tpTexture } from './mascot.js';
+import { buildPlant } from './plants.js';
 
 const canvas = document.getElementById('world');
 const Walk = window.Walk;
@@ -26,12 +27,13 @@ scene.background = new THREE.Color('#05070d');
 scene.fog = new THREE.Fog('#05070d', 34, 66);
 const camera = new THREE.PerspectiveCamera(26, 1, 0.1, 140);
 
-scene.add(new THREE.HemisphereLight('#6d8fc9', '#0a1020', 1.7));
+const hemi = new THREE.HemisphereLight('#6d8fc9', '#0a1020', 1.7);
+scene.add(hemi);
 const moon = new THREE.DirectionalLight('#a8c4ff', 1.5);
 moon.position.set(-7, 18, 10);
 moon.castShadow = true;
 moon.shadow.mapSize.set(lowPower ? 1024 : 2048, lowPower ? 1024 : 2048);
-Object.assign(moon.shadow.camera, { left: -13, right: 13, top: 11, bottom: -11, near: 1, far: 44 });
+Object.assign(moon.shadow.camera, { left: -13, right: 17, top: 11, bottom: -11, near: 1, far: 48 });
 moon.shadow.bias = -0.0006;
 scene.add(moon);
 
@@ -107,16 +109,20 @@ const ROOMS = {
   sach: { rect: [570, 30, 960, 210], color: '#f2c879', floor: '#2b2320', light: [770, 125, 2.2], power: 30 },
   cong: { rect: [570, 210, 960, 400], color: '#86e28a', floor: '#102519', light: [760, 305, 2.2], power: 26 },
   game: { rect: [570, 400, 960, 590], color: '#6fe0d2', floor: '#0e2a38', light: [790, 490, 2.2], power: 30 },
-  hoc: { rect: [40, 340, 290, 590], color: '#9fd3ff', floor: '#11203a', light: [165, 420, 2.2], power: 22 }
+  hoc: { rect: [40, 340, 290, 590], color: '#9fd3ff', floor: '#11203a', light: [165, 420, 2.2], power: 22 },
+  garage: { rect: [965, 150, 1190, 590], color: '#ffa873', floor: '#191c25', light: [1075, 400, 2.1], power: 30, hit: 2.5, label: [1060, 590, 1.4] },
+  san: { rect: [965, 150, 1190, 370], y: 2.7, color: '#c7b8ff', floor: '#20263a', light: [1075, 260, 4.6], power: 26, label: [1075, 260, 4.5] },
+  vuon: { rect: [965, 370, 1140, 590], y: 2.7, color: '#a5e27f', floor: '#33291c', light: [1050, 480, 4.6], power: 26, label: [1050, 480, 4.5] }
 };
 const floors = [];
 Object.keys(ROOMS).forEach((id) => {
   const room = ROOMS[id], [x0, y0, x1, y1] = room.rect;
   const [ax, az] = P(x0, y0), [bx, bz] = P(x1, y1);
-  const floor = box(house, bx - ax, 0.04, bz - az, (ax + bx) / 2, 0, (az + bz) / 2, std(room.floor, { roughness: 0.55 }));
+  const base = room.y || 0, tall = room.hit || 1.7;
+  const floor = box(house, bx - ax, 0.04, bz - az, (ax + bx) / 2, base, (az + bz) / 2, std(room.floor, { roughness: 0.55 }));
   /* Vùng bấm cao bằng cả phòng: bấm trúng đồ đạc vẫn vào đúng phòng đó */
-  const hit = new THREE.Mesh(new THREE.BoxGeometry(bx - ax, 1.7, bz - az), floor.material);
-  hit.position.set((ax + bx) / 2, 0.85, (az + bz) / 2);
+  const hit = new THREE.Mesh(new THREE.BoxGeometry(bx - ax, tall, bz - az), floor.material);
+  hit.position.set((ax + bx) / 2, base + tall / 2, (az + bz) / 2);
   hit.visible = false;
   hit.userData.room = id;
   house.add(hit);
@@ -127,8 +133,8 @@ Object.keys(ROOMS).forEach((id) => {
   house.add(room.pointLight);
   const line = new THREE.LineLoop(
     new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(ax + 0.14, 0.05, az + 0.14), new THREE.Vector3(bx - 0.14, 0.05, az + 0.14),
-      new THREE.Vector3(bx - 0.14, 0.05, bz - 0.14), new THREE.Vector3(ax + 0.14, 0.05, bz - 0.14)
+      new THREE.Vector3(ax + 0.14, base + 0.05, az + 0.14), new THREE.Vector3(bx - 0.14, base + 0.05, az + 0.14),
+      new THREE.Vector3(bx - 0.14, base + 0.05, bz - 0.14), new THREE.Vector3(ax + 0.14, base + 0.05, bz - 0.14)
     ]),
     new THREE.LineBasicMaterial({ color: room.color, transparent: true, opacity: 0, toneMapped: false })
   );
@@ -267,7 +273,7 @@ let termDraw = () => {};
   const [rx, rz] = P(850, 232);
   [-1, 0, 1].forEach((i) => {
     const cabinet = box(house, 0.86, 2.15, 0.7, rx + i * 0.98, 1.1, rz, std('#0d1524', { roughness: 0.35, metalness: 0.6 }));
-    addHot(cabinet, 'cong', 'Mở terminal', () => document.dispatchEvent(new Event('tp:terminal')), { noMove: true });
+    addHot(cabinet, 'cong', 'Mở bài tập', () => document.dispatchEvent(new Event('tp:lab')), { noMove: true });
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 3; col++) {
         const material = new THREE.MeshBasicMaterial({ color: col === 0 ? '#86e28a' : col === 1 ? '#9fd3ff' : '#f2c879', toneMapped: false });
@@ -306,7 +312,7 @@ let termDraw = () => {};
   const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 0.92), new THREE.MeshBasicMaterial({ map: tex }));
   screen.position.set(x, 1.5, z - 0.065);
   house.add(screen);
-  addHot(screen, 'cong', 'Mở terminal', () => document.dispatchEvent(new Event('tp:terminal')), { noMove: true });
+  addHot(screen, 'cong', 'Mở bài tập', () => document.dispatchEvent(new Event('tp:lab')), { noMove: true });
   const [cx, cz] = P(665, 306);
   cyl(house, 0.3, 0.3, 0.1, cx, 0.5, cz, furn2);
   cyl(house, 0.05, 0.05, 0.46, cx, 0.25, cz, black);
@@ -401,6 +407,137 @@ let termDraw = () => {};
   box(house, 1.3, 0.42, 0.5, sx, 0.23, sz, wood);
 }
 
+/* Khu phụ: tầng trệt là Garage AI, mái là Sân Thượng và Sân Vườn */
+let armTop = null, armLow = null, gridDraw = () => {};
+{
+  const DECK = 2.7;
+  const [ax0, az0] = P(965, 150), [ax1, az1] = P(1190, 590);
+  box(house, ax1 - ax0 + 0.2, 0.5, az1 - az0 + 0.2, (ax0 + ax1) / 2, -0.27, (az0 + az1) / 2, std('#0a1220'));
+  const annex = std('#1b2b45');
+  const slab = (x0, y0, x1, y1, mat) => { const [a, b] = P(x0, y0), [c, d] = P(x1, y1); return box(house, c - a, 0.14, d - b, (a + c) / 2, DECK - 0.08, (b + d) / 2, mat); };
+  const deckMat = std('#27324a', { roughness: 0.6 });
+  slab(965, 150, 1190, 370, deckMat);
+  slab(965, 370, 1140, 590, deckMat);
+  slab(1140, 370, 1190, 420, deckMat);
+  box(house, ax1 - ax0, DECK, 0.2, (ax0 + ax1) / 2, DECK / 2, az0, annex);
+  box(house, 0.2, DECK, az1 - az0, ax1, DECK / 2, (az0 + az1) / 2, annex);
+  [[965, 590], [1140, 590], [965, 370]].forEach(([x, y]) => { const [px, pz] = P(x, y); box(house, 0.2, DECK, 0.2, px, DECK / 2, pz, annex); });
+  /* Cửa cuốn đã kéo lên */
+  const [dx0] = P(965), [dx1] = P(1140), [, dz] = P(0, 590);
+  for (let i = 0; i < 4; i++) box(house, dx1 - dx0 - 0.2, 0.09, 0.06, (dx0 + dx1) / 2, DECK - 0.2 - i * 0.1, dz, std('#35445f', { metalness: 0.5, roughness: 0.4 }));
+
+  /* Cầu thang ngoài lên mái */
+  const stepMat = std('#2f3c58');
+  const STEPS = 12, run = 170 / STEPS;
+  for (let i = 0; i < STEPS; i++) {
+    const top = (i + 1) * DECK / STEPS, [sx, sz] = P(1165, 590 - (i + 0.5) * run);
+    box(house, 0.96, top, run / 50, sx, top / 2, sz, stepMat);
+  }
+  const railMat = std('#7f93b5', { metalness: 0.7, roughness: 0.3 });
+  const railTube = (pts) => { const m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map((p) => new THREE.Vector3(p[0], p[1], p[2])), false, 'catmullrom', 0), 10, 0.022, 8), railMat); house.add(m); };
+  const [hx] = P(1141), [, hz0] = P(0, 590), [, hz1] = P(0, 420);
+  railTube([[hx, 1.0, hz0], [hx, DECK + 1.0, hz1]]);
+  function railing(x1, y1, x2, y2) {
+    const [a, b] = P(x1, y1), [c, d] = P(x2, y2), n = Math.max(1, Math.round(Math.hypot(c - a, d - b) / 1.1));
+    for (let i = 0; i <= n; i++) cyl(house, 0.022, 0.022, 1, a + (c - a) * i / n, DECK + 0.5, b + (d - b) * i / n, railMat, 8);
+    railTube([[a, DECK + 1, b], [c, DECK + 1, d]]);
+  }
+  railing(965, 150, 1190, 150); railing(965, 150, 965, 590); railing(965, 590, 1140, 590); railing(1140, 590, 1140, 420); railing(1190, 150, 1190, 420);
+
+  /* Sân Thượng: kính thiên văn, ghế, dây đèn */
+  const [tx, tz] = P(1075, 245);
+  const dark = std('#111a2c', { metalness: 0.5, roughness: 0.35 }), brass = std('#c7a968', { metalness: 0.85, roughness: 0.25 });
+  const head = new THREE.Group();
+  head.position.set(tx, DECK + 1.28, tz);
+  head.rotation.set(0.75, -0.5, 0, 'YXZ');
+  house.add(head);
+  const barrel = cyl(head, 0.11, 0.09, 1.3, 0, 0, 0, std('#e2e7ef', { metalness: 0.35, roughness: 0.25 }));
+  barrel.rotation.x = Math.PI / 2;
+  [-0.62, 0.62].forEach((z) => { const b = cyl(head, 0.125, 0.125, 0.08, 0, 0, z, brass); b.rotation.x = Math.PI / 2; });
+  [0, 2.09, 4.19].forEach((a) => {
+    const leg = cyl(house, 0.02, 0.028, 1.4, tx + Math.cos(a) * 0.27, DECK + 0.62, tz + Math.sin(a) * 0.27, dark, 10);
+    leg.rotation.set(Math.sin(a) * 0.42, 0, -Math.cos(a) * 0.42);
+  });
+  const [bx, bz] = P(1020, 330);
+  box(house, 1.5, 0.08, 0.5, bx, DECK + 0.46, bz, std('#6e5238'));
+  [-0.6, 0.6].forEach((d) => box(house, 0.08, 0.44, 0.44, bx + d, DECK + 0.22, bz, dark));
+  const bulbs = new THREE.MeshBasicMaterial({ color: '#ffd9a0', toneMapped: false });
+  const [lx0, lz0] = P(975, 160), [lx1, lz1] = P(1180, 160);
+  for (let i = 0; i <= 14; i++) { const t = i / 14; ball(house, 0.035, lx0 + (lx1 - lx0) * t, DECK + 1.5 - Math.sin(t * Math.PI) * 0.34, lz0 + (lz1 - lz0) * t, bulbs); }
+  ROOMS.san.glows.push({ mat: bulbs, base: 1, basic: true });
+
+  /* Sân Vườn: bản thu nhỏ của chính vườn */
+  [['si', 1000, 420], ['mai', 1095, 420], ['hoa-giay', 1000, 540], ['luoi-ho', 1100, 545], ['duong-xi', 1052, 480], ['lan', 1000, 480], ['tai-tho', 1100, 480]].forEach(([id, x, y], i) => {
+    const p = buildPlant(id, i + 2);
+    const [gx, gz] = P(x, y);
+    p.group.position.set(gx, DECK + 0.03, gz);
+    p.group.scale.setScalar(0.62);
+    p.uniforms.uSway.value = 0;
+    house.add(p.group);
+  });
+
+  /* Garage AI: bàn máy, màn hình, tủ tính toán, cánh tay robot */
+  const [wx, wz] = P(1040, 178);
+  box(house, 3, 0.08, 0.8, wx, 0.86, wz, std('#3a2f28'));
+  [-1.4, 1.4].forEach((d) => box(house, 0.08, 0.84, 0.72, wx + d, 0.43, wz, dark));
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 288;
+  const g = c.getContext('2d');
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const LAYERS = [3, 5, 6, 5, 2];
+  gridDraw = (t) => {
+    g.fillStyle = '#0a0e18'; g.fillRect(0, 0, 512, 288);
+    const at = (l, n) => [60 + l * 98, 144 + (n - (LAYERS[l] - 1) / 2) * 44];
+    g.lineWidth = 1.2;
+    for (let l = 0; l < LAYERS.length - 1; l++) for (let a = 0; a < LAYERS[l]; a++) for (let b = 0; b < LAYERS[l + 1]; b++) {
+      const p = at(l, a), q = at(l + 1, b), pulse = (Math.sin(t * 2 + l * 1.4 + a + b * 0.7) + 1) / 2;
+      g.strokeStyle = 'rgba(255,168,115,' + (0.08 + pulse * 0.4) + ')';
+      g.beginPath(); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]); g.stroke();
+    }
+    LAYERS.forEach((count, l) => { for (let n = 0; n < count; n++) { const p = at(l, n); g.fillStyle = (Math.sin(t * 3 + l + n) + 1) / 2 > 0.5 ? '#ffd2ad' : '#ff9a5e'; g.beginPath(); g.arc(p[0], p[1], 8, 0, 6.283); g.fill(); } });
+    tex.needsUpdate = true;
+  };
+  gridDraw(0);
+  box(house, 1.5, 0.86, 0.05, wx - 0.5, 1.55, wz - 0.2, black);
+  const panel = new THREE.Mesh(new THREE.PlaneGeometry(1.42, 0.78), new THREE.MeshBasicMaterial({ map: tex }));
+  panel.position.set(wx - 0.5, 1.55, wz - 0.17);
+  house.add(panel);
+  box(house, 0.08, 0.3, 0.08, wx - 0.5, 1.04, wz - 0.22, black);
+  const [rx, rz] = P(1118, 180);
+  box(house, 0.8, 2.1, 0.62, rx, 1.05, rz, std('#0d1524', { metalness: 0.6, roughness: 0.35 }));
+  for (let row = 0; row < 9; row++) for (let col = 0; col < 3; col++) {
+    const material = new THREE.MeshBasicMaterial({ color: col === 1 ? '#ffd2ad' : '#ffa873', toneMapped: false });
+    const led = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.03, 0.01), material);
+    led.position.set(rx - 0.2 + col * 0.2, 0.3 + row * 0.2, rz + 0.316);
+    house.add(led);
+    leds.push({ material, phase: Math.random() * 10, speed: 2 + Math.random() * 7, base: new THREE.Color(material.color) });
+  }
+  /* Cánh tay robot */
+  const [ax, az] = P(1040, 430);
+  const white = std('#d9dfe9', { metalness: 0.25, roughness: 0.3 }), joint = std('#ff9a5e', { metalness: 0.4, roughness: 0.35 });
+  cyl(house, 0.4, 0.46, 0.18, ax, 0.11, az, dark);
+  armLow = new THREE.Group();
+  armLow.position.set(ax, 0.2, az);
+  house.add(armLow);
+  ball(armLow, 0.16, 0, 0.06, 0, joint);
+  cyl(armLow, 0.09, 0.1, 1.0, 0.2, 0.5, 0, white, 20).rotation.z = -0.42;
+  armTop = new THREE.Group();
+  armTop.position.set(0.42, 0.98, 0);
+  armLow.add(armTop);
+  ball(armTop, 0.12, 0, 0, 0, joint);
+  cyl(armTop, 0.06, 0.08, 0.86, 0.36, 0.1, 0, white, 18).rotation.z = -1.33;
+  ball(armTop, 0.08, 0.78, 0.2, 0, joint);
+  box(armTop, 0.05, 0.2, 0.05, 0.78, 0.04, 0.07, dark);
+  box(armTop, 0.05, 0.2, 0.05, 0.78, 0.04, -0.07, dark);
+  /* Vạch sơn sàn */
+  const [fx, fz] = P(1040, 430);
+  const stripes = new THREE.Mesh(new THREE.RingGeometry(0.98, 1.08, 48), new THREE.MeshBasicMaterial({ color: '#ffa873', transparent: true, opacity: 0.55 }));
+  stripes.rotation.x = -Math.PI / 2;
+  stripes.position.set(fx, 0.03, fz);
+  house.add(stripes);
+}
+
 /* Biển TP khổng lồ sau nhà: thân tối, viền sáng */
 const sign = new THREE.Group();
 const SIGN_Y = 5.05;
@@ -425,13 +562,13 @@ const SIGN_Y = 5.05;
 const walker = createMascot(Object.assign({}, window.SITE.mascot, { shell: '#8d97a9', accent: '#157f7c', env: 0.3 }), renderer);
 walker.group.scale.setScalar(0.72);
 scene.add(walker.group);
-const walkerPos = { x: 0, z: 0, heading: 0 };
+const walkerPos = { x: 0, z: 0, h: 0, heading: 0 };
 let lastMove = 0;
 Walk.onMove((pos) => {
   const [x, z] = P(pos.x, pos.y);
   const dx = x - walkerPos.x, dz = z - walkerPos.z;
   if (Math.hypot(dx, dz) > 0.0005) { walkerPos.heading = Math.atan2(dx, dz); lastMove = performance.now(); }
-  walkerPos.x = x; walkerPos.z = z;
+  walkerPos.x = x; walkerPos.z = z; walkerPos.h = pos.h || 0;
 });
 Walk.emit();
 walker.group.rotation.y = 0.5;
@@ -443,12 +580,16 @@ const FRAME = {
   sach: { look: P(790, 80), off: [-1.2, 4.2, 5.4], y: 1.1 },
   game: { look: P(760, 450), off: [-1.2, 2.3, 7.2], y: 1.0 },
   cong: { look: P(760, 265), off: [-1.2, 4.6, 5.4], y: 1.1 },
-  hoc: { look: P(165, 420), off: [3, 3.6, 7.4], y: 0.6 }
+  hoc: { look: P(165, 420), off: [3, 3.6, 7.4], y: 0.6 },
+  garage: { look: P(1060, 340), off: [-1.4, 1.5, 8.4], y: 1.1 },
+  san: { look: P(1075, 260), off: [-1.6, 3.2, 6.2], y: 3.2 },
+  vuon: { look: P(1050, 480), off: [-1.2, 3.2, 6], y: 3.2 }
 };
 const shot = { pos: HOME.pos.clone(), look: HOME.look.clone() };
 const from = { pos: HOME.pos.clone(), look: HOME.look.clone() };
 const to = { pos: HOME.pos.clone(), look: HOME.look.clone() };
-let tween = 1, currentRoom = '', hovered = null, viewShift = 0;
+let tween = 1, currentRoom = '', hovered = null, shiftX = 0, shiftY = 0;
+const fit = { d: 1.08, sx: 0.11, sy: 0 };
 
 function layout() {
   const w = innerWidth, h = innerHeight;
@@ -457,23 +598,56 @@ function layout() {
   if (composer) composer.setSize(w, h);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
+  computeFit();
   scene.fog.near = 34 * homeDistance();
   scene.fog.far = 66 * homeDistance();
   applyOffset();
 }
 function applyOffset() {
   const w = innerWidth, h = innerHeight;
+  if (Math.abs(shiftX) > 0.001 || Math.abs(shiftY) > 0.001) camera.setViewOffset(w, h, -w * shiftX, -h * shiftY, w, h);
+  else camera.clearViewOffset();
+}
+/* Khung hình sảnh: đo căn nhà rồi đặt máy quay để nhà nằm trọn trong vùng trống, không đè lên danh sách phòng */
+const FIT_POINTS = [new THREE.Vector3(-5.7, 7.3, -6.8), new THREE.Vector3(-1.1, 7.3, -6.8)];
+[-9.7, 9.7].forEach((x) => [-6.1, 6.1].forEach((z) => [-0.6, 2.6].forEach((y) => FIT_POINTS.push(new THREE.Vector3(x, y, z)))));
+[-3.5, 5.8].forEach((z) => [-0.6, 3.9].forEach((y) => FIT_POINTS.push(new THREE.Vector3(14.0, y, z))));
+function measure(cam) {
+  const out = { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity };
+  const v = new THREE.Vector3();
+  FIT_POINTS.forEach((p) => {
+    v.copy(p).project(cam);
+    out.minX = Math.min(out.minX, v.x); out.maxX = Math.max(out.maxX, v.x);
+    out.minY = Math.min(out.minY, v.y); out.maxY = Math.max(out.maxY, v.y);
+  });
+  return out;
+}
+function computeFit() {
+  const w = innerWidth, h = innerHeight;
+  if (!w || !h) return;
   const wide = w > 900;
-  if (viewShift > 0.001) {
-    if (wide) camera.setViewOffset(w, h, -w * viewShift, 0, w, h);
-    else camera.setViewOffset(w, h, 0, h * viewShift * 1.5, w, h);
-  } else camera.clearViewOffset();
+  const pad = Math.min(56, Math.max(24, w * 0.04));
+  const x0 = wide ? Math.max(0, (w - 1500) / 2) + pad + 320 + 28 : 8;
+  const x1 = w - 12, y0 = 10, y1 = wide ? h - 12 : h * 0.54;
+  const probe = new THREE.PerspectiveCamera(camera.fov, w / h, 0.1, 400);
+  const dir = HOME.pos.clone().sub(HOME.look);
+  let d = 1, m;
+  const place = () => {
+    probe.position.copy(HOME.look).addScaledVector(dir, d);
+    probe.lookAt(HOME.look);
+    probe.updateMatrixWorld(true);
+    m = measure(probe);
+  };
+  for (let i = 0; i < 5; i++) {
+    place();
+    d *= Math.max((m.maxX - m.minX) / 2 * w / (x1 - x0), (m.maxY - m.minY) / 2 * h / (y1 - y0));
+  }
+  place();
+  fit.d = d;
+  fit.sx = ((x0 + x1) / 2 - ((m.minX + m.maxX) / 2 + 1) / 2 * w) / w;
+  fit.sy = ((y0 + y1) / 2 - (1 - (m.minY + m.maxY) / 2) / 2 * h) / h;
 }
-function homeDistance() {
-  if (!innerWidth || !innerHeight) return 1.08;
-  const aspect = innerWidth / innerHeight;
-  return aspect > 1.5 ? 1.08 : aspect > 1 ? 1.3 : Math.max(1.5, 1.05 / aspect);
-}
+function homeDistance() { return fit.d; }
 function setShot(id, instant) {
   from.pos.copy(shot.pos);
   from.look.copy(shot.look);
@@ -569,19 +743,20 @@ addEventListener('resize', () => { layout(); if (tween === 1) setShot(currentRoo
 layout();
 setShot(location.hash.slice(1), true);
 currentRoom = location.hash.slice(1);
-viewShift = currentRoom ? 0 : innerWidth > 900 ? 0.11 : 0.2;
+shiftX = currentRoom ? 0 : fit.sx;
+shiftY = currentRoom ? 0 : fit.sy;
 applyOffset();
 
 /* Vòng lặp */
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const levels = new Uint8Array(128);
 const introStart = performance.now();
-const introOrder = { nhac: 0.3, sach: 0.6, cong: 0.9, game: 1.2, hoc: 1.5 };
-let last = performance.now(), running = false, termTick = 0;
+const introOrder = { nhac: 0.3, sach: 0.6, cong: 0.9, game: 1.2, hoc: 1.5, garage: 1.7, san: 1.9, vuon: 2.1 };
+let last = performance.now(), running = false, termTick = 0, gridTick = 0;
 
 function frame(now) {
   requestAnimationFrame(frame);
-  const paused = document.hidden || document.body.dataset.room === 'hoc' || document.body.classList.contains('in-game');
+  const paused = document.hidden || ['hoc', 'san', 'vuon'].includes(document.body.dataset.room) || document.body.classList.contains('in-game');
   if (paused) { last = now; return; }
   const dt = Math.min(0.05, (now - last) / 1000);
   last = now;
@@ -593,10 +768,13 @@ function frame(now) {
     shot.pos.lerpVectors(from.pos, to.pos, k);
     shot.look.lerpVectors(from.look, to.look, k);
   }
-  const wide = innerWidth > 900;
-  const shiftGoal = !currentRoom ? (wide ? 0.11 : 0.2) : wide && currentRoom !== 'hoc' && currentRoom !== 'nhac' ? 0.2 : 0;
-  if (Math.abs(viewShift - shiftGoal) > 0.002) {
-    viewShift += (shiftGoal - viewShift) * (1 - Math.exp(-dt * 7));
+  const sideRoom = innerWidth > 900 && currentRoom === 'game';
+  const goalX = !currentRoom ? fit.sx : sideRoom ? 0.2 : 0;
+  const goalY = !currentRoom ? fit.sy : 0;
+  if (Math.abs(shiftX - goalX) > 0.001 || Math.abs(shiftY - goalY) > 0.001) {
+    const rate = 1 - Math.exp(-dt * 7);
+    shiftX += (goalX - shiftX) * rate;
+    shiftY += (goalY - shiftY) * rate;
     applyOffset();
   }
 
@@ -623,6 +801,12 @@ function frame(now) {
     if (h.glowUp) h.mesh.material.emissiveIntensity = 0.35 + h.k * 1.1;
   });
 
+  /* Tắt đèn trong phòng: cả căn nhà tối theo */
+  const dimmed = lightsOut && currentRoom;
+  const dimRate = 1 - Math.exp(-dt * 8);
+  hemi.intensity += ((dimmed ? 0.12 : 1.7) - hemi.intensity) * dimRate;
+  moon.intensity += ((dimmed ? 0.08 : 1.5) - moon.intensity) * dimRate;
+
   /* Đèn phòng */
   const playing = Music.state.playing;
   let beat = 0;
@@ -631,13 +815,13 @@ function frame(now) {
     const room = ROOMS[id];
     const on = !LOCKED.has(id) && (id === hovered || id === listHover || id === Walk.region() || id === currentRoom);
     let goal = on ? 1 : currentRoom ? 0.08 : 0.5;
-    if (lightsOut && id === currentRoom) goal = 0.05;
+    if (lightsOut && currentRoom) goal = 0.02;
     if (LOCKED.has(id)) goal = 0.12;
     if (!reduceMotion && t * 1000 - introStart < 2600 && (now - introStart) / 1000 < introOrder[id]) goal = 0;
     room.level += (goal - room.level) * (1 - Math.exp(-dt * 8));
     room.pointLight.intensity = room.power * room.level;
     room.edge.material.opacity = (on && !currentRoom) ? 0.85 : 0;
-    room.glows.forEach((g) => { g.mat.emissiveIntensity = g.base * (currentRoom === id ? 0.45 : 0.15 + room.level); });
+    room.glows.forEach((g) => { if (!g.basic) g.mat.emissiveIntensity = g.base * (currentRoom === id ? 0.45 : 0.15 + room.level); });
     room.doors.forEach((door) => {
       const goalAngle = on ? door.open : door.ajar;
       door.pivot.rotation.y += (goalAngle - door.pivot.rotation.y) * (1 - Math.exp(-dt * 9));
@@ -645,7 +829,12 @@ function frame(now) {
   });
   if (playing) disc.rotation.y -= dt * 3.4;
   tonearm.rotation.y += ((playing ? -0.62 : -0.1) - tonearm.rotation.y) * (1 - Math.exp(-dt * 5));
-  if (currentRoom === 'cong' || currentRoom === '') {
+  if (armLow && !reduceMotion && (currentRoom === 'garage' || currentRoom === '')) {
+    armLow.rotation.y = Math.sin(t * 0.5) * 0.9;
+    armTop.rotation.z = Math.sin(t * 0.8) * 0.3 - 0.1;
+    if (Math.floor(t * 8) !== gridTick) { gridTick = Math.floor(t * 8); gridDraw(t); }
+  }
+  if (currentRoom === 'cong' || currentRoom === 'garage' || currentRoom === '') {
     leds.forEach((l) => { l.material.color.copy(l.base).multiplyScalar(Math.sin(t * l.speed + l.phase) > 0.2 ? 1 : 0.15); });
     if (Math.floor(t * 2) !== termTick) { termTick = Math.floor(t * 2); termDraw(); }
   }
@@ -663,7 +852,7 @@ function frame(now) {
   /* Mascot trong nhà */
   const walking = now - lastMove < 90;
   walker.group.visible = currentRoom === '' || tween < 0.6;
-  walker.group.position.set(walkerPos.x, 0.02, walkerPos.z);
+  walker.group.position.set(walkerPos.x, 0.02 + walkerPos.h, walkerPos.z);
   if (walking) {
     let d = walkerPos.heading - walker.group.rotation.y;
     d = Math.atan2(Math.sin(d), Math.cos(d));
@@ -681,13 +870,13 @@ function frame(now) {
   if (composer) composer.render(); else renderer.render(scene, camera);
 
   /* Nhãn tên phòng bám theo căn nhà */
-  const showLabels = currentRoom === '' && viewShift > 0.9;
+  const showLabels = currentRoom === '' && tween === 1;
   Object.keys(labels).forEach((id) => {
     const node = labels[id];
     if (!showLabels) { node.style.opacity = 0; return; }
-    const r = ROOMS[id].rect;
-    const [lx, lz] = P((r[0] + r[2]) / 2, (r[1] + r[3]) / 2);
-    const v = new THREE.Vector3(lx, 2.3, lz).project(camera);
+    const r = ROOMS[id].rect, at = ROOMS[id].label;
+    const [lx, lz] = at ? P(at[0], at[1]) : P((r[0] + r[2]) / 2, (r[1] + r[3]) / 2);
+    const v = new THREE.Vector3(lx, at ? at[2] : 2.3, lz).project(camera);
     const on = id === hovered || id === listHover || id === Walk.region();
     node.style.opacity = on ? 1 : 0.72;
     node.classList.toggle('on', on);

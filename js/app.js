@@ -6,8 +6,12 @@
     sach: { title: 'Phòng Sách', cx: 765, cy: 120 },
     hoc: { title: 'Phòng Học', cx: 165, cy: 465 },
     game: { title: 'Phòng Giải Trí', cx: 765, cy: 495 },
-    cong: { title: 'Phòng Công Nghệ', cx: 765, cy: 305 }
+    cong: { title: 'Phòng Công Nghệ', cx: 765, cy: 305 },
+    garage: { title: 'Garage AI', cx: 1087, cy: 460 },
+    san: { title: 'Sân Thượng', cx: 1087, cy: 105 },
+    vuon: { title: 'Sân Vườn', cx: 1087, cy: 255 }
   };
+  if (window.Session.isAdmin) SITE.lockedRooms = [];
   var LOCKED = SITE.lockedRooms || [];
   function isLocked(id) { return LOCKED.indexOf(id) >= 0; }
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -24,16 +28,22 @@
   var homeTitle = SITE.siteName;
   $('ownerTitle').textContent = homeTitle;
   $('tagline').textContent = SITE.tagline;
+  var FLORA = window.GARDEN.length;
   var counts = {
     nhac: 'Nghe từ YouTube',
-    sach: SITE.books.list.length + ' cuốn',
+    sach: 'Thư viện mở',
     game: SITE.games.list.length + ' game',
     hoc: 'Hẹn giờ, flashcard',
-    cong: SITE.tech.projects.length + ' dự án'
+    cong: 'Học và luyện code',
+    garage: 'AI chạy trong trình duyệt',
+    san: window.Rooftop.dueCount() ? 'Có thư đến hạn' : 'Ngắm sao, nhật ký',
+    vuon: FLORA + ' cây để chăm'
   };
   window.Study.init();
   window.Walk.init();
-  window.Tech.init();
+  window.Lab.init();
+  window.Rooftop.init();
+  window.Garage.init();
 
   var planRooms = document.querySelectorAll('.plan .room');
   function planRoom(id) { return document.querySelector('.plan .room[data-room="' + id + '"]'); }
@@ -64,10 +74,10 @@
   /* Sơ đồ nhỏ trên thanh điều hướng */
   var NS = 'http://www.w3.org/2000/svg';
   var mini = document.createElementNS(NS, 'svg');
-  mini.setAttribute('viewBox', '30 20 940 580');
+  mini.setAttribute('viewBox', '30 20 1175 580');
   [
     ['', 290, 340, 280, 250], ['', 490, 30, 80, 310],
-    ['nhac', 40, 30, 450, 310], ['sach', 570, 30, 390, 180], ['cong', 570, 210, 390, 190], ['game', 570, 400, 390, 190], ['hoc', 40, 340, 250, 250]
+    ['nhac', 40, 30, 450, 310], ['sach', 570, 30, 390, 180], ['cong', 570, 210, 390, 190], ['game', 570, 400, 390, 190], ['hoc', 40, 340, 250, 250], ['san', 980, 30, 215, 150], ['vuon', 980, 180, 215, 150], ['garage', 980, 330, 215, 260]
   ].forEach(function (r) {
     var rect = document.createElementNS(NS, 'rect');
     rect.setAttribute('x', r[1]); rect.setAttribute('y', r[2]);
@@ -91,6 +101,7 @@
   function note(text) {
     $('ytNote').hidden = !text;
     $('ytNote').textContent = text || '';
+    placeDock();
   }
   function markCurrent() {
     var t = Music.current();
@@ -130,7 +141,47 @@
     markCurrent();
   }
   function pressGenre(button) {
-    document.querySelectorAll('.genre-row .chip').forEach(function (c) { c.setAttribute('aria-pressed', c === button ? 'true' : 'false'); });
+    document.querySelectorAll('#genreRow .chip').forEach(function (c) { c.setAttribute('aria-pressed', c === button ? 'true' : 'false'); });
+    if (button !== openSubChip) closeSub();
+  }
+  /* Hàng thể loại con, ví dụ Nhạc Việt xổ ra Ballad, Remix, Bolero */
+  var openSubChip = null;
+  function closeSub() {
+    if (openSubChip) openSubChip.setAttribute('aria-expanded', 'false');
+    openSubChip = null;
+    $('subGenreRow').hidden = true;
+    placeDock();
+  }
+  function openSub(genre, chip) {
+    var row = $('subGenreRow');
+    row.replaceChildren();
+    genre.sub.forEach(function (item) {
+      var subChip = el('button', 'chip', item.name);
+      subChip.type = 'button';
+      subChip.setAttribute('aria-pressed', 'false');
+      subChip.addEventListener('click', function () {
+        row.querySelectorAll('.chip').forEach(function (c) { c.setAttribute('aria-pressed', c === subChip ? 'true' : 'false'); });
+        var title = genre.name + ': ' + item.name;
+        if (!Music.canSearch()) return note('Thể loại này cần bật tìm kiếm.');
+        if (item.chart) {
+          var token = ++searchToken;
+          note('');
+          $('listTitle').textContent = 'Đang tải...';
+          Music.trending().then(function (result) {
+            if (token !== searchToken) return;
+            if (result.error || !result.items.length) runSearch(item.query, title, genre.seed);
+            else renderList(title, result.items);
+          });
+        } else {
+          runSearch(item.query, title, genre.seed);
+        }
+      });
+      row.append(subChip);
+    });
+    row.hidden = false;
+    openSubChip = chip;
+    chip.setAttribute('aria-expanded', 'true');
+    placeDock();
   }
   var ERRORS = {
     quota: 'Hết lượt tìm kiếm hôm nay. Bạn vẫn chọn được thể loại hoặc dán link YouTube.',
@@ -152,8 +203,10 @@
     });
   }
   function openGenre(genre, button) {
+    if (genre.sub && openSubChip === button) { closeSub(); return; }
     pressGenre(button);
     note('');
+    if (genre.sub) openSub(genre, button);
     if (Music.canSearch()) runSearch(genre.query, 'Đề xuất: ' + genre.name, genre.seed);
     else { searchToken++; renderList('Đề xuất: ' + genre.name, genre.seed); }
   }
@@ -161,6 +214,11 @@
     var chip = el('button', 'chip', genre.name);
     chip.type = 'button';
     chip.setAttribute('aria-pressed', 'false');
+    if (genre.sub) {
+      chip.setAttribute('aria-expanded', 'false');
+      chip.setAttribute('aria-controls', 'subGenreRow');
+      chip.append(el('i', 'chip-caret'));
+    }
     chip.addEventListener('click', function () { openGenre(genre, chip); });
     $('genreRow').append(chip);
     if (i === 0) {
@@ -244,64 +302,24 @@
     if (placedFor !== state.index + ':' + dockClosed) { placedFor = state.index + ':' + dockClosed; placeDock(); }
   });
 
+  /* Vùng sáng theo chuột khi tắt đèn */
+  window.addEventListener('pointermove', function (e) {
+    if (!document.body.classList.contains('lights-out')) return;
+    var dark = $('darkness');
+    dark.style.setProperty('--x', e.clientX + 'px');
+    dark.style.setProperty('--y', e.clientY + 'px');
+  }, { passive: true });
+
   /* Công tắc đèn của phòng */
   $('lightSwitch').addEventListener('click', function () {
     var off = document.body.classList.toggle('lights-out');
     this.setAttribute('aria-pressed', String(!off));
+    $('lightText').textContent = off ? 'Bật đèn' : 'Tắt đèn';
     window.Study.click();
     document.dispatchEvent(new CustomEvent('tp:lights', { detail: off }));
   });
 
-  /* Phòng sách */
-  $('sachIntro').textContent = SITE.books.intro;
-  $('shelf').addEventListener('keydown', function (e) {
-    var delta = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
-    if (!delta) return;
-    var spines = Array.prototype.slice.call(document.querySelectorAll('.spine'));
-    var next = spines[spines.indexOf(document.activeElement) + delta];
-    if (next) { next.focus(); next.click(); }
-  });
-  function showBook(book, spine, fromWorld) {
-    if (!fromWorld) document.dispatchEvent(new CustomEvent('tp:book', { detail: SITE.books.list.indexOf(book) }));
-    document.querySelectorAll('.spine').forEach(function (node) {
-      node.classList.remove('open');
-      node.setAttribute('aria-pressed', 'false');
-    });
-    spine.classList.add('open');
-    spine.setAttribute('aria-pressed', 'true');
-    var note = $('bookNote');
-    note.replaceChildren(el('h2', '', book.title), el('p', 'author', book.author), el('p', 'note', book.note || 'Chưa có ghi chú.'));
-    if (!reduceMotion && note.animate) {
-      note.animate(
-        [{ transform: 'perspective(900px) rotateY(-24deg)', opacity: 0 }, { transform: 'none', opacity: 1 }],
-        { duration: 300, easing: 'cubic-bezier(.2,.8,.2,1)' }
-      );
-    }
-  }
-  SITE.books.list.forEach(function (book, i) {
-    var spine = el('button', 'spine');
-    spine.type = 'button';
-    spine.style.setProperty('--h', book.height + '%');
-    spine.style.setProperty('--w', book.width + 'px');
-    spine.style.setProperty('--c', book.color);
-    spine.append(el('span', '', book.title));
-    spine.addEventListener('click', function () { showBook(book, spine); });
-    spine.dataset.index = i;
-    $('shelf').append(spine);
-    if (i === 0) showBook(book, spine);
-  });
-  for (var s = 0; s < SITE.books.emptySlots; s++) {
-    var slot = el('div', 'slot');
-    slot.setAttribute('aria-hidden', 'true');
-    slot.style.setProperty('--h', (66 + (s * 37) % 26) + '%');
-    slot.style.setProperty('--w', (42 + (s * 13) % 22) + 'px');
-    $('shelf').append(slot);
-  }
-
-  document.addEventListener('tp:pick-book', function (e) {
-    var spine = document.querySelector('.spine[data-index="' + e.detail + '"]');
-    if (spine) showBook(SITE.books.list[e.detail], spine, true);
-  });
+  window.Library.init();
 
   /* Phòng Giải Trí */
   $('gameIntro').textContent = SITE.games.intro;
@@ -393,6 +411,7 @@
     window.Study.refreshTitle();
     if (id === 'hoc') window.Study.enter();
     if (id === 'nhac') { dockClosed = false; Music.prepare(); }
+    if (id === 'san') window.Rooftop.enter();
     placeDock();
     document.querySelectorAll('.roomnav a').forEach(function (a) {
       var active = (a.dataset.room || '') === id;
@@ -402,6 +421,7 @@
     planRooms.forEach(function (r) { r.classList.remove('lit'); });
     window.scrollTo(0, 0);
     if (moveFocus) view.querySelector('h1').focus({ preventScroll: true });
+    document.dispatchEvent(new CustomEvent('tp:room', { detail: id }));
   }
 
   function route() {
@@ -432,7 +452,7 @@
       planRoom(id).classList.add('lit');
       window.Walk.to(id, function () {
         if (current !== id) return;
-        plan.style.transformOrigin = (room.cx / 10) + '% ' + (room.cy / 6.2) + '%';
+        plan.style.transformOrigin = (room.cx / 12.2) + '% ' + (room.cy / 6.2) + '%';
         plan.animate(
           [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(2.3)', opacity: 0 }],
           { duration: 380, easing: 'cubic-bezier(.5,0,.75,.4)' }

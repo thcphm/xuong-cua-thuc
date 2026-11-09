@@ -121,25 +121,39 @@ window.Music = (function () {
   }
 
   /* Trả về { items } hoặc { error: 'quota' | 'key' | 'network' } */
-  function search(query) {
-    var key = query.toLowerCase();
-    var cached = readCache(key);
+  function request(url, cacheKey, toItems) {
+    var cached = readCache(cacheKey);
     if (cached) return Promise.resolve({ items: cached });
-    var url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoEmbeddable=true&videoCategoryId=10&maxResults=15'
-      + '&regionCode=' + encodeURIComponent(cfg.region) + '&q=' + encodeURIComponent(query) + '&key=' + encodeURIComponent(cfg.apiKey);
-    return fetch(url).then(function (res) {
+    return fetch(url + '&key=' + encodeURIComponent(cfg.apiKey)).then(function (res) {
       return res.json().then(function (body) {
         if (!res.ok) {
           var reason = body.error && body.error.errors && body.error.errors[0] ? body.error.errors[0].reason : '';
           return { error: /quota|dailyLimit|rateLimit/i.test(reason) ? 'quota' : res.status === 400 || res.status === 403 ? 'key' : 'network' };
         }
-        var items = body.items.map(function (it) {
-          return { id: it.id.videoId, title: decode(it.snippet.title), channel: decode(it.snippet.channelTitle) };
-        });
-        writeCache(key, items);
+        var items = toItems(body.items || []);
+        writeCache(cacheKey, items);
         return { items: items };
       });
     }).catch(function () { return { error: 'network' }; });
+  }
+  function search(query) {
+    var url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoEmbeddable=true&videoCategoryId=10&maxResults=15'
+      + '&regionCode=' + encodeURIComponent(cfg.region) + '&q=' + encodeURIComponent(query);
+    return request(url, query.toLowerCase(), function (list) {
+      return list.map(function (it) {
+        return { id: it.id.videoId, title: decode(it.snippet.title), channel: decode(it.snippet.channelTitle) };
+      });
+    });
+  }
+  /* Bảng video nhạc phổ biến theo quốc gia; tốn ít hạn mức hơn tìm kiếm */
+  function trending() {
+    var url = 'https://www.googleapis.com/youtube/v3/videos?part=snippet,status&chart=mostPopular&videoCategoryId=10&maxResults=25'
+      + '&regionCode=' + encodeURIComponent(cfg.region);
+    return request(url, 'chart:' + cfg.region, function (list) {
+      return list.filter(function (it) { return it.status.embeddable; }).slice(0, 15).map(function (it) {
+        return { id: it.id, title: it.snippet.title, channel: it.snippet.channelTitle };
+      });
+    });
   }
 
   function parseLink(text) {
@@ -152,6 +166,7 @@ window.Music = (function () {
     prepare: prepare,
     canSearch: function () { return !!cfg.apiKey; },
     search: search,
+    trending: trending,
     parseLink: parseLink,
     current: current,
     /* Bản sao để đánh dấu video bị chặn không làm hỏng danh sách đề xuất */
