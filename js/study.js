@@ -507,7 +507,7 @@ window.Study = (function () {
     for (var i = 0; i < 170; i++) drops.push({ x: Math.random() * W, y: Math.random() * H, v: 500 + Math.random() * 500, l: 12 + Math.random() * 20 });
     stars = [];
     for (var s = 0; s < 190; s++) stars.push({ x: Math.random() * W, y: Math.random() * H * 0.85, r: Math.random() * 1.4 + 0.3, p: Math.random() * 6.28 });
-    if (window.StudyScenes.has(data.scene)) window.StudyScenes.prepare(data.scene, W, H, dpr, function () { if (reduceMotion) drawScene(0, 0); });
+    if (window.StudyScenes.has(data.scene)) window.StudyScenes.prepare(data.scene, W, H, dpr);
   }
   function windowFrame() {
     g.strokeStyle = 'rgba(74,97,132,.32)';
@@ -526,6 +526,7 @@ window.Study = (function () {
   function drawScene(now, dt) {
     if (window.StudyScenes.has(data.scene)) {
       window.StudyScenes.draw(g, data.scene, now, dt);
+      if (window.StudyScenes.framed(data.scene)) windowFrame();
       return;
     }
     var sky = g.createLinearGradient(0, 0, 0, H);
