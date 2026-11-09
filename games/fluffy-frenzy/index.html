@@ -106,6 +106,7 @@
   <div class="row"><label>Đối thủ</label>
     <div class="seg" id="botSeg"><button data-v="3">3 bot</button><button data-v="5" class="on">5 bot</button><button data-v="7">7 bot</button></div></div>
   <button id="play">CHƠI</button>
+  <div class="row"><button class="btn alt donate-open" type="button">Ủng hộ tôi</button></div>
   <div class="keys"><b>WASD</b> đi · <b>Shift</b> chạy · <b>Space</b> nhảy · <b>J</b>/chuột trái đấm · <b>K</b> đá · <b>Space + J</b> đá song phi<br>
     giữ <b>U</b>/chuột phải túm – vác (đấm để ném) · <b>L</b> đỡ · <b>E</b> nhặt đồ, giữ <b>E</b> cứu đồng đội · <b>T</b> thiên phú · <b>M</b> tắt tiếng · <b>Esc</b> tạm dừng</div>
 </div>
@@ -123,8 +124,18 @@
 <div id="result" class="panel" hidden>
   <h2 id="resTitle"></h2><div id="resSub"></div>
   <table id="resTable"></table>
-  <button class="btn" id="again">Ván tiếp</button><button class="btn alt" id="toMenu">Về menu</button>
+  <button class="btn" id="again">Ván tiếp</button><button class="btn alt" id="toMenu">Về menu</button><button class="btn alt donate-open" type="button">Ủng hộ tôi</button>
 </div>
+<div id="donate" class="panel" hidden style="z-index:30">
+  <h2>Ủng hộ tôi</h2>
+  <div>Nếu bạn thấy game hay, hãy ủng hộ tôi để tôi có động lực phát triển tiếp.</div>
+  <img src="../../assets/donate_qr.png" alt="Mã QR chuyển khoản ủng hộ" style="display:block;width:min(300px,70vw);height:auto;margin:10px auto;border-radius:12px">
+  <button class="btn" id="donateClose" type="button">Đóng</button>
+</div>
+<script>
+  document.querySelectorAll('.donate-open').forEach(function (b) { b.addEventListener('click', function () { document.getElementById('donate').hidden = false; }); });
+  document.getElementById('donateClose').addEventListener('click', function () { document.getElementById('donate').hidden = true; });
+</script>
 <div id="pause" class="panel" hidden>
   <h2>TẠM DỪNG</h2>
   <button class="btn" id="resume">Chơi tiếp</button><button class="btn alt" id="quit">Về menu</button>

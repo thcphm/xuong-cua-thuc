@@ -2,7 +2,7 @@
    Chỉ tải khi cần đăng nhập, nên khách không tốn thêm dữ liệu. */
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, getDocs, collection } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, getDocs, collection, addDoc, query, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js';
 
 const app = initializeApp(window.FIREBASE_CONFIG);
 const auth = getAuth(app);
@@ -62,3 +62,14 @@ export async function eraseProgress(uid) {
   await Promise.all(list.docs.map((d) => deleteDoc(d.ref)));
 }
 export const setBlocked = (uid, blocked) => updateDoc(doc(db, 'profiles', uid), { blocked });
+
+/* Góp ý: ai cũng gửi được, chỉ admin đọc và xóa */
+export const sendFeedback = (data) => addDoc(collection(db, 'feedback'), Object.assign({}, data, { at: serverTimestamp() }));
+export async function listFeedback() {
+  const list = await getDocs(query(collection(db, 'feedback'), orderBy('at', 'desc'), limit(100)));
+  return list.docs.map((d) => {
+    const x = d.data();
+    return { id: d.id, game: x.game, stars: x.stars, text: x.text, name: x.name, when: x.at ? x.at.toDate().toLocaleDateString('vi-VN') : '' };
+  });
+}
+export const deleteFeedback = (id) => deleteDoc(doc(db, 'feedback', id));

@@ -178,9 +178,18 @@ function tour() {
     anim: 'point',
     actions: [{ label: 'Tiếp', run: step3 }, { label: 'Bỏ qua', run: () => { finish(); hush(); } }]
   });
-  say('Chào bạn, mình là TP, trợ lí của Xưởng của Thức.', {
+  const account = () => say('Bạn có thể dùng ngay với tư cách khách, nhưng tiến độ sẽ không được lưu. Đăng ký hoặc đăng nhập để lưu lại và dùng trên mọi máy.', {
+    anim: 'point',
+    target: '.session-home',
+    actions: [
+      { label: 'Dùng như khách', run: step2 },
+      { label: 'Đăng ký', run: () => { finish(); hush(); window.Session.open('new'); } },
+      { label: 'Đăng nhập', run: () => { finish(); hush(); window.Session.open('login'); } }
+    ]
+  });
+  say('Chào bạn, mình là TP, trợ lí của Xưởng của Thức. Đây là căn nhà 3D của Thức: nghe nhạc, đọc sách, học code, thử AI, ngắm sao, chăm vườn và chơi game.', {
     anim: 'wave',
-    actions: [{ label: 'Dẫn đi xem', run: step2 }, { label: 'Tự đi', run: () => { finish(); hush(); } }]
+    actions: [{ label: 'Tiếp', run: person ? step2 : account }, { label: 'Tự đi', run: () => { finish(); hush(); } }]
   });
 }
 
@@ -230,10 +239,10 @@ if (seen.hidden) {
   guide.hidden = false;
   fit();
   previousRoom = room();
-  window.Session.whenOpen(() => setTimeout(() => {
+  setTimeout(() => {
     if (!seen.tour && room() === '') tour();
     else if (room() && !seen.rooms[room()]) { seen.rooms[room()] = true; remember(); tip(); }
     else if (person) say('Chào ' + person + '!', { anim: 'wave', hold: 4000 });
     else mascot.play('wave', 1.6);
-  }, 1500));
+  }, 1500);
 }

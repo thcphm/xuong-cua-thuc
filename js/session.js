@@ -3,7 +3,7 @@
    File này phải chạy trước mọi script khác vì nó quyết định tiến độ được lưu vào đâu. */
 window.Session = (function () {
   'use strict';
-  const CURRENT = 'tp-session-v2', GUEST = 'tp-guest', OLD_ACCOUNTS = 'tp-accounts', OLD_SESSION = 'tp-session';
+  const CURRENT = 'tp-session-v2', OLD_ACCOUNTS = 'tp-accounts', OLD_SESSION = 'tp-session';
   const PROGRESS = ['tp-lab-v1', 'tp-san-v1', 'tp-vuon-v1', 'tp-flashcard-v1', 'nha-cua-tp.phong-hoc.v1', 'nha-cua-tp.guide.v1'];
   const FLUSH_MS = 8000, LIMIT = 900000;
   const proto = Storage.prototype;
@@ -14,7 +14,7 @@ window.Session = (function () {
   const write = (k, v) => { try { raw.set.call(box, k, v); return true; } catch (e) { return false; } };
   const erase = (k) => { try { raw.remove.call(box, k); } catch (e) { /* bỏ qua */ } };
   const keyOf = (name) => name.trim().normalize('NFC').toLocaleLowerCase('vi');
-  const loadCloud = () => import('./cloud.js?v=20261110g');
+  const loadCloud = () => import('./cloud.js?v=20261110i');
 
   let user = null;
   try { user = JSON.parse(read(CURRENT) || 'null'); } catch (e) { /* phiên hỏng thì coi như chưa đăng nhập */ }
@@ -84,11 +84,12 @@ window.Session = (function () {
     }));
     return changed;
   }
-  /* Đưa tiến độ cũ trên máy này vào tài khoản: dữ liệu trước khi có đăng nhập và tài khoản cũ cùng tên */
+  /* Đưa tiến độ sẵn có trên máy này vào tài khoản: phần đang làm khi là khách, dữ liệu cũ, tài khoản cũ cùng tên */
   function adoptLocal(uid, key) {
     const meta = readMeta(uid), now = Date.now();
     PROGRESS.forEach((k) => {
-      const oldAccount = read('u:' + key + ':' + k), legacy = read(k), value = oldAccount != null ? oldAccount : legacy;
+      const oldAccount = read('u:' + key + ':' + k), legacy = read(k);
+      const value = memory.has(k) ? memory.get(k) : oldAccount != null ? oldAccount : legacy;
       if (value != null && read(local(k, uid)) == null) { write(local(k, uid), value); meta[k] = now; }
       if (oldAccount != null) erase('u:' + key + ':' + k);
       if (legacy != null) erase(k);
@@ -141,23 +142,15 @@ window.Session = (function () {
       return '';
     } catch (e) { return messageOf(e); }
   }
-  function clearSession() {
-    erase(CURRENT);
-    try { sessionStorage.removeItem(GUEST); } catch (e) { /* bỏ qua */ }
-  }
+  const clearSession = () => erase(CURRENT);
   async function logout() {
     try { await flush(); await (cloudRef || await loadCloud()).logOut(); } catch (e) { /* vẫn đăng xuất trên máy này */ }
     clearSession();
     location.reload();
   }
-  function toLogin() {
-    try { sessionStorage.removeItem(GUEST); } catch (e) { /* bỏ qua */ }
-    location.reload();
-  }
 
-  /* Màn đăng nhập */
+  /* Khung đăng nhập: chỉ mở khi người dùng bấm */
   let gate = null;
-  const waiting = [];
   function h(tag, props, ...kids) {
     const n = document.createElement(tag);
     Object.entries(props || {}).forEach(([k, v]) => {
@@ -173,9 +166,11 @@ window.Session = (function () {
   function closeGate() {
     if (gate) gate.remove();
     gate = null;
-    waiting.splice(0).forEach((fn) => fn());
+    document.removeEventListener('keydown', onGateKey);
   }
-  function showGate() {
+  function onGateKey(e) { if (e.key === 'Escape') closeGate(); }
+  function showGate(startMode) {
+    if (gate) closeGate();
     let mode = 'login';
     const name = h('input', { autocomplete: 'username', maxLength: 24, required: true, spellcheck: false, id: 'gateName' });
     const pass = h('input', { type: 'password', autocomplete: 'current-password', maxLength: 128, required: true, id: 'gatePass' });
@@ -204,32 +199,37 @@ window.Session = (function () {
     gate = h('div', { class: 'gate', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Đăng nhập' },
       h('div', { class: 'gate-card' },
         h('h1', null, 'Xưởng của Thức'),
-        h('p', { class: 'gate-sub' }, 'Đăng nhập để dùng tiến độ của bạn trên mọi máy.'),
+        h('p', { class: 'gate-sub' }, 'Lưu tiến độ và dùng trên mọi máy.'),
         h('div', { class: 'gate-tabs' }, tabLogin, tabNew),
         form,
-        h('button', { type: 'button', class: 'gate-guest', onclick: () => { try { sessionStorage.setItem(GUEST, '1'); } catch (e) { /* bỏ qua */ } closeGate(); } }, 'Vào với tư cách khách'),
-        h('p', { class: 'gate-note' }, 'Khách dùng được mọi phòng nhưng không lưu tiến độ.'),
+        h('button', { type: 'button', class: 'gate-guest', onclick: closeGate }, 'Để sau'),
         h('p', { class: 'gate-note' }, 'Tiến độ và nhật ký lưu trên máy chủ, chủ Xưởng có thể xem. Mật khẩu không lấy lại được, và đừng dùng mật khẩu của tài khoản quan trọng.')));
+    gate.addEventListener('pointerdown', (e) => { if (e.target === gate) closeGate(); });
+    document.addEventListener('keydown', onGateKey);
     document.body.append(gate);
+    setMode(startMode === 'new' ? 'new' : 'login');
     name.focus();
   }
   const isAdmin = () => !!user && !!window.SITE && !!window.SITE.admin && keyOf(window.SITE.admin) === user.key;
   function paintBoxes() {
     document.querySelectorAll('[data-session]').forEach((node) => {
-      node.replaceChildren(...[
-        h('span', { class: 'session-name' }, user ? user.name : 'Khách'),
+      node.replaceChildren(...(user ? [
+        h('span', { class: 'session-name' }, user.name),
         isAdmin() ? h('button', { type: 'button', onclick: showAdmin }, 'Quản trị') : null,
-        h('button', { type: 'button', onclick: user ? logout : toLogin }, user ? 'Đăng xuất' : 'Đăng nhập')
-      ].filter(Boolean));
+        h('button', { type: 'button', onclick: logout }, 'Đăng xuất')
+      ] : [
+        h('button', { type: 'button', class: 'session-login', onclick: () => showGate('login') }, 'Đăng nhập'),
+        h('button', { type: 'button', class: 'session-new', onclick: () => showGate('new') }, 'Đăng ký')
+      ]).filter(Boolean));
     });
   }
   /* Quản trị: mọi thao tác đều qua luật Firestore, chỉ tài khoản admin mới được phép */
   async function showAdmin() {
     const cloud = cloudRef || await loadCloud();
-    const rows = h('ul', { class: 'admin-list' });
+    const rows = h('ul', { class: 'admin-list' }), notes = h('ul', { class: 'admin-list' });
     const status = h('p', { class: 'gate-sub', role: 'status' }, 'Đang tải danh sách tài khoản');
     const overlay = h('div', { class: 'gate', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Quản trị' },
-      h('div', { class: 'gate-card' }, h('h1', null, 'Quản trị'), status, rows,
+      h('div', { class: 'gate-card' }, h('h1', null, 'Quản trị'), status, rows, h('h2', { class: 'admin-h' }, 'Góp ý về game'), notes,
         h('p', { class: 'gate-note' }, 'Muốn xóa hẳn một tài khoản, vào mục Authentication trong Firebase console.'),
         h('button', { type: 'button', class: 'gate-guest', onclick: () => overlay.remove() }, 'Đóng')));
     document.body.append(overlay);
@@ -246,12 +246,19 @@ window.Session = (function () {
         }));
       } catch (e) { status.textContent = 'Không lấy được danh sách. Máy chủ từ chối hoặc mất mạng.'; }
     }
+    async function drawNotes() {
+      try {
+        const list = await cloud.listFeedback();
+        if (!list.length) { notes.replaceChildren(h('li', null, h('small', null, 'Chưa có góp ý nào.'))); return; }
+        notes.replaceChildren(...list.map((f) => h('li', null,
+          h('div', null, h('b', null, f.game + ' · ' + '★'.repeat(f.stars)), h('small', null, (f.name || 'Khách') + (f.when ? ', ' + f.when : '')), h('p', { class: 'admin-text' }, f.text)),
+          h('button', { type: 'button', onclick: async () => { if (!confirm('Xóa góp ý này?')) return; await cloud.deleteFeedback(f.id); drawNotes(); } }, 'Xóa'))));
+      } catch (e) { notes.replaceChildren(h('li', null, h('small', null, 'Không lấy được góp ý.'))); }
+    }
     draw();
+    drawNotes();
   }
-  let guest = false;
-  try { guest = sessionStorage.getItem(GUEST) === '1'; } catch (e) { /* bỏ qua */ }
   addEventListener('DOMContentLoaded', paintBoxes);
-  if (!user && !guest) showGate();
 
   /* Đã đăng nhập: kiểm tra phiên và kéo tiến độ mới nhất từ máy khác */
   if (user) {
@@ -267,7 +274,7 @@ window.Session = (function () {
   return {
     get name() { return user ? user.name : ''; },
     get isAdmin() { return isAdmin(); },
-    /* Chạy khi người dùng đã qua màn đăng nhập */
-    whenOpen(fn) { if (gate) waiting.push(fn); else fn(); }
+    open: showGate,
+    cloud: loadCloud
   };
 })();

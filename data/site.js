@@ -197,11 +197,11 @@ window.SITE = {
         title: 'The Ticket',
         kind: 'Game pixel kể chuyện, 5 chương',
         about: 'Một anh IT lỡ chuyến xe về quê, nhận tấm vé từ một ông lão lạ và trở lại làng năm 2008.',
-        status: 'Bản Windows sắp có',
-        download: ''
+        status: 'Windows 10/11',
+        download: 'https://github.com/thcphm/xuong-cua-thuc/releases/download/the-ticket-v1/THE_TICKET.exe'
       },
       { id: 'the-one', title: 'THE ONE', kind: 'Game pixel kể chuyện, 5 phần', status: 'Bản riêng, không phát hành' },
-      { id: 'an-usual-day', title: 'An Usual Day', kind: 'Bản demo', status: 'Bản riêng, không phát hành' }
+      { id: 'a-usual-day', title: 'A Usual Day', kind: 'Bản demo', status: 'Bản riêng, không phát hành' }
     ]
   }
 };

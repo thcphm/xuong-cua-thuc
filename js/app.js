@@ -325,10 +325,11 @@
   $('gameIntro').textContent = SITE.games.intro;
   var overlay = $('gameOverlay');
   var coarse = window.matchMedia('(pointer: coarse)').matches;
-  var lastTrigger = null;
+  var lastTrigger = null, playing = null;
 
-  function openGame(src, trigger) {
+  function openGame(src, trigger, game) {
     lastTrigger = trigger;
+    playing = game;
     Music.pause();
     var frame = document.createElement('iframe');
     frame.src = src;
@@ -346,7 +347,17 @@
     document.body.classList.remove('in-game');
     if (lastTrigger) lastTrigger.focus();
   }
-  $('exitGame').addEventListener('click', closeGame);
+  $('exitGame').addEventListener('click', function () {
+    var game = playing;
+    closeGame();
+    if (game) window.Feedback.open(game);
+  });
+  function feedbackButton(game) {
+    var b = el('button', 'ghost-btn', 'Góp ý');
+    b.type = 'button';
+    b.addEventListener('click', function () { window.Feedback.open(game); });
+    return b;
+  }
 
   SITE.games.list.forEach(function (game) {
     if (game.play) {
@@ -376,9 +387,9 @@
       } else {
         var play = el('button', 'play-btn', 'Chơi ngay');
         play.type = 'button';
-        play.addEventListener('click', function () { openGame(game.play, play); });
-        document.addEventListener('tp:play', function () { openGame(game.play, play); });
-        actions.append(play, el('p', 'keys', game.controls));
+        play.addEventListener('click', function () { openGame(game.play, play, game); });
+        document.addEventListener('tp:play', function () { openGame(game.play, play, game); });
+        actions.append(play, feedbackButton(game), el('p', 'keys', game.controls));
       }
       box.append(screen, title, kind, about, actions);
       return;
@@ -391,12 +402,20 @@
     if (game.download) {
       var link = el('a', 'ghost-btn', 'Tải bản Windows');
       link.href = game.download;
-      li.append(link);
+      li.append(link, feedbackButton(game));
     } else {
       li.append(el('span', 'status', game.status));
     }
     $('gameList').append(li);
   });
+
+  /* Mở từ màn kết của game Windows: ?gopy=<id game> */
+  var askFor = new URLSearchParams(location.search).get('gopy');
+  var askGame = SITE.games.list.filter(function (g) { return g.id === askFor && (g.play || g.download); })[0];
+  if (askGame) {
+    history.replaceState(null, '', location.pathname + location.hash);
+    window.Feedback.open(askGame);
+  }
 
   /* Đi giữa các phòng */
   var current = null;
