@@ -82,16 +82,36 @@ window.Study = (function () {
   function click() { var c = getAudio(); tone(1900, c.currentTime, 0.04, 0.09); }
 
   var SOUNDS = [
-    { id: 'mua', name: 'Mưa', type: 'highpass', freq: 1400, max: 0.22 },
+    { id: 'mua', name: 'Mưa', type: 'lowpass', freq: 7500, max: 1.4, file: 'assets/sounds/rain.mp3' },
+    { id: 'lofi', name: 'Lofi', type: 'lowpass', freq: 12000, max: 0.4, file: 'assets/sounds/lofi.mp3', length: 40.42 },
     { id: 'quat', name: 'Quạt trần', type: 'lowpass', freq: 320, max: 0.8 },
     { id: 'song', name: 'Sóng biển', type: 'bandpass', freq: 520, max: 0.6, wave: true }
   ];
+  /* Âm thu sẵn chỉ tải khi người dùng kéo thanh lần đầu. Bỏ một đoạn rất ngắn ở hai đầu file MP3 để vòng lặp liền. */
+  var fileBuffers = {};
+  function loadSound(sound) {
+    if (!fileBuffers[sound.id]) {
+      fileBuffers[sound.id] = fetch(sound.file)
+        .then(function (res) { if (!res.ok) throw new Error('sound ' + res.status); return res.arrayBuffer(); })
+        .then(function (bytes) { return getAudio().decodeAudioData(bytes); });
+    }
+    return fileBuffers[sound.id];
+  }
+  function playFile(sound, src) {
+    var edge = 0.03;
+    loadSound(sound).then(function (buffer) {
+      src.buffer = buffer;
+      src.loopStart = edge;
+      src.loopEnd = sound.length ? Math.min(buffer.duration, edge + sound.length) : buffer.duration - edge;
+      src.start(0, edge);
+    }).catch(function () { delete fileBuffers[sound.id]; delete ambient[sound.id]; });
+  }
   function setAmbient(sound, value) {
     if (!ambient[sound.id] && value > 0) {
       var ctx = getAudio();
       var src = ctx.createBufferSource();
-      src.buffer = noiseBuffer;
       src.loop = true;
+      if (!sound.file) src.buffer = noiseBuffer;
       var filter = ctx.createBiquadFilter();
       filter.type = sound.type;
       filter.frequency.value = sound.freq;
@@ -113,7 +133,7 @@ window.Study = (function () {
       } else {
         gain.connect(ctx.destination);
       }
-      src.start();
+      if (sound.file) playFile(sound, src); else src.start();
       ambient[sound.id] = gain;
     }
     if (ambient[sound.id]) ambient[sound.id].gain.setTargetAtTime(value * sound.max, audio.currentTime, 0.15);
@@ -359,7 +379,7 @@ window.Study = (function () {
     body.append(music);
   }
 
-  var SCENES = [{ id: 'mua', name: 'Đêm mưa' }, { id: 'sao', name: 'Trời sao' }, { id: 'bim', name: 'Sắp sáng' }];
+  var SCENES = [{ id: 'mua', name: 'Đêm mưa' }, { id: 'sao', name: 'Trời sao' }, { id: 'bim', name: 'Sắp sáng' }].concat(window.StudyScenes.list);
   function buildScene(body) {
     var row = el('div', 'w-row');
     SCENES.forEach(function (scene) {
@@ -487,6 +507,7 @@ window.Study = (function () {
     for (var i = 0; i < 170; i++) drops.push({ x: Math.random() * W, y: Math.random() * H, v: 500 + Math.random() * 500, l: 12 + Math.random() * 20 });
     stars = [];
     for (var s = 0; s < 190; s++) stars.push({ x: Math.random() * W, y: Math.random() * H * 0.85, r: Math.random() * 1.4 + 0.3, p: Math.random() * 6.28 });
+    if (window.StudyScenes.has(data.scene)) window.StudyScenes.prepare(data.scene, W, H, dpr);
   }
   function windowFrame() {
     g.strokeStyle = 'rgba(74,97,132,.32)';
@@ -503,6 +524,11 @@ window.Study = (function () {
     g.fillRect(0, bottom, W, 3);
   }
   function drawScene(now, dt) {
+    if (window.StudyScenes.has(data.scene)) {
+      window.StudyScenes.draw(g, data.scene, now, dt);
+      if (window.StudyScenes.framed(data.scene)) windowFrame();
+      return;
+    }
     var sky = g.createLinearGradient(0, 0, 0, H);
     if (data.scene === 'bim') { sky.addColorStop(0, '#070d1b'); sky.addColorStop(0.62, '#11294a'); sky.addColorStop(0.86, '#2d5a73'); }
     else if (data.scene === 'sao') { sky.addColorStop(0, '#03050b'); sky.addColorStop(1, '#0b1730'); }
