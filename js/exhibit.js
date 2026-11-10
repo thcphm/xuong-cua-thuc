@@ -40,6 +40,7 @@
     panel.classList.toggle('wide', !!wide);
     panel.hidden = false;
     panel.scrollTop = 0;
+    document.body.classList.add('ham-open');
   }
 
   /* Các khu không phải tủ kính */
@@ -164,6 +165,7 @@
     if (!zoom.hidden) { zoom.hidden = true; return; }
     if (panel.hidden) return;
     panel.hidden = true;
+    document.body.classList.remove('ham-open');
     document.dispatchEvent(new Event('tp:exhibit-close'));
   }
 
@@ -176,5 +178,5 @@
   back.addEventListener('click', function () { zoom.hidden = true; close(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
   /* Rời phòng thì cất thẻ */
-  document.addEventListener('tp:go', function () { panel.hidden = true; zoom.hidden = true; });
+  document.addEventListener('tp:go', function () { panel.hidden = true; zoom.hidden = true; document.body.classList.remove('ham-open'); });
 })();

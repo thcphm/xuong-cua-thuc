@@ -1011,7 +1011,11 @@ body.has-3d[data-room="ham"]::before { background: linear-gradient(180deg, rgba(
 .ham-zoom[hidden] { display: none; }
 .ham-zoom img { max-width: 100%; max-height: 100%; border-radius: 8px; }
 .ham-card a { display: inline-block; margin-top: 10px; color: var(--light); }
-@media (max-width: 900px) { .ham-panel { top: auto; bottom: 12px; left: 12px; right: 12px; width: auto; max-height: 44dvh; } }
+@media (max-width: 900px) {
+  .ham-panel, .ham-panel.wide { top: auto; bottom: 12px; left: 12px; right: 12px; width: auto; max-height: 52dvh; }
+  /* Màn hình hẹp: thẻ thông tin đang mở thì T.O.M tạm lánh để không che */
+  body.ham-open .guide { display: none; }
+}
 .has-3d .room-list a { padding-top: 9px; padding-bottom: 9px; }
 body[data-room="san"] .switch, body[data-room="vuon"] .switch { display: none; }
 body[data-room="san"] .darkness, body[data-room="vuon"] .darkness { opacity: 0; }
