@@ -975,10 +975,20 @@ body[data-room="vuon"], .room[data-room="vuon"], .room-list a[data-room="vuon"],
 body[data-room="ham"], .room[data-room="ham"], .room-list a[data-room="ham"], .world-label[data-room="ham"] { --light: #ff8fa3; }
 .has-3d .ham-room { width: 100%; max-width: 1380px; margin: 0 auto; padding-top: 20px; }
 body.has-3d[data-room="ham"]::before { background: linear-gradient(180deg, rgba(5,7,13,.62) 0, rgba(5,7,13,0) 34%); }
-.ham-zones { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
-.ham-zones li { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; max-width: 300px; border: 1px solid var(--line); border-radius: 10px; background: rgba(10,18,32,.78); }
-.ham-zones strong { font: 600 16px/1.3 var(--display); color: var(--light); }
-.ham-zones span { color: var(--muted); font-size: 14px; }
+/* Thẻ thông tin chỉ hiện khi đã lại gần một tủ kính */
+.ham-panel { position: fixed; left: max(16px, calc((100vw - 1380px) / 2)); top: 170px; z-index: 5; width: min(400px, calc(100vw - 32px)); max-height: calc(100dvh - 200px); overflow-y: auto; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: rgba(8,13,24,.9); }
+.ham-panel[hidden] { display: none; }
+.ham-back { min-height: 36px; margin-bottom: 10px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; background: none; color: var(--text); font: 500 14px var(--sans); transition: transform 140ms var(--ease-out), border-color 140ms; }
+.ham-back:hover { border-color: var(--light); }
+.ham-back:active { transform: scale(.97); }
+.ham-card h3 { margin: 0 0 6px; font: 600 20px/1.2 var(--display); color: var(--light); }
+.ham-item { padding: 8px 0; border-top: 1px solid var(--line); }
+.ham-item h4 { margin: 0; font: 600 17px/1.2 var(--display); }
+.ham-card .kind { margin: 2px 0 8px; color: var(--light); font-size: 14px; }
+.ham-card .about { margin: 0 0 8px; }
+.ham-card .status { margin: 0; color: var(--muted); font-size: 14px; }
+.ham-card a { display: inline-block; margin-top: 10px; color: var(--light); }
+@media (max-width: 900px) { .ham-panel { top: auto; bottom: 12px; left: 12px; right: 12px; width: auto; max-height: 44dvh; } }
 .has-3d .room-list a { padding-top: 9px; padding-bottom: 9px; }
 body[data-room="san"] .switch, body[data-room="vuon"] .switch { display: none; }
 body[data-room="san"] .darkness, body[data-room="vuon"] .darkness { opacity: 0; }

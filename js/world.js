@@ -547,16 +547,20 @@ let armTop = null, armLow = null, gridDraw = () => {};
   house.add(stripes);
 }
 
+/* Vị trí từng tủ kính, dùng khi máy quay tiến lại gần một tủ */
+const CASES = [];
 /* Phòng Thực Nghiệm: tầng hầm dưới mặt đất, rộng bằng tầng chính, một phòng duy nhất chia thành nhiều khu */
 const hamRamp = new THREE.Group();
 house.add(hamRamp);
 {
   const room = ROOMS.ham, FLOOR = -3.6, CEIL = -0.52, H = CEIL - FLOOR, MIDY = (FLOOR + CEIL) / 2;
   const concrete = std('#26344f', { roughness: 0.85 }), dark = std('#1a2438', { roughness: 0.9 });
-  /* Tường sau và hai bên; mặt trước để hở như nhà búp bê */
+  /* Tường sau và hai bên */
   box(house, 19.2, H, 0.2, 0, MIDY, -5.9, concrete);
   box(house, 0.2, H, 12, -9.5, MIDY, 0, concrete);
   box(house, 0.2, H, 12, 9.5, MIDY, 0, concrete);
+  /* Tường trước, chừa lối vào ở chân dốc */
+  box(house, 15, H, 0.2, 2.1, MIDY, 5.9, concrete);
   /* Sân bê tông trước cửa hầm */
   box(house, 60, 0.04, 30, 0, FLOOR - 0.03, 21, std('#070b14', { roughness: 0.95 })).castShadow = false;
   /* Cột */
@@ -571,6 +575,77 @@ house.add(hamRamp);
   box(house, 18.6, 0.01, 0.06, 0, FLOOR + 0.03, -0.8, paint).castShadow = false;
 
   /* Khu tủ trưng bày: sáu tủ kính dọc tường sau */
+  /* Mỗi nhóm trong SITE.showcase.fields là một tủ; một mảng có thể chiếm nhiều tủ liền nhau */
+  const SHOW = [];
+  ((window.SITE.showcase && window.SITE.showcase.fields) || []).forEach((field) => field.groups.forEach((group, n) => SHOW.push({ field, group, first: n === 0, span: field.groups.length })));
+  /* Bảng tên dưới mỗi hiện vật, vẽ lại khi font tải xong */
+  const plateTexture = (text, color = '#dfe8f3') => {
+    const c = document.createElement('canvas');
+    c.width = 512; c.height = 128;
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    const draw = () => {
+      const g = c.getContext('2d');
+      g.fillStyle = '#0c111b'; g.fillRect(0, 0, 512, 128);
+      g.strokeStyle = '#2a3b57'; g.lineWidth = 4; g.strokeRect(4, 4, 504, 120);
+      g.fillStyle = color; g.textAlign = 'center'; g.textBaseline = 'middle';
+      let size = 58;
+      do { g.font = '600 ' + size + 'px "Chakra Petch", "Segoe UI", sans-serif'; size -= 4; } while (g.measureText(text).width > 460 && size > 24);
+      g.fillText(text, 256, 68);
+      tex.needsUpdate = true;
+    };
+    draw();
+    if (document.fonts && document.fonts.load) document.fonts.load('600 58px "Chakra Petch"').then(draw, () => {});
+    return tex;
+  };
+  /* Mô hình hiện vật dựng bằng hình khối, gốc toạ độ nằm trên mặt kệ */
+  const MODELS = {
+    xuong(g) {
+      box(g, 1.0, 0.06, 0.5, 0, 0.03, 0, std('#16253d'));
+      [['#a9a4f5', -0.3, -0.1, 0.36, 0.24], ['#f2c879', 0.16, -0.14, 0.44, 0.16], ['#86e28a', 0.16, 0.02, 0.44, 0.14], ['#6fe0d2', 0.16, 0.17, 0.44, 0.14], ['#9fd3ff', -0.36, 0.14, 0.24, 0.2]]
+        .forEach(([c, px, pz, w, d]) => { box(g, w, 0.02, d, px, 0.07, pz, glow(c, 0.9)).castShadow = false; });
+      box(g, 1.0, 0.22, 0.03, 0, 0.17, -0.24, std('#22324f'));
+      box(g, 0.03, 0.22, 0.5, -0.49, 0.17, 0, std('#22324f'));
+    },
+    tom(g) {
+      const bot = createMascot(Object.assign({}, window.SITE.mascot, { env: 0.3 }), renderer);
+      bot.group.scale.setScalar(0.36);
+      g.add(bot.group);
+    },
+    'the-ticket'(g) {
+      const paper = std('#f2c879', { roughness: 0.5 });
+      const t = new THREE.Group();
+      box(t, 0.5, 0.3, 0.02, -0.08, 0, 0, paper);
+      box(t, 0.14, 0.3, 0.02, 0.27, 0, 0, paper);
+      box(t, 0.3, 0.035, 0.024, -0.12, 0.06, 0, std('#3a2c14'));
+      box(t, 0.2, 0.035, 0.024, -0.17, -0.03, 0, std('#3a2c14'));
+      t.position.y = 0.3; t.rotation.set(-0.2, 0.25, 0.12);
+      g.add(t);
+      box(g, 0.5, 0.05, 0.2, 0, 0.025, 0, std('#22324f'));
+    },
+    'fluffy-frenzy'(g) {
+      const fur = std('#ffd9e4', { roughness: 0.95 });
+      ball(g, 0.2, 0, 0.2, 0, fur, 0.92);
+      [-0.11, 0.11].forEach((px) => ball(g, 0.07, px, 0.4, 0, fur, 1.5));
+      [-0.07, 0.07].forEach((px) => ball(g, 0.028, px, 0.24, 0.17, std('#141a26', { roughness: 0.3 })));
+      ball(g, 0.03, 0, 0.18, 0.19, std('#ff8fa3'));
+      ball(g, 0.07, 0.3, 0.07, 0.04, std('#9fd3ff', { roughness: 0.95 }));
+      ball(g, 0.06, -0.3, 0.06, -0.02, std('#f2c879', { roughness: 0.95 }));
+    },
+    'the-one'(g) {
+      const px = glow('#4fdcff', 1.1);
+      [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [-1, 3], [-1, 0], [1, 0]].forEach(([cx, cy]) => { box(g, 0.1, 0.1, 0.1, cx * 0.1, 0.1 + cy * 0.1, 0, px).castShadow = false; });
+      box(g, 0.5, 0.05, 0.22, 0, 0.025, 0, std('#22324f'));
+    },
+    'a-usual-day'(g) {
+      const sun = cyl(g, 0.17, 0.17, 0.04, 0, 0.36, 0, glow('#f2c879', 1.2));
+      sun.rotation.x = Math.PI / 2; sun.castShadow = false;
+      box(g, 0.03, 0.18, 0.03, 0, 0.12, 0, std('#22324f'));
+      box(g, 0.34, 0.05, 0.2, 0, 0.025, 0, std('#22324f'));
+      cyl(g, 0.055, 0.045, 0.1, 0.3, 0.05, 0.02, std('#dfe8f3', { roughness: 0.4 }));
+    },
+    other(g) { box(g, 0.3, 0.3, 0.3, 0, 0.15, 0, std('#2c3f60')); }
+  };
   const frame = std('#0c111b', { roughness: 0.5, metalness: 0.4 });
   const glass = new THREE.MeshStandardMaterial({ color: '#9fd3ff', transparent: true, opacity: 0.12, roughness: 0.1, metalness: 0.2, depthWrite: false });
   const caseLight = glow('#dfe8f3', 1.1);
@@ -584,7 +659,30 @@ house.add(hamRamp);
     [-1, 1].forEach((side) => box(house, 0.06, CH, D, x + side * (W / 2 - 0.03), y0 + CH / 2, z, frame));
     [0.8, 1.5].forEach((h) => box(house, W - 0.12, 0.03, D - 0.1, x, y0 + h, z, shelf));
     box(house, W - 0.2, 0.03, 0.04, x, y0 + CH - 0.08, z + D / 2 - 0.08, caseLight).castShadow = false;
-    box(house, W - 0.12, CH - 0.2, 0.02, x, y0 + CH / 2, z + D / 2, glass).castShadow = false;
+    const pane = box(house, W - 0.12, CH - 0.2, 0.02, x, y0 + CH / 2, z + D / 2, glass);
+    pane.castShadow = false;
+    /* Hiện vật: mỗi tủ một nhóm dự án, xếp hai món mỗi tầng kệ */
+    const slot = SHOW[i];
+    if (!slot) continue;
+    const items = slot.group.items || [];
+    items.slice(0, 4).forEach((item, n) => {
+      const stand = new THREE.Group(), pair = items.length > 1;
+      stand.position.set(x + (pair ? (n % 2 ? 0.58 : -0.58) : 0), y0 + (n < 2 ? 0.815 : 1.515), z);
+      stand.scale.setScalar(pair ? 0.8 : 1);
+      house.add(stand);
+      (MODELS[item.id] || MODELS.other)(stand);
+    });
+    const plate = new THREE.Mesh(new THREE.PlaneGeometry(W - 0.5, (W - 0.5) / 4), new THREE.MeshBasicMaterial({ map: plateTexture(slot.group.title), toneMapped: false }));
+    plate.position.set(x, y0 + 0.46, z + D / 2 - 0.06);
+    house.add(plate);
+    /* Biển tên mảng treo trên tường, phủ hết các tủ của mảng đó */
+    if (slot.first) {
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.55), new THREE.MeshBasicMaterial({ map: plateTexture(slot.field.title, room.color), toneMapped: false }));
+      sign.position.set(x + (slot.span - 1) * 1.5, y0 + CH + 0.4, z - D / 2 + 0.1);
+      house.add(sign);
+    }
+    CASES[i] = new THREE.Vector3(x, y0 + CH / 2, z);
+    addHot(pane, 'ham', slot.field.title === slot.group.title ? slot.group.title : slot.field.title + ': ' + slot.group.title, () => document.dispatchEvent(new CustomEvent('tp:exhibit', { detail: i })));
   }
 
   /* Dốc xuống hầm, nằm trước Phòng Học */
@@ -658,8 +756,8 @@ const FRAME = {
   garage: { look: P(1060, 340), off: [-1.4, 1.5, 8.4], y: 1.1 },
   san: { look: P(1075, 260), off: [-1.6, 3.2, 6.2], y: 3.2 },
   vuon: { look: P(1050, 480), off: [-1.2, 3.2, 6], y: 3.2 },
-  /* Đứng ngay mép hở của tầng hầm, ống kính góc rộng để thấy cả dãy tủ */
-  ham: { look: [0, -5.6], off: [0, 0.35, 10.9], y: -2.2, fov: 56 }
+  /* Đứng giữa tầng hầm, ống kính góc rộng. free: kéo chuột để quay nhìn đủ 360 độ */
+  ham: { look: [0, -5.6], off: [0, 0.3, 7.6], y: -2.2, fov: 60, free: true }
 };
 const BASE_FOV = 26;
 let fovFrom = BASE_FOV, fovTo = BASE_FOV;
@@ -749,6 +847,10 @@ const pointer = new THREE.Vector2(0, 0), ray = new THREE.Raycaster();
 let pointerOnUI = true, hotHover = null;
 const tipNode = document.getElementById('hotspotTip');
 let orbit = 0, orbitGoal = 0, tilt = 0, drag = null, moved = false;
+/* Góc quay đầu trong phòng nhìn tự do */
+let yaw = 0, yawGoal = 0;
+let focused = null;
+const freeLook = () => focused === null && !!(currentRoom && FRAME[currentRoom] && FRAME[currentRoom].free);
 const labels = {};
 Object.keys(ROOMS).forEach((id) => { labels[id] = document.querySelector('.world-label[data-room="' + id + '"]'); });
 
@@ -770,6 +872,12 @@ addEventListener('pointermove', (e) => {
   pointer.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
   pointerOnUI = overUI(e);
   tipNode.style.transform = 'translate(' + (e.clientX + 16) + 'px,' + (e.clientY + 18) + 'px)';
+  if (drag && drag.free) {
+    const dx = e.clientX - drag.x;
+    if (Math.abs(dx) > 5) moved = true;
+    yawGoal = drag.yaw + dx * 0.003;
+    return;
+  }
   if (currentRoom !== '') return;
   if (drag) {
     const dx = e.clientX - drag.x;
@@ -780,6 +888,12 @@ addEventListener('pointermove', (e) => {
 });
 addEventListener('pointerdown', (e) => {
   if (overUI(e) || e.button !== 0) return;
+  if (freeLook()) {
+    /* Kéo để quay; bấm không kéo mới tính là chọn đồ vật (xử lí ở pointerup) */
+    drag = { x: e.clientX, yaw: yawGoal, free: true };
+    moved = false;
+    return;
+  }
   if (currentRoom !== '') {
     pointer.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
     const hit = pickHot();
@@ -795,11 +909,45 @@ addEventListener('pointerdown', (e) => {
 });
 addEventListener('pointerup', (e) => {
   if (!drag) return;
+  const free = drag.free;
   drag = null;
+  if (free) {
+    if (moved || overUI(e)) return;
+    pointer.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+    const hit = pickHot();
+    if (hit) { hit.action(); document.dispatchEvent(new Event('tp:poke')); }
+    return;
+  }
   if (moved || currentRoom !== '') return;
   pointer.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
   const id = pickRoom();
   if (id) location.hash = id;
+});
+
+/* Đang kéo để xoay thì không cho trình duyệt bôi đen chữ trên trang */
+addEventListener('selectstart', (e) => { if (drag) e.preventDefault(); });
+addEventListener('pointercancel', () => { drag = null; });
+
+/* Bấm một tủ kính: máy quay tiến lại gần tủ đó. Đóng thẻ thông tin thì lùi về giữa phòng. */
+document.addEventListener('tp:exhibit', (e) => {
+  const at = CASES[e.detail];
+  if (!at || currentRoom !== 'ham') return;
+  /* Chốt hướng đang nhìn vào shot để chuyển cảnh không bị giật */
+  const fwd = shot.look.clone().sub(shot.pos).applyAxisAngle(THREE.Object3D.DEFAULT_UP, yaw);
+  shot.look.copy(shot.pos).add(fwd);
+  yaw = 0; yawGoal = 0;
+  from.pos.copy(shot.pos); from.look.copy(shot.look);
+  to.look.copy(at);
+  to.pos.set(at.x, at.y + 0.1, at.z + 3.1);
+  fovFrom = fovTo = camera.fov;
+  focused = e.detail;
+  tween = reduceMotion ? 1 : 0;
+  if (tween === 1) { shot.pos.copy(to.pos); shot.look.copy(to.look); }
+});
+document.addEventListener('tp:exhibit-close', () => {
+  if (focused === null) return;
+  focused = null;
+  if (currentRoom === 'ham') setShot('ham');
 });
 
 let listHover = null, lightsOut = false;
@@ -810,6 +958,9 @@ document.addEventListener('tp:go', (e) => {
   hovered = null;
   document.body.style.cursor = '';
   orbitGoal = 0;
+  focused = null;
+  yaw = Math.atan2(Math.sin(yaw), Math.cos(yaw));
+  yawGoal = 0;
   setShot(currentRoom);
 });
 
@@ -851,7 +1002,7 @@ function frame(now) {
     if (fovFrom !== fovTo) { camera.fov = fovFrom + (fovTo - fovFrom) * k; camera.updateProjectionMatrix(); }
   }
   const sideRoom = innerWidth > 900 && currentRoom === 'game';
-  const goalX = !currentRoom ? fit.sx : sideRoom ? 0.2 : 0;
+  const goalX = !currentRoom ? fit.sx : sideRoom ? 0.2 : (focused !== null && innerWidth > 900) ? 0.13 : 0;
   const goalY = !currentRoom ? fit.sy : 0;
   if (Math.abs(shiftX - goalX) > 0.001 || Math.abs(shiftY - goalY) > 0.001) {
     const rate = 1 - Math.exp(-dt * 7);
@@ -867,6 +1018,12 @@ function frame(now) {
   offset.y += reduceMotion ? 0 : pointer.y * 0.35;
   camera.position.copy(shot.look).add(offset);
   camera.lookAt(shot.look);
+  yaw += (yawGoal - yaw) * (1 - Math.exp(-dt * 10));
+  if (Math.abs(yaw) > 0.0005) {
+    /* Nhìn tự do: máy quay đứng yên, hướng nhìn quay quanh nó */
+    const fwd = shot.look.clone().sub(camera.position).applyAxisAngle(THREE.Object3D.DEFAULT_UP, yaw);
+    camera.lookAt(fwd.add(camera.position));
+  }
 
   /* Raycast đúng một lần mỗi khung hình */
   if (!drag && !pointerOnUI && tween === 1) {

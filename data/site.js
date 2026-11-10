@@ -181,6 +181,43 @@ window.SITE = {
     emptySlots: 0
   },
 
+  /* Tủ trưng bày ở Phòng Thực Nghiệm. Dự án chia theo mảng (fields), mỗi mảng có một hay nhiều nhóm (groups).
+     Mỗi nhóm là một tủ kính, cả phòng có sáu tủ. Mỗi tủ bày được bốn món.
+     id của món quyết định mô hình trong tủ (xem MODELS trong js/world.js). link là tùy chọn. */
+  showcase: {
+    fields: [
+      {
+        title: 'Công nghệ',
+        groups: [
+          {
+            title: 'Website',
+            items: [
+              { id: 'xuong', title: 'Xưởng của Thức', kind: 'Trang cá nhân dạng căn nhà 3D', about: 'Chính là căn nhà bạn đang đứng: nghe nhạc, đọc sách, học, luyện code, thử AI, ngắm sao, chăm vườn và chơi game.', status: 'Đang chạy' }
+            ]
+          },
+          {
+            title: 'Application',
+            items: [
+              { id: 'tom', title: 'T.O.M', kind: 'Trợ lí ảo, Technical Operations Machine', about: 'Robot dẫn đường của Xưởng. T.O.M sẽ có mặt trong mọi dự án công nghệ của Thức.', status: 'Đang phát triển' }
+            ]
+          },
+          {
+            title: 'Game',
+            items: [
+              { id: 'the-ticket', title: 'The Ticket', kind: 'Game pixel kể chuyện, 5 chương', about: 'Một anh IT lỡ chuyến xe về quê, nhận tấm vé từ một ông lão lạ và trở lại làng năm 2008.', status: 'Chơi được trên web và Windows', link: { label: 'Sang Phòng Giải Trí để chơi', href: '#game' } },
+              { id: 'fluffy-frenzy', title: 'Fluffy Frenzy', kind: 'Đại chiến thú cưng 3D', about: 'Chọn một con thú, vào đấu trường với 3 đến 7 bot. Có ba chế độ: Đấu trường, Chiếm cờ và Vua đồi.', status: 'Chơi được trên web', link: { label: 'Sang Phòng Giải Trí để chơi', href: '#game' } },
+              { id: 'the-one', title: 'THE ONE', kind: 'Game pixel kể chuyện, 5 phần', status: 'Bản riêng, không phát hành' },
+              { id: 'a-usual-day', title: 'A Usual Day', kind: 'Bản demo', status: 'Bản riêng, không phát hành' }
+            ]
+          }
+        ]
+      },
+      { title: 'Văn thơ', groups: [{ title: 'Văn thơ', items: [] }] },
+      { title: 'Hình ảnh và video', groups: [{ title: 'Hình ảnh và video', items: [] }] },
+      { title: 'Học thuật', groups: [{ title: 'Học thuật', items: [] }] }
+    ]
+  },
+
   games: {
     intro: 'Tất cả đều tự viết bằng code. Bấm vào máy arcade để chơi.',
     list: [
