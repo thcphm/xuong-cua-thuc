@@ -48,6 +48,13 @@ Key nằm công khai trong trang, nên bắt buộc làm bước 3. Hạn mức 
 
 Hai file trong `assets/sounds/` đều là CC0, lấy từ Freesound: `rain.mp3` là "Rain from Indoors - Perfect loop" của samesamesame, `lofi.mp3` là "Chill Lofi Melody Loop 95 BPM" của holizna.
 
+## Trợ lí T.O.M
+
+Bấm vào T.O.M để mở menu: fact hôm nay, thời tiết hôm nay, đi tới phòng, mẹo.
+
+- Fact nằm trong `data/facts.js`, mỗi ngày một câu, hết danh sách thì quay vòng.
+- Thời tiết lấy từ [Open-Meteo](https://open-meteo.com/) (CC BY 4.0), không cần API key. Danh sách thành phố ở `CITIES` trong `js/guide.js`.
+
 ## Tài khoản và admin
 
 - Tài khoản và tiến độ lưu trên Firebase (Authentication, Firestore), dùng được trên mọi máy. Mật khẩu không lấy lại được.

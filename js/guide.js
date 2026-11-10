@@ -139,11 +139,68 @@ const room = () => document.body.dataset.room || '';
 const go = (id) => () => { hush(); location.hash = id; };
 
 function menu() {
+  say('Mình giúp gì cho bạn?', {
+    anim: 'wave',
+    actions: [
+      { label: 'Fact hôm nay', run: fact },
+      { label: 'Thời tiết hôm nay', run: weatherMenu },
+      { label: 'Đi tới phòng', run: rooms },
+      { label: 'Mẹo ở đây', run: () => tip() },
+      { label: 'Cất robot', run: stow }
+    ]
+  });
+}
+function rooms() {
   const here = room();
   const actions = OPEN_ROOMS.filter((id) => id !== here).map((id) => ({ label: ROOM_NAMES[id], run: go(id) }));
-  actions.push({ label: 'Mẹo ở đây', run: () => tip() });
-  actions.push({ label: 'Cất robot', run: stow });
-  say('Bạn muốn đi đâu?', { actions, anim: 'wave' });
+  actions.push({ label: 'Quay lại', run: menu });
+  say('Bạn muốn đi đâu?', { actions, anim: 'point' });
+}
+
+/* Fact hôm nay: mỗi ngày một câu, cả ngày hỏi lại vẫn ra đúng câu đó */
+function fact() {
+  const list = window.FACTS || [];
+  if (!list.length) { say('Hôm nay mình chưa có fact nào.', { anim: 'think' }); return; }
+  const now = new Date();
+  const day = Math.floor(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000);
+  say('Fact hôm nay: ' + list[day % list.length], { anim: 'think', actions: [{ label: 'Hay đó', run: hush }, { label: 'Quay lại', run: menu }] });
+}
+
+/* Thời tiết hôm nay, lấy từ Open-Meteo. Không gửi thông tin gì của người dùng, chỉ gửi toạ độ thành phố. */
+const CITIES = [
+  { name: 'TP. Hồ Chí Minh', lat: 10.82, lon: 106.63 },
+  { name: 'Hà Nội', lat: 21.03, lon: 105.85 },
+  { name: 'Đà Nẵng', lat: 16.05, lon: 108.21 }
+];
+const SKY = [
+  [[0], 'trời quang'], [[1], 'trời ít mây'], [[2], 'trời có mây'], [[3], 'trời nhiều mây'],
+  [[45, 48], 'có sương mù'], [[51, 53, 55, 56, 57], 'mưa phùn'], [[61, 80], 'mưa nhỏ'], [[63, 81], 'mưa vừa'],
+  [[65, 82], 'mưa to'], [[66, 67], 'mưa lạnh'], [[71, 73, 75, 77, 85, 86], 'có tuyết'], [[95, 96, 99], 'có dông']
+];
+const skyText = (code) => { const hit = SKY.find(([codes]) => codes.includes(code)); return hit ? hit[1] : 'thời tiết khó đoán'; };
+const weatherCache = {};
+function weatherMenu() {
+  const actions = CITIES.map((city) => ({ label: city.name, run: () => weather(city) }));
+  actions.push({ label: 'Quay lại', run: menu });
+  say('Bạn muốn xem thời tiết ở đâu?', { actions, anim: 'point' });
+}
+function weather(city) {
+  const again = [{ label: 'Thành phố khác', run: weatherMenu }, { label: 'Xong', run: hush }];
+  const tell = (d) => say(
+    city.name + ' lúc này ' + Math.round(d.current.temperature_2m) + ' độ, ' + skyText(d.current.weather_code) +
+    '. Hôm nay thấp nhất ' + Math.round(d.daily.temperature_2m_min[0]) + ' độ, cao nhất ' + Math.round(d.daily.temperature_2m_max[0]) +
+    ' độ, khả năng mưa ' + Math.round(d.daily.precipitation_probability_max[0]) + '%. Nguồn: Open-Meteo.',
+    { anim: 'think', actions: again }
+  );
+  const kept = weatherCache[city.name];
+  if (kept && Date.now() - kept.at < 30 * 60000) { tell(kept.data); return; }
+  say('Để mình xem thời tiết ở ' + city.name + '...', { anim: 'think', hold: 0 });
+  const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + city.lat + '&longitude=' + city.lon +
+    '&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FBangkok&forecast_days=1';
+  fetch(url)
+    .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then((data) => { weatherCache[city.name] = { at: Date.now(), data }; tell(data); })
+    .catch(() => say('Mình chưa lấy được thời tiết. Kiểm tra mạng rồi thử lại nhé.', { anim: 'think', actions: [{ label: 'Thử lại', run: () => weather(city) }, { label: 'Thôi', run: hush }] }));
 }
 function tip() {
   const t = TIPS[room()];
