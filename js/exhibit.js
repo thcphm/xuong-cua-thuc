@@ -19,6 +19,8 @@
     if (!item.link) return;
     var a = el('a', '', item.link.label);
     a.href = item.link.href;
+    /* Link ra trang ngoài mở ở thẻ mới, căn nhà vẫn giữ nguyên */
+    if (/^https?:/.test(item.link.href)) { a.target = '_blank'; a.rel = 'noopener'; }
     parent.append(a);
   }
 

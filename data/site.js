@@ -221,7 +221,8 @@ window.SITE = {
                   'Trang Olive Design',
                   'Biểu mẫu đăng ký dùng thử, yêu cầu gọi lại hoặc xem demo',
                   'Đổi ngôn ngữ ngay trên trang'
-                ]
+                ],
+                link: { label: 'Mở olivenow.com', href: 'https://olivenow.com' }
               }
             ]
           },
