@@ -312,7 +312,7 @@ window.SITE = {
           id: 'thu-vien-mon-hoc',
           title: 'Thư viện môn học',
           kind: 'App máy tính ghi chú theo môn học',
-          about: 'App máy tính để ghi chú cá nhân theo từng môn học. Mỗi môn có bốn ngăn: Bài giảng, Bài tập và Lab, Ôn tập và Quiz, Tài liệu. Đây là bài Assignment phần 2 môn CNTT 4.0 (ITI102) ở FPT Polytechnic. Ảnh chụp dùng dữ liệu mẫu.',
+          about: 'App máy tính để ghi chú cá nhân theo từng môn học. Mỗi môn có bốn ngăn: Bài giảng, Bài tập và Lab, Ôn tập và Quiz, Tài liệu. Đây là bài Assignment phần 2 môn CNTT 4.0 (ITI102). Ảnh chụp dùng dữ liệu mẫu.',
           images: ['img/showcase/thuvien-1.jpg', 'img/showcase/thuvien-2.jpg', 'img/showcase/thuvien-3.jpg'],
           features: [
             'Kệ sách các môn học, mỗi môn bốn ngăn',
