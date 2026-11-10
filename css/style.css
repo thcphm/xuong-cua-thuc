@@ -987,6 +987,7 @@ body.has-3d[data-room="ham"]::before { background: linear-gradient(180deg, rgba(
 .ham-card .kind { margin: 2px 0 8px; color: var(--light); font-size: 14px; }
 .ham-card .about { margin: 0 0 8px; }
 .ham-card .status { margin: 0; color: var(--muted); font-size: 14px; }
+.ham-card .road-line { margin: 8px 0 0; font-weight: 500; }
 .ham-card a { display: inline-block; margin-top: 10px; color: var(--light); }
 @media (max-width: 900px) { .ham-panel { top: auto; bottom: 12px; left: 12px; right: 12px; width: auto; max-height: 44dvh; } }
 .has-3d .room-list a { padding-top: 9px; padding-bottom: 9px; }

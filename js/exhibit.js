@@ -19,7 +19,45 @@
     field.groups.forEach(function (group) { cabinets.push({ field: field, group: group }); });
   });
 
+  var base = window.SITE.basement || {};
+  function para(parent, cls, text) { parent.append(el('p', cls, text)); }
+  /* Các khu không phải tủ kính */
+  var ZONES = {
+    tom: function () {
+      var t = base.tom || {};
+      card.replaceChildren(el('h3', '', t.title), el('p', 'kind', t.kind));
+      (t.about || []).forEach(function (line) { para(card, 'about', line); });
+    },
+    lab: function () {
+      var t = base.lab || {};
+      card.replaceChildren(el('h3', '', t.title), el('p', 'about', t.about));
+      if (!(t.items || []).length) para(card, 'status', 'Bàn còn trống. Thử nghiệm mới sẽ được bày ở đây.');
+      (t.items || []).forEach(function (item) {
+        var box = el('div', 'ham-item');
+        box.append(el('h4', '', item.title));
+        if (item.about) para(box, 'about', item.about);
+        if (item.link) { var a = el('a', '', item.link.label); a.href = item.link.href; box.append(a); }
+        card.append(box);
+      });
+    },
+    road: function () {
+      var t = base.roadmap || {};
+      card.replaceChildren(el('h3', '', t.title));
+      (t.columns || []).forEach(function (col) {
+        var box = el('div', 'ham-item');
+        box.append(el('h4', '', col.title));
+        if (!col.items.length) para(box, 'status', 'Chưa có gì.');
+        col.items.forEach(function (item) {
+          para(box, 'road-line', item.title);
+          if (item.about) para(box, 'status', item.about);
+        });
+        card.append(box);
+      });
+    }
+  };
+
   function show(i) {
+    if (ZONES[i]) { ZONES[i](); panel.hidden = false; panel.scrollTop = 0; return; }
     var slot = cabinets[i];
     if (!slot) return;
     var same = slot.field.title === slot.group.title;
@@ -28,7 +66,8 @@
     if (!items.length) card.append(el('p', 'status', 'Tủ này còn trống.'));
     items.forEach(function (item) {
       var box = el('div', 'ham-item');
-      box.append(el('h4', '', item.title), el('p', 'kind', item.kind));
+      box.append(el('h4', '', item.title));
+      if (item.kind) box.append(el('p', 'kind', item.kind));
       if (item.about) box.append(el('p', 'about', item.about));
       if (item.status) box.append(el('p', 'status', 'Trạng thái: ' + item.status));
       if (item.link) {

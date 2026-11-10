@@ -192,13 +192,15 @@ window.SITE = {
           {
             title: 'Website',
             items: [
-              { id: 'xuong', title: 'Xưởng của Thức', kind: 'Trang cá nhân dạng căn nhà 3D', about: 'Chính là căn nhà bạn đang đứng: nghe nhạc, đọc sách, học, luyện code, thử AI, ngắm sao, chăm vườn và chơi game.', status: 'Đang chạy' }
+              { id: 'xuong', title: 'Xưởng của Thức', kind: 'Trang cá nhân dạng căn nhà 3D', about: 'Chính là căn nhà bạn đang đứng: nghe nhạc, đọc sách, học, luyện code, thử AI, ngắm sao, chăm vườn và chơi game.', status: 'Đang chạy' },
+              { id: 'olivenow', title: 'OliveNow Ecosystem', kind: 'Hệ sinh thái website' }
             ]
           },
           {
             title: 'Application',
             items: [
-              { id: 'tom', title: 'T.O.M', kind: 'Trợ lí ảo, Technical Operations Machine', about: 'Robot dẫn đường của Xưởng. T.O.M sẽ có mặt trong mọi dự án công nghệ của Thức.', status: 'Đang phát triển' }
+              { id: 'tom', title: 'T.O.M', kind: 'Trợ lí ảo, Technical Operations Machine', about: 'Robot dẫn đường của Xưởng. T.O.M sẽ có mặt trong mọi dự án công nghệ của Thức.', status: 'Đang phát triển' },
+              { id: 'olive-pos', title: 'Olive Mini POS Retail App', kind: 'Ứng dụng bán hàng cho cửa hàng bán lẻ' }
             ]
           },
           {
@@ -216,6 +218,34 @@ window.SITE = {
       { title: 'Hình ảnh và video', groups: [{ title: 'Hình ảnh và video', items: [] }] },
       { title: 'Học thuật', groups: [{ title: 'Học thuật', items: [] }] }
     ]
+  },
+
+  /* Các khu khác của Phòng Thực Nghiệm. */
+  basement: {
+    tom: {
+      title: 'Trạm T.O.M',
+      kind: 'Technical Operations Machine',
+      about: [
+        'T.O.M là trợ lí ảo của Thức. Đây là trạm sạc, cũng là nhà của T.O.M.',
+        'Hiện tại T.O.M dẫn tour căn nhà, đi trước dẫn đường tới từng phòng và chỉ cách dùng mỗi phòng.',
+        'T.O.M sẽ có mặt trong các dự án công nghệ tiếp theo của Thức.'
+      ]
+    },
+    /* Thử nghiệm nhỏ chưa thành dự án. Mỗi mục: { title, about, link: { label, href } } */
+    lab: {
+      title: 'Bàn thí nghiệm',
+      about: 'Nơi bày các thử nghiệm nhỏ chưa thành dự án.',
+      items: []
+    },
+    /* Tối đa ba cột, mỗi cột bảy dòng. */
+    roadmap: {
+      title: 'Bảng lộ trình',
+      columns: [
+        { title: 'Đang làm', items: [{ title: 'Phòng Thực Nghiệm', about: 'Tầng hầm của Xưởng, dựng dần từng khu.' }, { title: 'T.O.M', about: 'Trợ lí ảo dùng chung cho mọi dự án.' }] },
+        { title: 'Sắp làm', items: [{ title: 'App thư viện số cá nhân', about: 'Thư viện số kết hợp quản lí việc học, cùng phong cách với Xưởng.' }] },
+        { title: 'Đã xong', items: [{ title: 'Xưởng của Thức', about: 'Căn nhà 3D này, đang chạy.' }, { title: 'The Ticket', about: 'Game pixel kể chuyện, 5 chương.' }, { title: 'Fluffy Frenzy', about: 'Đại chiến thú cưng 3D.' }] }
+      ]
+    }
   },
 
   games: {

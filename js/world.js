@@ -547,8 +547,8 @@ let armTop = null, armLow = null, gridDraw = () => {};
   house.add(stripes);
 }
 
-/* Vị trí từng tủ kính, dùng khi máy quay tiến lại gần một tủ */
-const CASES = [];
+/* Điểm máy quay tiến lại gần trong Phòng Thực Nghiệm: số là tủ kính, chữ là các khu khác */
+const FOCUS = {};
 /* Phòng Thực Nghiệm: tầng hầm dưới mặt đất, rộng bằng tầng chính, một phòng duy nhất chia thành nhiều khu */
 const hamRamp = new THREE.Group();
 house.add(hamRamp);
@@ -644,6 +644,25 @@ house.add(hamRamp);
       box(g, 0.34, 0.05, 0.2, 0, 0.025, 0, std('#22324f'));
       cyl(g, 0.055, 0.045, 0.1, 0.3, 0.05, 0.02, std('#dfe8f3', { roughness: 0.4 }));
     },
+    olivenow(g) {
+      /* Ba cửa sổ trình duyệt xếp lớp */
+      const olive = glow('#b5c96a', 0.8);
+      [[-0.2, 0.3, -0.08, 0.5], [0.12, 0.24, 0.02, 0.46], [0.02, 0.36, 0.12, 0.4]].forEach(([px, py, pz, w], n) => {
+        box(g, w, w * 0.62, 0.02, px, py, pz, std('#1b2b45'));
+        box(g, w, 0.05, 0.022, px, py + w * 0.31 - 0.025, pz + 0.002, n === 2 ? olive : std('#35445f')).castShadow = false;
+      });
+      box(g, 0.7, 0.05, 0.3, 0, 0.025, 0, std('#22324f'));
+    },
+    'olive-pos'(g) {
+      /* Máy bán hàng: màn hình nghiêng trên chân đế, cuộn hóa đơn */
+      box(g, 0.34, 0.05, 0.3, 0, 0.025, 0, std('#22324f'));
+      box(g, 0.06, 0.2, 0.06, 0, 0.14, -0.04, std('#22324f'));
+      const scr = box(g, 0.42, 0.28, 0.03, 0, 0.36, 0, std('#141a26'));
+      scr.rotation.x = -0.35;
+      const face = box(g, 0.36, 0.22, 0.01, 0, 0.365, 0.018, glow('#b5c96a', 0.8));
+      face.rotation.x = -0.35; face.castShadow = false;
+      box(g, 0.1, 0.16, 0.01, 0.26, 0.1, 0.05, std('#f4f1e6', { roughness: 0.6 })).rotation.x = -0.2;
+    },
     other(g) { box(g, 0.3, 0.3, 0.3, 0, 0.15, 0, std('#2c3f60')); }
   };
   const frame = std('#0c111b', { roughness: 0.5, metalness: 0.4 });
@@ -681,8 +700,120 @@ house.add(hamRamp);
       sign.position.set(x + (slot.span - 1) * 1.5, y0 + CH + 0.4, z - D / 2 + 0.1);
       house.add(sign);
     }
-    CASES[i] = new THREE.Vector3(x, y0 + CH / 2, z);
+    FOCUS[i] = { look: new THREE.Vector3(x, y0 + CH / 2, z), pos: new THREE.Vector3(x, y0 + CH / 2 + 0.1, z + 3.1) };
     addHot(pane, 'ham', slot.field.title === slot.group.title ? slot.group.title : slot.field.title + ': ' + slot.group.title, () => document.dispatchEvent(new CustomEvent('tp:exhibit', { detail: i })));
+  }
+
+  const zone = (id, tip, w, h, d, x, y, z) => {
+    const hit = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), paint);
+    hit.position.set(x, y, z);
+    hit.visible = false;
+    house.add(hit);
+    addHot(hit, 'ham', tip, () => document.dispatchEvent(new CustomEvent('tp:exhibit', { detail: id })));
+  };
+  const sign = (text, color, w, x, y, z, turn) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w / 4), new THREE.MeshBasicMaterial({ map: plateTexture(text, color), toneMapped: false }));
+    m.position.set(x, y, z);
+    m.rotation.y = turn;
+    house.add(m);
+  };
+  const steel = std('#2c3a55', { roughness: 0.45, metalness: 0.5 });
+
+  /* Khu Trạm T.O.M ở tường trái: bệ sạc, vòm, bàn điều khiển */
+  {
+    const cyan = glow('#4fdcff', 1.2);
+    room.glows.push({ mat: cyan, base: 1.3 });
+    cyl(house, 0.75, 0.82, 0.12, -8.4, FLOOR + 0.08, 0, steel);
+    cyl(house, 0.6, 0.6, 0.02, -8.4, FLOOR + 0.15, 0, cyan).castShadow = false;
+    box(house, 0.14, 2.5, 2.0, -9.3, FLOOR + 1.27, 0, frame);
+    [-0.86, 0.86].forEach((dz) => { box(house, 0.06, 2.3, 0.06, -9.2, FLOOR + 1.25, dz, cyan).castShadow = false; });
+    box(house, 1.0, 0.1, 2.0, -8.85, FLOOR + 2.5, 0, frame);
+    box(house, 0.8, 0.03, 1.6, -8.85, FLOOR + 2.44, 0, cyan).castShadow = false;
+    const bot = createMascot(Object.assign({}, window.SITE.mascot, { env: 0.3 }), renderer);
+    bot.group.scale.setScalar(0.78);
+    bot.group.position.set(-8.4, FLOOR + 0.16, 0);
+    bot.group.rotation.y = Math.PI / 2;
+    house.add(bot.group);
+    /* Bàn điều khiển cạnh bệ sạc */
+    box(house, 0.5, 0.9, 0.9, -9.0, FLOOR + 0.49, 1.75, steel);
+    const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.2), new THREE.MeshBasicMaterial({ map: plateTexture('T.O.M', '#4fdcff'), toneMapped: false }));
+    screen.position.set(-8.74, FLOOR + 0.62, 1.75);
+    screen.rotation.y = Math.PI / 2;
+    house.add(screen);
+    sign('Trạm T.O.M', '#4fdcff', 2.2, -9.22, FLOOR + 2.82, 0, Math.PI / 2);
+    zone('tom', 'Trạm T.O.M', 1.9, 2.7, 3.2, -8.6, FLOOR + 1.35, 0.4);
+    FOCUS.tom = { look: new THREE.Vector3(-8.7, FLOOR + 1.25, 0.3), pos: new THREE.Vector3(-5.2, FLOOR + 1.45, 0.3) };
+  }
+
+  /* Khu Bàn thí nghiệm: bàn dài phía trước phòng, bày đồ đang thử */
+  {
+    const TZ = 4.3, TOPY = FLOOR + 0.9;
+    box(house, 5, 0.08, 1.1, 0, TOPY, TZ, steel);
+    [-2.35, 2.35].forEach((dx) => [-0.45, 0.45].forEach((dz) => box(house, 0.08, 0.86, 0.08, dx, FLOOR + 0.47, TZ + dz, frame)));
+    /* Màn hình */
+    box(house, 0.8, 0.5, 0.04, -1.5, TOPY + 0.42, TZ + 0.2, frame);
+    const scr = glow('#86e28a', 0.9);
+    room.glows.push({ mat: scr, base: 1.6 });
+    box(house, 0.72, 0.42, 0.01, -1.5, TOPY + 0.42, TZ + 0.17, scr).castShadow = false;
+    box(house, 0.08, 0.16, 0.08, -1.5, TOPY + 0.12, TZ + 0.2, frame);
+    /* Bo mạch */
+    box(house, 0.5, 0.02, 0.34, -0.3, TOPY + 0.05, TZ, std('#17402b', { roughness: 0.5 }));
+    [[-0.42, -0.06], [-0.2, 0.06], [-0.32, 0.1]].forEach(([px, pz]) => box(house, 0.08, 0.04, 0.08, px, TOPY + 0.08, TZ + pz, frame));
+    /* Bình thí nghiệm */
+    const liquid = glow(room.color, 0.9);
+    room.glows.push({ mat: liquid, base: 1.5 });
+    ball(house, 0.13, 0.7, TOPY + 0.17, TZ, liquid).castShadow = false;
+    cyl(house, 0.04, 0.04, 0.2, 0.7, TOPY + 0.36, TZ, glass).castShadow = false;
+    /* Khối lập phương đang thử */
+    const cube = box(house, 0.22, 0.22, 0.22, 1.6, TOPY + 0.2, TZ + 0.05, glow('#4fdcff', 0.9));
+    cube.rotation.set(0.5, 0.6, 0);
+    cube.castShadow = false;
+    sign('Bàn thí nghiệm', room.color, 2.2, 0, FLOOR + 2.6, 5.76, Math.PI);
+    zone('lab', 'Bàn thí nghiệm', 5.2, 1.5, 1.3, 0, FLOOR + 0.8, TZ);
+    FOCUS.lab = { look: new THREE.Vector3(-0.9, TOPY + 0.3, TZ), pos: new THREE.Vector3(-0.9, FLOOR + 1.9, 0.9) };
+  }
+
+  /* Khu Bảng lộ trình ở tường phải: ba cột lấy từ SITE.basement.roadmap */
+  {
+    const road = (window.SITE.basement && window.SITE.basement.roadmap) || { columns: [] };
+    const c = document.createElement('canvas');
+    c.width = 1440; c.height = 640;
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    const draw = () => {
+      const g = c.getContext('2d'), FONT = '"Chakra Petch", "Segoe UI", sans-serif', BODY = '"Saira", "Segoe UI", sans-serif';
+      g.fillStyle = '#0c111b'; g.fillRect(0, 0, 1440, 640);
+      g.strokeStyle = '#2a3b57'; g.lineWidth = 6; g.strokeRect(6, 6, 1428, 628);
+      g.textBaseline = 'middle'; g.textAlign = 'left';
+      g.fillStyle = '#ff8fa3'; g.font = '600 58px ' + FONT;
+      g.fillText('Bảng lộ trình', 48, 70);
+      const cols = road.columns.slice(0, 3), cw = (1440 - 96) / Math.max(1, cols.length);
+      const tint = ['#4fdcff', '#f2c879', '#86e28a'];
+      cols.forEach((col, n) => {
+        const x = 48 + n * cw;
+        g.fillStyle = tint[n]; g.fillRect(x, 124, cw - 28, 6);
+        g.font = '600 42px ' + FONT;
+        g.fillText(col.title, x, 168);
+        g.fillStyle = '#dfe8f3'; g.font = '500 32px ' + BODY;
+        col.items.slice(0, 7).forEach((item, k) => {
+          let text = item.title || item;
+          while (g.measureText(text).width > cw - 60 && text.length > 6) text = text.slice(0, -2);
+          if (text !== (item.title || item)) text += '…';
+          g.fillText(text, x, 232 + k * 54);
+        });
+      });
+      tex.needsUpdate = true;
+    };
+    draw();
+    if (document.fonts && document.fonts.load) Promise.all([document.fonts.load('600 58px "Chakra Petch"'), document.fonts.load('500 32px "Saira"')]).then(draw, () => {});
+    box(house, 0.1, 2.6, 5.7, 9.34, FLOOR + 1.75, 0, frame);
+    const board = new THREE.Mesh(new THREE.PlaneGeometry(5.4, 2.4), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }));
+    board.position.set(9.27, FLOOR + 1.75, 0);
+    board.rotation.y = -Math.PI / 2;
+    house.add(board);
+    addHot(board, 'ham', 'Bảng lộ trình', () => document.dispatchEvent(new CustomEvent('tp:exhibit', { detail: 'road' })));
+    /* Ngắm lệch sang trái để bảng nằm bên phải, không bị thẻ thông tin che */
+    FOCUS.road = { look: new THREE.Vector3(9.27, FLOOR + 1.7, -0.5), pos: new THREE.Vector3(4.4, FLOOR + 1.7, -0.5) };
   }
 
   /* Dốc xuống hầm, nằm trước Phòng Học */
@@ -707,7 +838,7 @@ house.add(hamRamp);
   hit.position.set(CX, TOP + 0.2, CZ);
   room.pointLight.distance = 26;
   /* Hai đèn phụ để hai đầu phòng không chìm trong tối */
-  room.extra = [-6.2, 6.2].map((x) => { const l = new THREE.PointLight('#cfdcff', 0, 14, 1.6); l.position.set(x, -1.1, -1.5); house.add(l); return l; });
+  room.extra = [[-6.2, -1.5], [6.2, -1.5], [0, 3.4]].map(([x, z]) => { const l = new THREE.PointLight('#cfdcff', 0, 14, 1.6); l.position.set(x, -1.1, z); house.add(l); return l; });
 }
 
 /* Biển TP khổng lồ sau nhà: thân tối, viền sáng */
@@ -930,15 +1061,15 @@ addEventListener('pointercancel', () => { drag = null; });
 
 /* Bấm một tủ kính: máy quay tiến lại gần tủ đó. Đóng thẻ thông tin thì lùi về giữa phòng. */
 document.addEventListener('tp:exhibit', (e) => {
-  const at = CASES[e.detail];
-  if (!at || currentRoom !== 'ham') return;
+  const spot = FOCUS[e.detail];
+  if (!spot || currentRoom !== 'ham') return;
   /* Chốt hướng đang nhìn vào shot để chuyển cảnh không bị giật */
   const fwd = shot.look.clone().sub(shot.pos).applyAxisAngle(THREE.Object3D.DEFAULT_UP, yaw);
   shot.look.copy(shot.pos).add(fwd);
   yaw = 0; yawGoal = 0;
   from.pos.copy(shot.pos); from.look.copy(shot.look);
-  to.look.copy(at);
-  to.pos.set(at.x, at.y + 0.1, at.z + 3.1);
+  to.look.copy(spot.look);
+  to.pos.copy(spot.pos);
   fovFrom = fovTo = camera.fov;
   focused = e.detail;
   tween = reduceMotion ? 1 : 0;
@@ -1023,6 +1154,8 @@ function frame(now) {
     /* Nhìn tự do: máy quay đứng yên, hướng nhìn quay quanh nó */
     const fwd = shot.look.clone().sub(camera.position).applyAxisAngle(THREE.Object3D.DEFAULT_UP, yaw);
     camera.lookAt(fwd.add(camera.position));
+    /* lookAt thứ hai để lại ma trận của hướng nhìn cũ; cập nhật lại để dò con trỏ đúng hướng đang thấy */
+    camera.updateMatrixWorld();
   }
 
   /* Raycast đúng một lần mỗi khung hình */
