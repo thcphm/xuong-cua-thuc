@@ -9,7 +9,8 @@
     cong: { title: 'Phòng Công Nghệ', cx: 765, cy: 305 },
     garage: { title: 'Garage AI', cx: 1087, cy: 460 },
     san: { title: 'Sân Thượng', cx: 1087, cy: 105 },
-    vuon: { title: 'Sân Vườn', cx: 1087, cy: 255 }
+    vuon: { title: 'Sân Vườn', cx: 1087, cy: 255 },
+    ham: { title: 'Phòng Thực Nghiệm', cx: 500, cy: 636 }
   };
   if (window.Session.isAdmin) SITE.lockedRooms = [];
   var LOCKED = SITE.lockedRooms || [];
@@ -37,7 +38,8 @@
     cong: 'Học và luyện code',
     garage: 'AI chạy trong trình duyệt',
     san: window.Rooftop.dueCount() ? 'Có thư đến hạn' : 'Ngắm sao, nhật ký',
-    vuon: FLORA + ' cây để chăm'
+    vuon: FLORA + ' cây để chăm',
+    ham: 'Tầng hầm, tủ trưng bày'
   };
   window.Study.init();
   window.Walk.init();
@@ -74,10 +76,10 @@
   /* Sơ đồ nhỏ trên thanh điều hướng */
   var NS = 'http://www.w3.org/2000/svg';
   var mini = document.createElementNS(NS, 'svg');
-  mini.setAttribute('viewBox', '30 20 1175 580');
+  mini.setAttribute('viewBox', '30 20 1175 650');
   [
     ['', 290, 340, 280, 250], ['', 490, 30, 80, 310],
-    ['nhac', 40, 30, 450, 310], ['sach', 570, 30, 390, 180], ['cong', 570, 210, 390, 190], ['game', 570, 400, 390, 190], ['hoc', 40, 340, 250, 250], ['san', 980, 30, 215, 150], ['vuon', 980, 180, 215, 150], ['garage', 980, 330, 215, 260]
+    ['nhac', 40, 30, 450, 310], ['sach', 570, 30, 390, 180], ['cong', 570, 210, 390, 190], ['game', 570, 400, 390, 190], ['hoc', 40, 340, 250, 250], ['san', 980, 30, 215, 150], ['vuon', 980, 180, 215, 150], ['garage', 980, 330, 215, 260], ['ham', 40, 606, 920, 54]
   ].forEach(function (r) {
     var rect = document.createElementNS(NS, 'rect');
     rect.setAttribute('x', r[1]); rect.setAttribute('y', r[2]);

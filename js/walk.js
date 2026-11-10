@@ -27,13 +27,16 @@ window.Walk = (function () {
     hoc: [[340, 460], [230, 460], [165, 465]],
     garage: TO_ANNEX.concat([[1075, 440]]),
     san: TO_ROOF.concat([[1075, 262, 2.7]]),
-    vuon: TO_ROOF.concat([[1060, 400, 2.7], [1050, 480, 2.7]])
+    vuon: TO_ROOF.concat([[1060, 400, 2.7], [1050, 480, 2.7]]),
+    /* Ra cửa chính, vòng ra miệng dốc, đi xuống tầng hầm sâu 3,6 mét */
+    ham: [[430, 560], [430, 880], [140, 880], [140, 840], [140, 612, -3.58], [140, 500, -3.58]]
   };
 
   var walker, label, region = '';
   var moveListeners = [];
 
   function regionAt(x, y, h) {
+    if (h < -1) return 'ham';
     var map = h >= 1 ? ROOF : REGIONS;
     for (var id in map) {
       var r = map[id];

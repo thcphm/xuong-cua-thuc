@@ -82,7 +82,15 @@ const seam = new THREE.LineSegments(
 );
 seam.position.y = -0.27;
 house.add(seam);
-const ground = new THREE.Mesh(new THREE.CircleGeometry(60, 48), std('#060a13', { roughness: 0.9 }));
+/* Mặt đất có một ô hở làm miệng dốc xuống tầng hầm */
+const groundShape = new THREE.Shape();
+groundShape.absarc(0, 0, 60, 0, Math.PI * 2, false);
+{
+  const pit = new THREE.Path();
+  pit.moveTo(-9.0, -10.6); pit.lineTo(-9.0, -6.0); pit.lineTo(-5.4, -6.0); pit.lineTo(-5.4, -10.6); pit.closePath();
+  groundShape.holes.push(pit);
+}
+const ground = new THREE.Mesh(new THREE.ShapeGeometry(groundShape, 48), std('#060a13', { roughness: 0.9, side: THREE.DoubleSide }));
 ground.rotation.x = -Math.PI / 2;
 ground.position.y = -0.53;
 ground.receiveShadow = true;
@@ -112,7 +120,8 @@ const ROOMS = {
   hoc: { rect: [40, 340, 290, 590], color: '#9fd3ff', floor: '#11203a', light: [165, 420, 2.2], power: 22 },
   garage: { rect: [965, 150, 1190, 590], color: '#ffa873', floor: '#191c25', light: [1075, 400, 2.1], power: 30, hit: 2.5, label: [1060, 590, 1.4] },
   san: { rect: [965, 150, 1190, 370], y: 2.7, color: '#c7b8ff', floor: '#20263a', light: [1075, 260, 4.6], power: 26, label: [1075, 260, 4.5] },
-  vuon: { rect: [965, 370, 1140, 590], y: 2.7, color: '#a5e27f', floor: '#33291c', light: [1050, 480, 4.6], power: 26, label: [1050, 480, 4.5] }
+  vuon: { rect: [965, 370, 1140, 590], y: 2.7, color: '#a5e27f', floor: '#33291c', light: [1050, 480, 4.6], power: 26, label: [1050, 480, 4.5] },
+  ham: { rect: [20, 10, 980, 610], y: -3.6, color: '#ff8fa3', floor: '#1d2433', light: [500, 330, -1.2], power: 60, label: [140, 770, 0.5] }
 };
 const floors = [];
 Object.keys(ROOMS).forEach((id) => {
@@ -538,6 +547,71 @@ let armTop = null, armLow = null, gridDraw = () => {};
   house.add(stripes);
 }
 
+/* Phòng Thực Nghiệm: tầng hầm dưới mặt đất, rộng bằng tầng chính, một phòng duy nhất chia thành nhiều khu */
+const hamRamp = new THREE.Group();
+house.add(hamRamp);
+{
+  const room = ROOMS.ham, FLOOR = -3.6, CEIL = -0.52, H = CEIL - FLOOR, MIDY = (FLOOR + CEIL) / 2;
+  const concrete = std('#26344f', { roughness: 0.85 }), dark = std('#1a2438', { roughness: 0.9 });
+  /* Tường sau và hai bên; mặt trước để hở như nhà búp bê */
+  box(house, 19.2, H, 0.2, 0, MIDY, -5.9, concrete);
+  box(house, 0.2, H, 12, -9.5, MIDY, 0, concrete);
+  box(house, 0.2, H, 12, 9.5, MIDY, 0, concrete);
+  /* Sân bê tông trước cửa hầm */
+  box(house, 60, 0.04, 30, 0, FLOOR - 0.03, 21, std('#070b14', { roughness: 0.95 })).castShadow = false;
+  /* Cột */
+  [-4.8, 4.8].forEach((x) => [-1.5, 3.2].forEach((z) => box(house, 0.36, H, 0.36, x, MIDY, z, dark)));
+  /* Đèn tuýp trần */
+  const tube = glow(room.color, 1.2);
+  room.glows.push({ mat: tube, base: 3.2 });
+  [-7.2, -2.4, 2.4, 7.2].forEach((x) => [-3.4, 1.2].forEach((z) => { box(house, 0.08, 0.05, 2.6, x, CEIL - 0.06, z, tube).castShadow = false; }));
+  /* Vạch sơn chia khu trên sàn */
+  const paint = new THREE.MeshBasicMaterial({ color: '#3b4c6b' });
+  [-4.8, 0, 4.8].forEach((x) => { box(house, 0.06, 0.01, 6.6, x, FLOOR + 0.03, 2.5, paint).castShadow = false; });
+  box(house, 18.6, 0.01, 0.06, 0, FLOOR + 0.03, -0.8, paint).castShadow = false;
+
+  /* Khu tủ trưng bày: sáu tủ kính dọc tường sau */
+  const frame = std('#0c111b', { roughness: 0.5, metalness: 0.4 });
+  const glass = new THREE.MeshStandardMaterial({ color: '#9fd3ff', transparent: true, opacity: 0.12, roughness: 0.1, metalness: 0.2, depthWrite: false });
+  const caseLight = glow('#dfe8f3', 1.1);
+  room.glows.push({ mat: caseLight, base: 3 });
+  const shelf = std('#2a3650', { roughness: 0.4 });
+  for (let i = 0; i < 6; i++) {
+    const x = -7.5 + i * 3, W = 2.5, CH = 2.3, D = 0.62, z = -5.48, y0 = FLOOR + 0.04;
+    box(house, W, 0.12, D, x, y0 + 0.06, z, frame);
+    box(house, W, 0.1, D, x, y0 + CH, z, frame);
+    box(house, W, CH, 0.05, x, y0 + CH / 2, z - D / 2 + 0.03, frame);
+    [-1, 1].forEach((side) => box(house, 0.06, CH, D, x + side * (W / 2 - 0.03), y0 + CH / 2, z, frame));
+    [0.8, 1.5].forEach((h) => box(house, W - 0.12, 0.03, D - 0.1, x, y0 + h, z, shelf));
+    box(house, W - 0.2, 0.03, 0.04, x, y0 + CH - 0.08, z + D / 2 - 0.08, caseLight).castShadow = false;
+    box(house, W - 0.12, CH - 0.2, 0.02, x, y0 + CH / 2, z + D / 2, glass).castShadow = false;
+  }
+
+  /* Dốc xuống hầm, nằm trước Phòng Học */
+  const RX0 = -9.0, RX1 = -5.4, RZ0 = 6.0, RZ1 = 10.6, TOP = -0.53;
+  const run = RZ1 - RZ0, drop = TOP - FLOOR, len = Math.hypot(run, drop), ang = Math.atan2(drop, run);
+  const CX = (RX0 + RX1) / 2, CY = (TOP + FLOOR) / 2, CZ = (RZ0 + RZ1) / 2;
+  box(hamRamp, RX1 - RX0, 0.12, len, CX, CY - 0.06, CZ, concrete).rotation.x = -ang;
+  [RX0, RX1].forEach((x) => {
+    box(hamRamp, 0.14, drop, run, x, CY, CZ, dark);
+    const strip = box(hamRamp, 0.05, 0.05, len, x + (x === RX0 ? 0.14 : -0.14), CY + 0.05, CZ, tube);
+    strip.rotation.x = -ang;
+    strip.castShadow = false;
+  });
+  /* Viền miệng dốc sáng lên để nhìn thấy từ sảnh */
+  const lip = glow(room.color, 1.2);
+  room.glows.push({ mat: lip, base: 1.4 });
+  box(hamRamp, RX1 - RX0 + 0.3, 0.05, 0.08, CX, TOP + 0.04, RZ1 + 0.06, lip).castShadow = false;
+  [RX0 - 0.1, RX1 + 0.1].forEach((x) => { box(hamRamp, 0.08, 0.05, run, x, TOP + 0.04, CZ, lip).castShadow = false; });
+  /* Vùng bấm là miệng dốc, không phải cả tầng hầm */
+  const hit = floors.find((f) => f.userData.room === 'ham');
+  hit.geometry = new THREE.BoxGeometry(RX1 - RX0 + 0.4, 0.6, run + 0.4);
+  hit.position.set(CX, TOP + 0.2, CZ);
+  room.pointLight.distance = 26;
+  /* Hai đèn phụ để hai đầu phòng không chìm trong tối */
+  room.extra = [-6.2, 6.2].map((x) => { const l = new THREE.PointLight('#cfdcff', 0, 14, 1.6); l.position.set(x, -1.1, -1.5); house.add(l); return l; });
+}
+
 /* Biển TP khổng lồ sau nhà: thân tối, viền sáng */
 const sign = new THREE.Group();
 const SIGN_Y = 5.05;
@@ -583,8 +657,12 @@ const FRAME = {
   hoc: { look: P(165, 420), off: [3, 3.6, 7.4], y: 0.6 },
   garage: { look: P(1060, 340), off: [-1.4, 1.5, 8.4], y: 1.1 },
   san: { look: P(1075, 260), off: [-1.6, 3.2, 6.2], y: 3.2 },
-  vuon: { look: P(1050, 480), off: [-1.2, 3.2, 6], y: 3.2 }
+  vuon: { look: P(1050, 480), off: [-1.2, 3.2, 6], y: 3.2 },
+  /* Đứng ngay mép hở của tầng hầm, ống kính góc rộng để thấy cả dãy tủ */
+  ham: { look: [0, -5.6], off: [0, 0.35, 10.9], y: -2.2, fov: 56 }
 };
+const BASE_FOV = 26;
+let fovFrom = BASE_FOV, fovTo = BASE_FOV;
 const shot = { pos: HOME.pos.clone(), look: HOME.look.clone() };
 const from = { pos: HOME.pos.clone(), look: HOME.look.clone() };
 const to = { pos: HOME.pos.clone(), look: HOME.look.clone() };
@@ -612,6 +690,7 @@ function applyOffset() {
 const FIT_POINTS = [new THREE.Vector3(-5.7, 7.3, -6.8), new THREE.Vector3(-1.1, 7.3, -6.8)];
 [-9.7, 9.7].forEach((x) => [-6.1, 6.1].forEach((z) => [-0.6, 2.6].forEach((y) => FIT_POINTS.push(new THREE.Vector3(x, y, z)))));
 [-3.5, 5.8].forEach((z) => [-0.6, 3.9].forEach((y) => FIT_POINTS.push(new THREE.Vector3(14.0, y, z))));
+FIT_POINTS.push(new THREE.Vector3(-9.2, -0.5, 10.8), new THREE.Vector3(-5.2, -0.5, 10.8));
 function measure(cam) {
   const out = { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity };
   const v = new THREE.Vector3();
@@ -629,7 +708,7 @@ function computeFit() {
   const pad = Math.min(56, Math.max(24, w * 0.04));
   const x0 = wide ? Math.max(0, (w - 1500) / 2) + pad + 320 + 28 : 8;
   const x1 = w - 12, y0 = 10, y1 = wide ? h - 12 : h * 0.54;
-  const probe = new THREE.PerspectiveCamera(camera.fov, w / h, 0.1, 400);
+  const probe = new THREE.PerspectiveCamera(BASE_FOV, w / h, 0.1, 400);
   const dir = HOME.pos.clone().sub(HOME.look);
   let d = 1, m;
   const place = () => {
@@ -659,8 +738,10 @@ function setShot(id, instant) {
     to.look.copy(HOME.look);
     to.pos.copy(HOME.pos).sub(HOME.look).multiplyScalar(homeDistance()).add(HOME.look);
   }
+  fovFrom = camera.fov;
+  fovTo = (id && FRAME[id] && FRAME[id].fov) || BASE_FOV;
   tween = instant || reduceMotion ? 1 : 0;
-  if (tween === 1) { shot.pos.copy(to.pos); shot.look.copy(to.look); }
+  if (tween === 1) { shot.pos.copy(to.pos); shot.look.copy(to.look); camera.fov = fovTo; camera.updateProjectionMatrix(); }
 }
 
 /* Chuột: xoay nhà, chọn phòng */
@@ -751,7 +832,7 @@ applyOffset();
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const levels = new Uint8Array(128);
 const introStart = performance.now();
-const introOrder = { nhac: 0.3, sach: 0.6, cong: 0.9, game: 1.2, hoc: 1.5, garage: 1.7, san: 1.9, vuon: 2.1 };
+const introOrder = { nhac: 0.3, sach: 0.6, cong: 0.9, game: 1.2, hoc: 1.5, garage: 1.7, san: 1.9, vuon: 2.1, ham: 2.3 };
 let last = performance.now(), running = false, termTick = 0, gridTick = 0;
 
 function frame(now) {
@@ -767,6 +848,7 @@ function frame(now) {
     const k = ease(tween);
     shot.pos.lerpVectors(from.pos, to.pos, k);
     shot.look.lerpVectors(from.look, to.look, k);
+    if (fovFrom !== fovTo) { camera.fov = fovFrom + (fovTo - fovFrom) * k; camera.updateProjectionMatrix(); }
   }
   const sideRoom = innerWidth > 900 && currentRoom === 'game';
   const goalX = !currentRoom ? fit.sx : sideRoom ? 0.2 : 0;
@@ -827,6 +909,7 @@ function frame(now) {
       door.pivot.rotation.y += (goalAngle - door.pivot.rotation.y) * (1 - Math.exp(-dt * 9));
     });
   });
+  ROOMS.ham.extra.forEach((l) => { l.intensity = 16 * ROOMS.ham.level; });
   if (playing) disc.rotation.y -= dt * 3.4;
   tonearm.rotation.y += ((playing ? -0.62 : -0.1) - tonearm.rotation.y) * (1 - Math.exp(-dt * 5));
   if (armLow && !reduceMotion && (currentRoom === 'garage' || currentRoom === '')) {

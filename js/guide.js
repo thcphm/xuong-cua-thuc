@@ -121,7 +121,7 @@ function say(rawText, { actions = [], anim = 'idle', target = null, hold = 7000 
   if (!actions.length && hold) hideTimer = setTimeout(hush, hold);
 }
 
-const ROOM_NAMES = { nhac: 'Phòng Nhạc', sach: 'Phòng Sách', hoc: 'Phòng Học', game: 'Phòng Giải Trí', cong: 'Phòng Công Nghệ', garage: 'Garage AI', san: 'Sân Thượng', vuon: 'Sân Vườn' };
+const ROOM_NAMES = { nhac: 'Phòng Nhạc', sach: 'Phòng Sách', hoc: 'Phòng Học', game: 'Phòng Giải Trí', cong: 'Phòng Công Nghệ', garage: 'Garage AI', san: 'Sân Thượng', vuon: 'Sân Vườn', ham: 'Phòng Thực Nghiệm' };
 const TIPS = {
   '': { text: 'Bấm vào một phòng, mình sẽ đi vào trước. Kéo chuột để xoay căn nhà.', target: '#roomList' },
   nhac: { text: 'Gõ tên bài, dán link YouTube hoặc chọn thể loại. Sang phòng khác nhạc vẫn chạy ở khung nhỏ.', target: '#ytForm', anim: 'point' },
@@ -131,6 +131,7 @@ const TIPS = {
   cong: { text: 'Chọn ngôn ngữ, rồi vào tab Thực hành để viết code ngay trên trang.', target: '#labLangs', anim: 'point' },
   garage: { text: 'Chọn một bàn bên trái. Lần đầu cần tải mô hình, sau đó chạy ngay trên máy bạn.', target: '#garageBenches', anim: 'point' },
   san: { text: 'Đây là bầu trời thật lúc này. Kéo để nhìn quanh, bấm vào một ngôi sao để xem nó là ai.', target: '#skyFind', anim: 'point' },
+  ham: { text: 'Đây là tầng hầm, rộng bằng cả tầng chính. Dọc tường sau là dãy tủ trưng bày.', target: '#hamZones' },
   vuon: { text: 'Bấm vào một cây để xem thông tin. Cây nào khát thì tưới, nhưng đừng tưới quá tay.', target: '#gardenList', anim: 'point' }
 };
 const OPEN_ROOMS = Object.keys(ROOM_NAMES).filter((id) => !(window.SITE.lockedRooms || []).includes(id));

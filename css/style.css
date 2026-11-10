@@ -972,6 +972,13 @@ body[data-room="cong"].has-3d::before { background: rgba(5,7,13,.86); }
 body[data-room="garage"], .room[data-room="garage"], .room-list a[data-room="garage"], .world-label[data-room="garage"] { --light: #ffa873; }
 body[data-room="san"], .room[data-room="san"], .room-list a[data-room="san"], .world-label[data-room="san"] { --light: #c7b8ff; }
 body[data-room="vuon"], .room[data-room="vuon"], .room-list a[data-room="vuon"], .world-label[data-room="vuon"] { --light: #a5e27f; }
+body[data-room="ham"], .room[data-room="ham"], .room-list a[data-room="ham"], .world-label[data-room="ham"] { --light: #ff8fa3; }
+.has-3d .ham-room { width: 100%; max-width: 1380px; margin: 0 auto; padding-top: 20px; }
+body.has-3d[data-room="ham"]::before { background: linear-gradient(180deg, rgba(5,7,13,.62) 0, rgba(5,7,13,0) 34%); }
+.ham-zones { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.ham-zones li { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; max-width: 300px; border: 1px solid var(--line); border-radius: 10px; background: rgba(10,18,32,.78); }
+.ham-zones strong { font: 600 16px/1.3 var(--display); color: var(--light); }
+.ham-zones span { color: var(--muted); font-size: 14px; }
 .has-3d .room-list a { padding-top: 9px; padding-bottom: 9px; }
 body[data-room="san"] .switch, body[data-room="vuon"] .switch { display: none; }
 body[data-room="san"] .darkness, body[data-room="vuon"] .darkness { opacity: 0; }
