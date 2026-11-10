@@ -1,8 +1,10 @@
-/* Tủ trưng bày ở Phòng Thực Nghiệm: bấm một tủ kính trong 3D thì máy quay lại gần và thẻ thông tin hiện ra.
-   Dự án chia theo mảng, mỗi nhóm là một tủ. Nội dung lấy từ SITE.showcase. */
+/* Phòng Thực Nghiệm: thẻ thông tin hiện khi máy quay lại gần một khu.
+   Tủ kính: dự án chia theo mảng, mỗi nhóm một tủ; bấm một sản phẩm để xem ảnh và tính năng.
+   Nội dung lấy từ SITE.showcase và SITE.basement. */
 (function () {
   'use strict';
   var fields = (window.SITE.showcase && window.SITE.showcase.fields) || [];
+  var base = window.SITE.basement || {};
   var panel = document.getElementById('hamPanel'), card = document.getElementById('hamCard'), back = document.getElementById('hamBack');
   if (!panel || !card) return;
 
@@ -12,6 +14,13 @@
     if (text != null) node.textContent = text;
     return node;
   }
+  function para(parent, cls, text) { parent.append(el('p', cls, text)); }
+  function link(parent, item) {
+    if (!item.link) return;
+    var a = el('a', '', item.link.label);
+    a.href = item.link.href;
+    parent.append(a);
+  }
 
   /* Thứ tự tủ trong 3D trùng với thứ tự nhóm ở đây */
   var cabinets = [];
@@ -19,8 +28,20 @@
     field.groups.forEach(function (group) { cabinets.push({ field: field, group: group }); });
   });
 
-  var base = window.SITE.basement || {};
-  function para(parent, cls, text) { parent.append(el('p', cls, text)); }
+  /* Ảnh phóng to */
+  var zoom = el('div', 'ham-zoom');
+  zoom.hidden = true;
+  var zoomImg = el('img');
+  zoom.append(zoomImg);
+  zoom.addEventListener('click', function () { zoom.hidden = true; });
+  document.body.append(zoom);
+
+  function open(wide) {
+    panel.classList.toggle('wide', !!wide);
+    panel.hidden = false;
+    panel.scrollTop = 0;
+  }
+
   /* Các khu không phải tủ kính */
   var ZONES = {
     tom: function () {
@@ -36,7 +57,7 @@
         var box = el('div', 'ham-item');
         box.append(el('h4', '', item.title));
         if (item.about) para(box, 'about', item.about);
-        if (item.link) { var a = el('a', '', item.link.label); a.href = item.link.href; box.append(a); }
+        link(box, item);
         card.append(box);
       });
     },
@@ -56,39 +77,104 @@
     }
   };
 
-  function show(i) {
-    if (ZONES[i]) { ZONES[i](); panel.hidden = false; panel.scrollTop = 0; return; }
+  /* Danh sách sản phẩm trong một tủ */
+  function showCabinet(i) {
     var slot = cabinets[i];
     if (!slot) return;
     var same = slot.field.title === slot.group.title;
     card.replaceChildren(el('h3', '', same ? slot.group.title : slot.field.title + ': ' + slot.group.title));
     var items = slot.group.items || [];
-    if (!items.length) card.append(el('p', 'status', 'Tủ này còn trống.'));
-    items.forEach(function (item) {
-      var box = el('div', 'ham-item');
-      box.append(el('h4', '', item.title));
-      if (item.kind) box.append(el('p', 'kind', item.kind));
-      if (item.about) box.append(el('p', 'about', item.about));
-      if (item.status) box.append(el('p', 'status', 'Trạng thái: ' + item.status));
-      if (item.link) {
-        var a = el('a', '', item.link.label);
-        a.href = item.link.href;
-        box.append(a);
+    para(card, 'status', items.length ? 'Bấm một sản phẩm để xem ảnh và tính năng.' : 'Tủ này còn trống.');
+    items.forEach(function (item, n) {
+      var b = el('button', 'ham-pick');
+      b.type = 'button';
+      if (item.images && item.images.length) {
+        var thumb = el('img');
+        thumb.src = item.images[0];
+        thumb.alt = '';
+        thumb.loading = 'lazy';
+        b.append(thumb);
       }
-      card.append(box);
+      var text = el('span', 'ham-pick-text');
+      text.append(el('strong', '', item.title));
+      if (item.kind) text.append(el('span', '', item.kind));
+      b.append(text);
+      b.addEventListener('click', function () { showProduct(i, n); });
+      card.append(b);
     });
-    panel.hidden = false;
-    panel.scrollTop = 0;
+    open(false);
   }
+
+  /* Chi tiết một sản phẩm: ảnh, mô tả, tính năng */
+  function showProduct(i, n) {
+    var slot = cabinets[i], item = slot && (slot.group.items || [])[n];
+    if (!item) return;
+    var up = el('button', 'ham-up', 'Về tủ ' + slot.group.title);
+    up.type = 'button';
+    up.addEventListener('click', function () { showCabinet(i); });
+    card.replaceChildren(up, el('h3', '', item.title));
+    if (item.kind) para(card, 'kind', item.kind);
+
+    var images = item.images || [];
+    if (images.length) {
+      var main = el('button', 'ham-shot');
+      main.type = 'button';
+      main.setAttribute('aria-label', 'Phóng to ảnh');
+      var img = el('img');
+      img.src = images[0];
+      img.alt = 'Ảnh chụp ' + item.title;
+      main.append(img);
+      main.addEventListener('click', function () { zoomImg.src = img.src; zoomImg.alt = img.alt; zoom.hidden = false; });
+      card.append(main);
+      if (images.length > 1) {
+        var strip = el('div', 'ham-thumbs');
+        images.forEach(function (src, k) {
+          var t = el('button', '');
+          t.type = 'button';
+          t.setAttribute('aria-label', 'Ảnh ' + (k + 1));
+          t.setAttribute('aria-pressed', k === 0 ? 'true' : 'false');
+          var ti = el('img');
+          ti.src = src;
+          ti.alt = '';
+          ti.loading = 'lazy';
+          t.append(ti);
+          t.addEventListener('click', function () {
+            img.src = src;
+            Array.prototype.forEach.call(strip.children, function (c) { c.setAttribute('aria-pressed', c === t ? 'true' : 'false'); });
+          });
+          strip.append(t);
+        });
+        card.append(strip);
+      }
+    }
+    if (item.about) para(card, 'about', item.about);
+    if (item.features && item.features.length) {
+      card.append(el('h4', 'ham-sub', 'Tính năng'));
+      var ul = el('ul', 'ham-features');
+      item.features.forEach(function (f) { ul.append(el('li', '', f)); });
+      card.append(ul);
+    }
+    if (item.tech) para(card, 'status', 'Công nghệ: ' + item.tech);
+    if (item.status) para(card, 'status', 'Trạng thái: ' + item.status);
+    link(card, item);
+    open(true);
+  }
+
   function close() {
+    if (!zoom.hidden) { zoom.hidden = true; return; }
     if (panel.hidden) return;
     panel.hidden = true;
     document.dispatchEvent(new Event('tp:exhibit-close'));
   }
 
-  document.addEventListener('tp:exhibit', function (e) { show(e.detail); });
-  back.addEventListener('click', close);
+  document.addEventListener('tp:exhibit', function (e) {
+    if (ZONES[e.detail]) { ZONES[e.detail](); open(false); return; }
+    showCabinet(e.detail);
+  });
+  /* Bấm thẳng vào một món trong tủ kính */
+  document.addEventListener('tp:product', function (e) { showProduct(e.detail.cabinet, e.detail.item); });
+  back.addEventListener('click', function () { zoom.hidden = true; close(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
   /* Rời phòng thì cất thẻ */
-  document.addEventListener('tp:go', function () { panel.hidden = true; });
+  document.addEventListener('tp:go', function () { panel.hidden = true; zoom.hidden = true; });
 })();

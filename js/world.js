@@ -690,6 +690,15 @@ house.add(hamRamp);
       stand.scale.setScalar(pair ? 0.8 : 1);
       house.add(stand);
       (MODELS[item.id] || MODELS.other)(stand);
+      /* Vùng bấm riêng cho từng món, nằm ngay trước mặt kính */
+      const pick = new THREE.Mesh(new THREE.BoxGeometry(pair ? 1.05 : 2.1, 0.64, 0.02), paint);
+      pick.position.set(stand.position.x, stand.position.y + 0.3, z + D / 2 + 0.03);
+      pick.visible = false;
+      house.add(pick);
+      addHot(pick, 'ham', item.title, () => {
+        document.dispatchEvent(new CustomEvent('tp:exhibit', { detail: i }));
+        document.dispatchEvent(new CustomEvent('tp:product', { detail: { cabinet: i, item: n } }));
+      });
     });
     const plate = new THREE.Mesh(new THREE.PlaneGeometry(W - 0.5, (W - 0.5) / 4), new THREE.MeshBasicMaterial({ map: plateTexture(slot.group.title), toneMapped: false }));
     plate.position.set(x, y0 + 0.46, z + D / 2 - 0.06);
@@ -1072,6 +1081,8 @@ document.addEventListener('tp:exhibit', (e) => {
   to.pos.copy(spot.pos);
   fovFrom = fovTo = camera.fov;
   focused = e.detail;
+  /* Thẻ thông tin vừa hiện ngay dưới con trỏ: ngừng dò đồ vật cho tới khi chuột nhúc nhích */
+  pointerOnUI = true;
   tween = reduceMotion ? 1 : 0;
   if (tween === 1) { shot.pos.copy(to.pos); shot.look.copy(to.look); }
 });

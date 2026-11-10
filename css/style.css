@@ -988,6 +988,28 @@ body.has-3d[data-room="ham"]::before { background: linear-gradient(180deg, rgba(
 .ham-card .about { margin: 0 0 8px; }
 .ham-card .status { margin: 0; color: var(--muted); font-size: 14px; }
 .ham-card .road-line { margin: 8px 0 0; font-weight: 500; }
+.ham-panel.wide { width: min(560px, calc(100vw - 32px)); }
+.ham-pick { display: flex; align-items: center; gap: 12px; width: 100%; margin-top: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 10px; background: none; color: var(--text); text-align: left; font: inherit; transition: transform 140ms var(--ease-out), border-color 140ms; }
+.ham-pick:hover { border-color: var(--light); }
+.ham-pick:active { transform: scale(.98); }
+.ham-pick img { width: 96px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 6px; flex: none; background: var(--wall); }
+.ham-pick-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ham-pick-text strong { font: 600 16px/1.25 var(--display); }
+.ham-pick-text span { color: var(--muted); font-size: 13px; }
+.ham-up { min-height: 32px; margin-bottom: 8px; padding: 0; border: 0; background: none; color: var(--muted); font: 500 14px var(--sans); text-decoration: underline; }
+.ham-up:hover { color: var(--light); }
+.ham-shot { display: block; width: 100%; margin: 4px 0 8px; padding: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--wall); cursor: zoom-in; }
+.ham-shot img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.ham-thumbs { display: flex; gap: 6px; margin-bottom: 10px; }
+.ham-thumbs button { flex: 1 1 0; max-width: 110px; padding: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--wall); opacity: .65; transition: opacity 140ms, border-color 140ms; }
+.ham-thumbs button[aria-pressed="true"], .ham-thumbs button:hover { opacity: 1; border-color: var(--light); }
+.ham-thumbs img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.ham-sub { margin: 10px 0 4px; font: 600 16px/1.2 var(--display); }
+.ham-features { margin: 0 0 10px; padding-left: 20px; list-style: disc; }
+.ham-features li { margin: 3px 0; }
+.ham-zoom { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 24px; background: rgba(3,5,10,.92); cursor: zoom-out; }
+.ham-zoom[hidden] { display: none; }
+.ham-zoom img { max-width: 100%; max-height: 100%; border-radius: 8px; }
 .ham-card a { display: inline-block; margin-top: 10px; color: var(--light); }
 @media (max-width: 900px) { .ham-panel { top: auto; bottom: 12px; left: 12px; right: 12px; width: auto; max-height: 44dvh; } }
 .has-3d .room-list a { padding-top: 9px; padding-bottom: 9px; }

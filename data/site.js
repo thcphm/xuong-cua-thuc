@@ -183,7 +183,8 @@ window.SITE = {
 
   /* Tủ trưng bày ở Phòng Thực Nghiệm. Dự án chia theo mảng (fields), mỗi mảng có một hay nhiều nhóm (groups).
      Mỗi nhóm là một tủ kính, cả phòng có sáu tủ. Mỗi tủ bày được bốn món.
-     id của món quyết định mô hình trong tủ (xem MODELS trong js/world.js). link là tùy chọn. */
+     id của món quyết định mô hình trong tủ (xem MODELS trong js/world.js).
+     images, features, tech, status, link đều là tùy chọn. Ảnh để trong img/showcase/. */
   showcase: {
     fields: [
       {
@@ -192,22 +193,92 @@ window.SITE = {
           {
             title: 'Website',
             items: [
-              { id: 'xuong', title: 'Xưởng của Thức', kind: 'Trang cá nhân dạng căn nhà 3D', about: 'Chính là căn nhà bạn đang đứng: nghe nhạc, đọc sách, học, luyện code, thử AI, ngắm sao, chăm vườn và chơi game.', status: 'Đang chạy' },
-              { id: 'olivenow', title: 'OliveNow Ecosystem', kind: 'Hệ sinh thái website' }
+              {
+                id: 'xuong', title: 'Xưởng của Thức', kind: 'Trang cá nhân dạng căn nhà 3D',
+                about: 'Chính là căn nhà bạn đang đứng. Mỗi phòng là một việc Thức hay làm.',
+                images: ['img/showcase/xuong-1.jpg', 'img/showcase/xuong-2.jpg', 'img/showcase/xuong-3.jpg', 'img/showcase/xuong-4.jpg'],
+                features: [
+                  'Căn nhà 3D xoay được, bấm vào phòng nào thì đi vào phòng đó',
+                  'Phòng Nhạc: tìm và nghe nhạc từ YouTube',
+                  'Phòng Sách: thư viện sách mở, đọc ngay trên trang',
+                  'Phòng Học: đồng hồ hẹn giờ, flashcard, cảnh nền động, âm thanh mưa và lofi',
+                  'Phòng Công Nghệ: học và chạy code ngay trong trình duyệt',
+                  'Garage AI: mô hình AI chạy trên máy người dùng',
+                  'Sân Thượng ngắm sao thật, Sân Vườn chăm cây',
+                  'Tài khoản lưu tiến độ, dùng được trên nhiều máy'
+                ],
+                tech: 'HTML, CSS, JavaScript, Three.js, Firebase',
+                status: 'Đang chạy'
+              },
+              {
+                id: 'olivenow', title: 'OliveNow Ecosystem', kind: 'Bộ website giới thiệu hệ sinh thái Olive',
+                about: 'Bộ trang giới thiệu các dịch vụ Olive cho nhà hàng và cửa hàng.',
+                images: ['img/showcase/olivenow-1.jpg', 'img/showcase/olivenow-2.jpg', 'img/showcase/olivenow-3.jpg'],
+                features: [
+                  'Trang chủ gom mọi dịch vụ Olive về một nơi',
+                  'Trang OlivePOS: tính năng, phần cứng, bảng giá, câu hỏi thường gặp',
+                  'Trang Olive Online Ordering: cách hoạt động, bảng giá, so sánh chi phí với app giao hàng',
+                  'Trang Olive Design',
+                  'Biểu mẫu đăng ký dùng thử, yêu cầu gọi lại hoặc xem demo',
+                  'Đổi ngôn ngữ ngay trên trang'
+                ]
+              }
             ]
           },
           {
             title: 'Application',
             items: [
-              { id: 'tom', title: 'T.O.M', kind: 'Trợ lí ảo, Technical Operations Machine', about: 'Robot dẫn đường của Xưởng. T.O.M sẽ có mặt trong mọi dự án công nghệ của Thức.', status: 'Đang phát triển' },
-              { id: 'olive-pos', title: 'Olive Mini POS Retail App', kind: 'Ứng dụng bán hàng cho cửa hàng bán lẻ' }
+              {
+                id: 'tom', title: 'T.O.M', kind: 'Trợ lí ảo, Technical Operations Machine',
+                about: 'Robot dẫn đường của Xưởng. T.O.M sẽ có mặt trong mọi dự án công nghệ của Thức.',
+                images: ['img/showcase/tom-1.jpg', 'img/showcase/tom-2.jpg'],
+                features: [
+                  'Chào khách và dẫn tour căn nhà',
+                  'Đi trước dẫn đường tới phòng được bấm',
+                  'Chỉ cách dùng từng phòng',
+                  'Nhìn theo con trỏ chuột, nhảy theo khi có nhạc'
+                ],
+                status: 'Đang phát triển'
+              },
+              {
+                id: 'olive-pos', title: 'Olive Mini POS Retail App', kind: 'Phần mềm bán hàng cho tiệm tạp hóa',
+                about: 'Quét mã vạch, tính tiền, quản lí kho, báo cáo và in hóa đơn. Chạy không cần mạng trên một máy tính tại quầy.',
+                images: ['img/showcase/pos-1.png', 'img/showcase/pos-2.png'],
+                features: [
+                  'Bán hàng: quét mã để thêm món, bàn phím cảm ứng, phím tiền nhanh, giữ đơn chờ và gọi lại',
+                  'Thanh toán: tiền mặt có tính tiền thối, Interac, Visa, Mastercard',
+                  'Kho: thêm sửa hàng bằng máy quét, lọc hàng sắp hết, nhập xuất CSV',
+                  'Hóa đơn và báo cáo theo giờ, ngày, tuần, tháng, năm, nhóm hàng, hàng bán chạy',
+                  'In hóa đơn khổ 80 mm và mở két tiền',
+                  'Tự sao lưu mỗi ngày, giữ 30 ngày, có khôi phục',
+                  'Giao diện tiếng Anh và tiếng Việt'
+                ],
+                tech: 'Python, Tkinter, SQLite',
+                status: 'Đã phát hành bản 1.2.5'
+              }
             ]
           },
           {
             title: 'Game',
             items: [
-              { id: 'the-ticket', title: 'The Ticket', kind: 'Game pixel kể chuyện, 5 chương', about: 'Một anh IT lỡ chuyến xe về quê, nhận tấm vé từ một ông lão lạ và trở lại làng năm 2008.', status: 'Chơi được trên web và Windows', link: { label: 'Sang Phòng Giải Trí để chơi', href: '#game' } },
-              { id: 'fluffy-frenzy', title: 'Fluffy Frenzy', kind: 'Đại chiến thú cưng 3D', about: 'Chọn một con thú, vào đấu trường với 3 đến 7 bot. Có ba chế độ: Đấu trường, Chiếm cờ và Vua đồi.', status: 'Chơi được trên web', link: { label: 'Sang Phòng Giải Trí để chơi', href: '#game' } },
+              {
+                id: 'the-ticket', title: 'The Ticket', kind: 'Game pixel kể chuyện, 5 chương',
+                about: 'Một anh IT lỡ chuyến xe về quê, nhận tấm vé từ một ông lão lạ và trở lại làng năm 2008.',
+                images: ['img/showcase/ticket-1.jpg', 'img/showcase/ticket-2.jpg'],
+                features: ['Câu chuyện chia 5 chương, chọn chương từ menu', 'Đồ họa pixel', 'Chơi ngay trên trình duyệt hoặc tải bản Windows'],
+                tech: 'Python, pygame-ce, pygbag',
+                status: 'Chơi được trên web và Windows',
+                link: { label: 'Sang Phòng Giải Trí để chơi', href: '#game' }
+              },
+              {
+                id: 'fluffy-frenzy', title: 'Fluffy Frenzy', kind: 'Đại chiến thú cưng 3D',
+                about: 'Chọn một con thú, vào đấu trường với 3 đến 7 bot.',
+                images: ['img/showcase/fluffy-1.jpg', 'img/showcase/fluffy-2.jpg'],
+                features: ['Ba chế độ: Đấu trường, Chiếm cờ, Vua đồi', 'Ba bản đồ: Quảng Trường, Sân Thượng, Khu Vườn', 'Mỗi con thú có thiên phú riêng', 'Đấu với 3, 5 hoặc 7 bot'],
+                tech: 'JavaScript, Three.js',
+                status: 'Chơi được trên web',
+                link: { label: 'Sang Phòng Giải Trí để chơi', href: '#game' }
+              },
               { id: 'the-one', title: 'THE ONE', kind: 'Game pixel kể chuyện, 5 phần', status: 'Bản riêng, không phát hành' },
               { id: 'a-usual-day', title: 'A Usual Day', kind: 'Bản demo', status: 'Bản riêng, không phát hành' }
             ]
