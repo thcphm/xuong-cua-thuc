@@ -57,11 +57,9 @@
       card.replaceChildren(el('h3', '', t.title), el('p', 'about', t.about));
       if (!(t.items || []).length) para(card, 'status', 'Bàn còn trống. Thử nghiệm mới sẽ được bày ở đây.');
       (t.items || []).forEach(function (item) {
-        var box = el('div', 'ham-item');
-        box.append(el('h4', '', item.title));
-        if (item.about) para(box, 'about', item.about);
-        link(box, item);
-        card.append(box);
+        card.append(pick(item, function () {
+          detail(item, 'Về ' + t.title, function () { ZONES.lab(); open(false); });
+        }));
       });
     },
     road: function () {
@@ -80,6 +78,25 @@
     }
   };
 
+  /* Nút chọn một sản phẩm trong danh sách */
+  function pick(item, run) {
+    var b = el('button', 'ham-pick');
+    b.type = 'button';
+    if (item.images && item.images.length) {
+      var thumb = el('img');
+      thumb.src = item.images[0];
+      thumb.alt = '';
+      thumb.loading = 'lazy';
+      b.append(thumb);
+    }
+    var text = el('span', 'ham-pick-text');
+    text.append(el('strong', '', item.title));
+    if (item.kind) text.append(el('span', '', item.kind));
+    b.append(text);
+    b.addEventListener('click', run);
+    return b;
+  }
+
   /* Danh sách sản phẩm trong một tủ */
   function showCabinet(i) {
     var slot = cabinets[i];
@@ -89,32 +106,22 @@
     var items = slot.group.items || [];
     para(card, 'status', items.length ? 'Bấm một sản phẩm để xem ảnh và tính năng.' : 'Tủ này còn trống.');
     items.forEach(function (item, n) {
-      var b = el('button', 'ham-pick');
-      b.type = 'button';
-      if (item.images && item.images.length) {
-        var thumb = el('img');
-        thumb.src = item.images[0];
-        thumb.alt = '';
-        thumb.loading = 'lazy';
-        b.append(thumb);
-      }
-      var text = el('span', 'ham-pick-text');
-      text.append(el('strong', '', item.title));
-      if (item.kind) text.append(el('span', '', item.kind));
-      b.append(text);
-      b.addEventListener('click', function () { showProduct(i, n); });
-      card.append(b);
+      card.append(pick(item, function () { showProduct(i, n); }));
     });
     open(false);
   }
 
-  /* Chi tiết một sản phẩm: ảnh, mô tả, tính năng */
   function showProduct(i, n) {
     var slot = cabinets[i], item = slot && (slot.group.items || [])[n];
     if (!item) return;
-    var up = el('button', 'ham-up', 'Về tủ ' + slot.group.title);
+    detail(item, 'Về tủ ' + slot.group.title, function () { showCabinet(i); });
+  }
+
+  /* Chi tiết một sản phẩm: ảnh, mô tả, tính năng */
+  function detail(item, upText, goUp) {
+    var up = el('button', 'ham-up', upText);
     up.type = 'button';
-    up.addEventListener('click', function () { showCabinet(i); });
+    up.addEventListener('click', goUp);
     card.replaceChildren(up, el('h3', '', item.title));
     if (item.kind) para(card, 'kind', item.kind);
 

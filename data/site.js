@@ -303,18 +303,37 @@ window.SITE = {
         'T.O.M sẽ có mặt trong các dự án công nghệ tiếp theo của Thức.'
       ]
     },
-    /* Thử nghiệm nhỏ chưa thành dự án. Mỗi mục: { title, about, link: { label, href } } */
+    /* Sản phẩm đang thử. Mỗi mục giống một sản phẩm trong tủ: { title, kind, about, images, features, tech, status, link } */
     lab: {
       title: 'Bàn thí nghiệm',
-      about: 'Nơi bày các thử nghiệm nhỏ chưa thành dự án.',
-      items: []
+      about: 'Nơi bày các sản phẩm đang thử, chưa lên tủ trưng bày.',
+      items: [
+        {
+          id: 'thu-vien-mon-hoc',
+          title: 'Thư viện môn học',
+          kind: 'App máy tính ghi chú theo môn học',
+          about: 'App máy tính để ghi chú cá nhân theo từng môn học. Mỗi môn có bốn ngăn: Bài giảng, Bài tập và Lab, Ôn tập và Quiz, Tài liệu. Đây là bài Assignment phần 2 môn CNTT 4.0 (ITI102) ở FPT Polytechnic. Ảnh chụp dùng dữ liệu mẫu.',
+          images: ['img/showcase/thuvien-1.jpg', 'img/showcase/thuvien-2.jpg', 'img/showcase/thuvien-3.jpg'],
+          features: [
+            'Kệ sách các môn học, mỗi môn bốn ngăn',
+            'Mở một bài: nội dung slide bên trái, ghi chú của bài bên phải',
+            'Ghi chú tự lưu, có bản sao lưu, xuất và nhập toàn bộ thư viện',
+            'Tìm kiếm bằng Ctrl K, gõ không dấu vẫn tìm được',
+            'Thêm file PDF, Word, TXT, MD và cả thư mục từ máy làm tài liệu chỉ đọc',
+            'T.O.M trả lời câu hỏi chỉ từ nguồn trong thư viện, mỗi ý kèm nguồn để đối chiếu',
+            'Xưởng: tạo tóm tắt, đề cương, thuật ngữ, câu hỏi và thẻ nhớ từ bài giảng'
+          ],
+          tech: 'Electron, JavaScript, Three.js, pdf.js, Gemini API',
+          status: 'Đang phát triển, bản 0.1.0'
+        }
+      ]
     },
     /* Tối đa ba cột, mỗi cột bảy dòng. */
     roadmap: {
       title: 'Bảng lộ trình',
       columns: [
-        { title: 'Đang làm', items: [{ title: 'Phòng Thực Nghiệm', about: 'Tầng hầm của Xưởng, dựng dần từng khu.' }, { title: 'T.O.M', about: 'Trợ lí ảo dùng chung cho mọi dự án.' }] },
-        { title: 'Sắp làm', items: [{ title: 'App thư viện số cá nhân', about: 'Thư viện số kết hợp quản lí việc học, cùng phong cách với Xưởng.' }] },
+        { title: 'Đang làm', items: [{ title: 'Phòng Thực Nghiệm', about: 'Tầng hầm của Xưởng, dựng dần từng khu.' }, { title: 'T.O.M', about: 'Trợ lí ảo dùng chung cho mọi dự án.' }, { title: 'Thư viện môn học', about: 'App máy tính ghi chú theo môn học, đang bày ở Bàn thí nghiệm.' }] },
+        { title: 'Sắp làm', items: [] },
         { title: 'Đã xong', items: [{ title: 'Xưởng của Thức', about: 'Căn nhà 3D này, đang chạy.' }, { title: 'The Ticket', about: 'Game pixel kể chuyện, 5 chương.' }, { title: 'Fluffy Frenzy', about: 'Đại chiến thú cưng 3D.' }] }
       ]
     }
