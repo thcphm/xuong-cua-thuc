@@ -3,7 +3,7 @@ window.SITE = {
   siteName: 'Xưởng của Thức',
   tagline: 'Nơi Thức nghe nhạc, đọc sách, học, chơi và làm ra đồ công nghệ.',
 
-  /* Robot trợ lí TP: màu vỏ và màu nhấn. */
+  /* Robot trợ lí T.O.M: màu vỏ và màu nhấn. */
   mascot: { shell: '#e6eaf1', accent: '#1fb5b0', mark: '#e6fbf9' },
 
   /* Tên tài khoản của chủ Xưởng. Tài khoản đăng ký đúng tên này là admin. */

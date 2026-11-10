@@ -1,4 +1,4 @@
-/* Logo TP và robot trợ lí TP, dựng hoàn toàn bằng hình khối, không dùng file 3D ngoài. */
+/* Logo TP và robot trợ lí T.O.M, dựng hoàn toàn bằng hình khối, không dùng file 3D ngoài. */
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 

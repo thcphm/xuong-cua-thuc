@@ -1,4 +1,4 @@
-/* Mascot TP ở góc màn hình: nhìn theo chuột, nói chuyện, dẫn đường trong nhà. */
+/* Trợ lí T.O.M ở góc màn hình: nhìn theo chuột, nói chuyện, dẫn đường trong nhà. */
 import * as THREE from 'three';
 import { createMascot } from './mascot.js';
 
@@ -187,7 +187,7 @@ function tour() {
       { label: 'Đăng nhập', run: () => { finish(); hush(); window.Session.open('login'); } }
     ]
   });
-  say('Chào bạn, mình là TP, trợ lí của Xưởng của Thức. Đây là căn nhà 3D của Thức: nghe nhạc, đọc sách, học code, thử AI, ngắm sao, chăm vườn và chơi game.', {
+  say('Chào bạn, mình là T.O.M, viết tắt của Technical Operations Machine, trợ lí của Xưởng của Thức. Đây là căn nhà 3D của Thức: nghe nhạc, đọc sách, học code, thử AI, ngắm sao, chăm vườn và chơi game.', {
     anim: 'wave',
     actions: [{ label: 'Tiếp', run: person ? step2 : account }, { label: 'Tự đi', run: () => { finish(); hush(); } }]
   });

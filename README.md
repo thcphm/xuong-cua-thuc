@@ -34,7 +34,7 @@ Key nằm công khai trong trang, nên bắt buộc làm bước 3. Hạn mức 
 ## Cấu trúc
 
 - `js/world.js`: căn nhà 3D, camera, đồ vật bấm được
-- `js/mascot.js`: logo TP và robot TP
+- `js/mascot.js`: logo TP và robot trợ lí T.O.M (Technical Operations Machine)
 - `js/guide.js`: lời thoại, tour, phản ứng của robot
 - `js/walk.js`: robot tự đi tới phòng được bấm
 - `js/study.js`: Phòng Học
