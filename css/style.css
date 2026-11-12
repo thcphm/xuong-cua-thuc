@@ -1005,6 +1005,7 @@ body.has-3d[data-room="ham"]::before { background: linear-gradient(180deg, rgba(
 .ham-thumbs button[aria-pressed="true"], .ham-thumbs button:hover { opacity: 1; border-color: var(--light); }
 .ham-thumbs img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
 .ham-node { padding-top: 10px; }
+.ham-face { width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--c, var(--line)); background: var(--floor, #0d1626); align-self: center; }
 .ham-node h4 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0; padding-left: 10px; border-left: 3px solid var(--c, var(--light)); font: 600 18px/1.2 var(--display); color: var(--c, var(--text)); }
 .ham-node h4 span { color: var(--text); font-family: inherit; font-weight: 500; font-size: 14px; }
 .ham-node .full { margin: 2px 0 6px; color: var(--muted); font-size: 13px; }

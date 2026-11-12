@@ -5,7 +5,7 @@ window.SITE = {
 
   /* Robot trợ lí của trang: X.M.A.S, trợ lí tổng. Màu vỏ, màu nhấn, màu phát sáng. */
   mascot: { kind: 'xmas', shell: '#f2f5f3', accent: '#1faf6b', glow: '#5cffb0', mark: '#e9fff3' },
-  /* T.O.M, agent quản lí ghi chú. Chỉ đứng ở Trạm X.M.A.S và trong tủ trưng bày. */
+  /* T.O.M, agent quản lí ghi chú. Chỉ đứng trong tủ trưng bày. */
   mascotTom: { kind: 'tom', shell: '#e6eaf1', accent: '#1fb5b0', mark: '#e6fbf9' },
   /* J.E.F.F, robot đầu bếp: trắng kem, đỏ cà chua, cam lửa. */
   mascotJeff: { kind: 'jeff', shell: '#f6f1e7', accent: '#d9482b', glow: '#ffb14a' },
@@ -310,22 +310,22 @@ window.SITE = {
 
   /* Các khu khác của Phòng Thực Nghiệm. */
   basement: {
-    /* Trạm trợ lí: cây phân cấp các bot agent. Mỗi agent: { id, name, full, role, status, color, note, tasks, children } */
+    /* Trạm Agent: cây phân cấp các bot agent. Mỗi agent: { id, name, full, role, avatar, status, color, note, tasks, children } */
     agents: {
-      title: 'Trạm X.M.A.S',
+      title: 'Trạm Agent',
       about: 'Mọi bot agent trong dự án trợ lí ảo cá nhân của Thức, xếp theo phân cấp. X.M.A.S ở trên cùng, mỗi agent bên dưới lo một việc.',
       tree: {
-        id: 'xmas', name: 'X.M.A.S', full: 'eXtensible Multi-Agent System', role: 'Trợ lí tổng', color: '#5cffb0',
+        id: 'xmas', name: 'X.M.A.S', full: 'eXtensible Multi-Agent System', role: 'Trợ lí tổng', color: '#5cffb0', avatar: 'img/agents/xmas.png',
         status: 'Đang chạy trên trang này',
         tasks: ['Chào khách, dẫn tour và dẫn đường trong Xưởng', 'Fact hôm nay và thời tiết hôm nay', 'Đứng trên các agent chuyên việc bên dưới'],
         children: [
           {
-            id: 'tom', name: 'T.O.M', full: 'Technical Operations Machine', role: 'Quản lí ghi chú', color: '#4fdcff',
+            id: 'tom', name: 'T.O.M', full: 'Technical Operations Machine', role: 'Quản lí ghi chú', color: '#4fdcff', avatar: 'img/agents/tom.png',
             status: 'Đang chạy trong app Thư viện môn học',
             tasks: ['Trả lời câu hỏi chỉ từ nguồn trong thư viện, mỗi ý kèm nguồn', 'Tạo tóm tắt, đề cương, thuật ngữ, câu hỏi và thẻ nhớ', 'Liệt kê các bài chưa có ghi chú']
           },
           {
-            id: 'jeff', name: 'J.E.F.F', full: 'Just Eat Food Forever', role: 'Bếp và món ăn', color: '#ffb14a',
+            id: 'jeff', name: 'J.E.F.F', full: 'Just Eat Food Forever', role: 'Bếp và món ăn', color: '#ffb14a', avatar: 'img/agents/jeff.png',
             note: 'Đọc giống "chef".',
             status: 'Sắp làm, mới có avatar',
             tasks: ['Lên ý tưởng và đề xuất món ăn', 'Quản lí và tổng hợp nguyên vật liệu']

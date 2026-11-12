@@ -55,6 +55,13 @@
         var box = el('div', 'ham-node');
         if (a.color) box.style.setProperty('--c', a.color);
         var head = el('h4', '', a.name);
+        if (a.avatar) {
+          var face = el('img', 'ham-face');
+          face.src = a.avatar;
+          face.alt = '';
+          face.loading = 'lazy';
+          head.prepend(face);
+        }
         head.append(el('span', '', a.role));
         box.append(head, el('p', 'full', a.full + (a.note ? '. ' + a.note : '')));
         if (a.tasks && a.tasks.length) {

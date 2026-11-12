@@ -133,7 +133,7 @@ const TIPS = {
   cong: { text: 'Chọn ngôn ngữ, rồi vào tab Thực hành để viết code ngay trên trang.', target: '#labLangs', anim: 'point' },
   garage: { text: 'Chọn một bàn bên trái. Lần đầu cần tải mô hình, sau đó chạy ngay trên máy bạn.', target: '#garageBenches', anim: 'point' },
   san: { text: 'Đây là bầu trời thật lúc này. Kéo để nhìn quanh, bấm vào một ngôi sao để xem nó là ai.', target: '#skyFind', anim: 'point' },
-  ham: { text: 'Đây là tầng hầm, rộng bằng cả tầng chính. Kéo chuột để nhìn quanh phòng. Có bốn khu: tủ trưng bày, trạm X.M.A.S với các bot agent, bàn thí nghiệm và bảng lộ trình.', target: '#view-ham h1' },
+  ham: { text: 'Đây là tầng hầm, rộng bằng cả tầng chính. Kéo chuột để nhìn quanh phòng. Có bốn khu: tủ trưng bày, trạm Agent với các bot agent, bàn thí nghiệm và bảng lộ trình.', target: '#view-ham h1' },
   vuon: { text: 'Bấm vào một cây để xem thông tin. Cây nào khát thì tưới, nhưng đừng tưới quá tay.', target: '#gardenList', anim: 'point' }
 };
 const OPEN_ROOMS = Object.keys(ROOM_NAMES).filter((id) => !(window.SITE.lockedRooms || []).includes(id));

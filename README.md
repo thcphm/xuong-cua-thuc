@@ -50,7 +50,7 @@ Hai file trong `assets/sounds/` đều là CC0, lấy từ Freesound: `rain.mp3`
 
 ## Trợ lí X.M.A.S
 
-X.M.A.S là trợ lí tổng của trang. Các agent chuyên việc (T.O.M, J.E.F.F) được giới thiệu ở Trạm X.M.A.S dưới tầng hầm, nội dung nằm ở `basement.agents` trong `data/site.js`.
+X.M.A.S là trợ lí tổng của trang. Các agent chuyên việc (T.O.M, J.E.F.F) được giới thiệu ở Trạm Agent dưới tầng hầm (bảng treo tường, ảnh đầu các bot nằm trong `img/agents/`), nội dung nằm ở `basement.agents` trong `data/site.js`.
 
 Bấm vào X.M.A.S để mở menu: fact hôm nay, thời tiết hôm nay, đi tới phòng, mẹo.
 

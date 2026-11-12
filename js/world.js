@@ -733,64 +733,90 @@ house.add(hamRamp);
   };
   const steel = std('#2c3a55', { roughness: 0.45, metalness: 0.5 });
 
-  /* Khu Trạm X.M.A.S ở tường trái: cây phân cấp các bot agent.
-     X.M.A.S đứng trên bệ lớn sát tường, các agent con đứng trên bệ nhỏ phía trước, nối với bệ lớn bằng đường sáng. */
+  /* Khu Trạm Agent ở tường trái: một bảng khung treo tường, vẽ cây phân cấp các bot agent bằng ảnh chân dung.
+     Nội dung lấy từ SITE.basement.agents, ảnh nằm trong img/agents/. */
   {
-    const tree = (window.SITE.basement && window.SITE.basement.agents && window.SITE.basement.agents.tree) || {};
-    const LOOKS = { xmas: window.SITE.mascot, tom: window.SITE.mascotTom, jeff: window.SITE.mascotJeff };
-    const lit = (color, power) => { const m = glow(color, power); room.glows.push({ mat: m, base: power + 0.1 }); return m; };
-    const cyan = lit(tree.color || '#5cffb0', 1.2);
-    const MX = -8.4;
-    cyl(house, 0.75, 0.82, 0.12, MX, FLOOR + 0.08, 0, steel);
-    cyl(house, 0.6, 0.6, 0.02, MX, FLOOR + 0.15, 0, cyan).castShadow = false;
-    box(house, 0.14, 2.5, 2.0, -9.3, FLOOR + 1.27, 0, frame);
-    [-0.86, 0.86].forEach((dz) => { box(house, 0.06, 2.3, 0.06, -9.2, FLOOR + 1.25, dz, cyan).castShadow = false; });
-    box(house, 1.0, 0.1, 2.0, -8.85, FLOOR + 2.5, 0, frame);
-    box(house, 0.8, 0.03, 1.6, -8.85, FLOOR + 2.44, 0, cyan).castShadow = false;
-    const stand = (look, scale, x, y, z) => {
-      /* Vỏ tối hơn một bậc: đèn trạm rọi gần nên vỏ trắng sẽ bị chói */
-      const b = createMascot(Object.assign({}, look, { shell: '#98a2ad', env: 0.3 }), renderer);
-      b.update(0.5);
-      b.group.scale.setScalar(scale);
-      b.group.position.set(x, y, z);
-      b.group.rotation.y = Math.PI / 2;
-      house.add(b.group);
-    };
-    stand(LOOKS[tree.id] || window.SITE.mascot, 0.78, MX, FLOOR + 0.16, 0);
-    /* Các agent con: bệ nhỏ, đường sáng nối về bệ lớn, bảng tên phía trước */
+    const info = (window.SITE.basement && window.SITE.basement.agents) || {};
+    const tree = info.tree || {};
     const kids = tree.children || [];
-    kids.forEach((kid, n) => {
-      const kx = -7.0, kz = (n - (kids.length - 1) / 2) * 2.3;
-      const mat = lit(kid.color || '#4fdcff', 1.2);
-      const dx = kx - MX, dz = kz, len = Math.hypot(dx, dz);
-      const line = box(house, len - 0.9, 0.02, 0.05, MX + dx / 2, FLOOR + 0.03, dz / 2, mat);
-      line.rotation.y = Math.atan2(-dz, dx);
-      line.castShadow = false;
-      cyl(house, 0.44, 0.48, 0.08, kx, FLOOR + 0.06, kz, steel);
-      cyl(house, 0.34, 0.34, 0.02, kx, FLOOR + 0.11, kz, mat).castShadow = false;
-      if (LOOKS[kid.id]) stand(LOOKS[kid.id], 0.46, kx, FLOOR + 0.12, kz);
-      else {
-        /* Agent chưa có avatar: khối lưới sáng giữ chỗ */
-        const ghost = new THREE.Mesh(new THREE.IcosahedronGeometry(0.26, 1), new THREE.MeshBasicMaterial({ color: kid.color || '#f2c879', wireframe: true, toneMapped: false }));
-        ghost.position.set(kx, FLOOR + 0.62, kz);
-        house.add(ghost);
+    const canvas = document.createElement('canvas');
+    canvas.width = 1440;
+    canvas.height = 900;
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    const pics = {};
+    const draw = () => {
+      const g = canvas.getContext('2d');
+      g.textAlign = 'left';
+      g.fillStyle = '#070b14';
+      g.fillRect(0, 0, 1440, 900);
+      g.strokeStyle = '#2a3b57';
+      g.lineWidth = 6;
+      g.strokeRect(6, 6, 1428, 888);
+      g.fillStyle = room.color;
+      g.font = '600 58px "Chakra Petch", sans-serif';
+      g.fillText(info.title || 'Trạm Agent', 48, 78);
+      /* Một ô: khung ảnh đầu bot, tên và vai trò bên dưới */
+      const cell = (agent, cx, cy, size) => {
+        const color = agent.color || '#4fdcff', x = cx - size / 2, y = cy - size / 2, pic = pics[agent.id];
+        g.save();
+        g.beginPath();
+        g.roundRect(x, y, size, size, 26);
+        g.fillStyle = '#0d1626';
+        g.fill();
+        g.clip();
+        if (pic && pic.complete && pic.naturalWidth) g.drawImage(pic, x, y, size, size);
+        g.restore();
+        g.beginPath();
+        g.roundRect(x, y, size, size, 26);
+        g.strokeStyle = color;
+        g.lineWidth = 6;
+        g.stroke();
+        g.textAlign = 'center';
+        g.fillStyle = color;
+        g.font = '600 46px "Chakra Petch", sans-serif';
+        g.fillText(agent.name || '', cx, cy + size / 2 + 52);
+        g.fillStyle = '#dfe8f3';
+        g.font = '500 30px "Saira", sans-serif';
+        g.fillText(agent.role || '', cx, cy + size / 2 + 90);
+      };
+      const TOP = 240, TOP_SIZE = 250, ROW = 660, SIZE = 200, BUS = 508;
+      const step = kids.length > 1 ? Math.min(520, 1100 / (kids.length - 1)) : 0;
+      const xs = kids.map((kid, n) => 720 + (n - (kids.length - 1) / 2) * step);
+      /* Đường nối cha con */
+      if (kids.length) {
+        g.strokeStyle = '#3d5478';
+        g.lineWidth = 5;
+        g.beginPath();
+        g.moveTo(720, TOP + TOP_SIZE / 2 + 104);
+        g.lineTo(720, BUS);
+        g.moveTo(xs[0], BUS);
+        g.lineTo(xs[xs.length - 1], BUS);
+        xs.forEach((x) => { g.moveTo(x, BUS); g.lineTo(x, ROW - SIZE / 2); });
+        g.stroke();
       }
-      const tag = new THREE.Mesh(new THREE.PlaneGeometry(0.72, 0.18), new THREE.MeshBasicMaterial({ map: plateTexture(kid.name, kid.color || '#4fdcff'), toneMapped: false }));
-      tag.position.set(kx + 0.5, FLOOR + 0.2, kz);
-      tag.rotation.order = 'YXZ';
-      tag.rotation.y = Math.PI / 2;
-      tag.rotation.x = -0.5;
-      house.add(tag);
+      cell(tree, 720, TOP, TOP_SIZE);
+      kids.forEach((kid, n) => cell(kid, xs[n], ROW, SIZE));
+      tex.needsUpdate = true;
+    };
+    [tree].concat(kids).forEach((agent) => {
+      if (!agent.avatar) return;
+      const pic = new Image();
+      pic.onload = draw;
+      pic.src = agent.avatar;
+      pics[agent.id] = pic;
     });
-    /* Bàn điều khiển cạnh bệ sạc */
-    box(house, 0.5, 0.9, 0.9, -9.0, FLOOR + 0.49, 1.75, steel);
-    const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.2), new THREE.MeshBasicMaterial({ map: plateTexture(tree.name || 'X.M.A.S', tree.color || '#5cffb0'), toneMapped: false }));
-    screen.position.set(-8.74, FLOOR + 0.62, 1.75);
-    screen.rotation.y = Math.PI / 2;
-    house.add(screen);
-    sign('Trạm X.M.A.S', tree.color || '#5cffb0', 2.2, -9.22, FLOOR + 2.82, 0, Math.PI / 2);
-    zone('agents', 'Trạm X.M.A.S', 2.9, 2.7, 4.0, -7.95, FLOOR + 1.35, 0.15);
-    FOCUS.agents = { look: new THREE.Vector3(-8.2, FLOOR + 0.95, 0), pos: new THREE.Vector3(-2.4, FLOOR + 2.3, 0) };
+    draw();
+    if (document.fonts && document.fonts.load) Promise.all([document.fonts.load('600 58px "Chakra Petch"'), document.fonts.load('500 30px "Saira"')]).then(draw, () => {});
+    box(house, 0.1, 2.7, 4.3, -9.34, FLOOR + 1.75, 0, frame);
+    const board = new THREE.Mesh(new THREE.PlaneGeometry(4.0, 2.5), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }));
+    board.position.set(-9.27, FLOOR + 1.75, 0);
+    board.rotation.y = Math.PI / 2;
+    house.add(board);
+    addHot(board, 'ham', info.title || 'Trạm Agent', () => document.dispatchEvent(new CustomEvent('tp:exhibit', { detail: 'agents' })));
+    /* Ngắm lệch để bảng nằm bên phải, không bị thẻ thông tin che */
+    FOCUS.agents = { look: new THREE.Vector3(-9.27, FLOOR + 1.7, 0.5), pos: new THREE.Vector3(-5.2, FLOOR + 1.7, 0.5) };
   }
 
   /* Khu Bàn thí nghiệm: bàn dài phía trước phòng, bày đồ đang thử */
