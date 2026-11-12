@@ -63,6 +63,15 @@
           head.prepend(face);
         }
         head.append(el('span', '', a.role));
+        /* Nút đi tới nơi agent làm việc: một phòng trong nhà hoặc một trang ngoài */
+        if (a.go) {
+          var go = el('a', 'ham-goto', 'Đi đến');
+          go.href = a.go.href;
+          go.setAttribute('aria-label', 'Đi đến ' + a.go.to);
+          go.title = 'Đi đến ' + a.go.to;
+          if (/^https?:/.test(a.go.href)) { go.target = '_blank'; go.rel = 'noopener'; }
+          head.append(go);
+        }
         box.append(head, el('p', 'full', a.full + (a.note ? '. ' + a.note : '')));
         if (a.tasks && a.tasks.length) {
           var ul = el('ul', 'ham-features');

@@ -316,7 +316,8 @@ window.SITE = {
   },
 
   basement: {
-    /* Trạm Agent: cây phân cấp các bot agent. Mỗi agent: { id, name, full, role, avatar, status, color, note, tasks, children } */
+    /* Trạm Agent: cây phân cấp các bot agent. Mỗi agent: { id, name, full, role, avatar, status, color, note, tasks, go, children }
+       go: nút "Đi đến" cạnh tên agent. href là "#mã phòng" hoặc một địa chỉ web, to là tên nơi đến. */
     agents: {
       title: 'Trạm Agent',
       about: 'Mọi bot agent trong dự án trợ lí ảo cá nhân của Thức, xếp theo phân cấp. X.M.A.S ở trên cùng, mỗi agent bên dưới lo một việc.',
@@ -328,13 +329,15 @@ window.SITE = {
           {
             id: 'tom', name: 'T.O.M', full: 'Technical Operations Machine', role: 'Quản lí ghi chú', color: '#4fdcff', avatar: 'img/agents/tom.png',
             status: 'Đang chạy trong app Thư viện môn học',
-            tasks: ['Trả lời câu hỏi chỉ từ nguồn trong thư viện, mỗi ý kèm nguồn', 'Tạo tóm tắt, đề cương, thuật ngữ, câu hỏi và thẻ nhớ', 'Liệt kê các bài chưa có ghi chú']
+            tasks: ['Trả lời câu hỏi chỉ từ nguồn trong thư viện, mỗi ý kèm nguồn', 'Tạo tóm tắt, đề cương, thuật ngữ, câu hỏi và thẻ nhớ', 'Liệt kê các bài chưa có ghi chú'],
+            go: { href: 'https://thcphm.github.io/quan-ly-ghi-chu-web/', to: 'trang Quản lí ghi chú' }
           },
           {
             id: 'jeff', name: 'J.E.F.F', full: 'Just Eat Food Forever', role: 'Bếp và món ăn', color: '#ffb14a', avatar: 'img/agents/jeff.png',
             note: 'Đọc giống "chef".',
             status: 'Đang dựng. Đã gợi ý món, lên thực đơn tuần và danh sách đi chợ',
-            tasks: ['Lên ý tưởng và đề xuất món ăn', 'Quản lí và tổng hợp nguyên vật liệu']
+            tasks: ['Lên ý tưởng và đề xuất món ăn', 'Quản lí và tổng hợp nguyên vật liệu'],
+            go: { href: '#bep', to: 'Phòng Bếp' }
           }
         ]
       }

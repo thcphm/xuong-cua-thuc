@@ -1093,6 +1093,9 @@ body.has-3d[data-room="ham"]::before { background: linear-gradient(180deg, rgba(
 .ham-face { width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--c, var(--line)); background: var(--floor, #0d1626); align-self: center; }
 .ham-node h4 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0; padding-left: 10px; border-left: 3px solid var(--c, var(--light)); font: 600 18px/1.2 var(--display); color: var(--c, var(--text)); }
 .ham-node h4 span { color: var(--text); font-family: inherit; font-weight: 500; font-size: 14px; }
+.ham-node h4 .ham-goto { display: inline-flex; align-items: center; align-self: center; min-height: 36px; margin: 0 0 0 auto; padding: 0 12px; border: 1px solid var(--c, var(--line)); border-radius: 8px; color: var(--c, var(--text)); font: 600 14px/1 var(--display); text-decoration: none; transition: transform 140ms var(--ease-out), background-color 140ms; }
+.ham-node h4 .ham-goto:hover { background: color-mix(in srgb, var(--c, var(--text)) 14%, transparent); }
+.ham-node h4 .ham-goto:active { transform: scale(.97); }
 .ham-node .full { margin: 2px 0 6px; color: var(--muted); font-size: 13px; }
 .ham-branch { margin: 6px 0 0 4px; padding-left: 14px; border-left: 1px solid var(--line); }
 .ham-sub { margin: 10px 0 4px; font: 600 16px/1.2 var(--display); }
