@@ -167,7 +167,7 @@ const plain = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').re
 const has = (text, words) => words.some((w) => (' ' + text + ' ').includes(' ' + w + ' '));
 /* Tên X.M.A.S qua máy nhận dạng tiếng Việt ra nhiều dạng khác nhau */
 /* Bỏ dấu rồi thì "ích mát", "ích mạt" đều thành "ich mat"; "ích mợt", "ích một" thành "ich mot" */
-const NAME = /\b(x m a s|xmax|(x|ex|ich|ic|ech|ec|et|is|it) ?(mas|mat|mot|mac|mut)|christmas|giang sinh|noel)\b/;
+const NAME = /\b(x m a s|xmax|(x|ex|ich|ic|ech|ec|et|is) ?(mas|mat|mot|mac|mut)|christmas|giang sinh|noel)\b/;
 const WAKE = ['day di', 'thuc day', 'day thoi', 'day nao', 'day ngay'];
 
 let awake = false, offered = false, sleepTimer = 0;
