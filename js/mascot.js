@@ -565,10 +565,12 @@ export function createMascot(cfg = {}, renderer) {
       p.bob = Math.abs(Math.cos(t * 7)) * 0.1;
     }
     if (state === 'shake') { p.hy = Math.sin(t * 13) * 0.42; p.rz = -0.7; p.lz = 0.7; }
+    /* Ngủ: gục đầu, tay buông, thở chậm */
+    if (state === 'sleep') { p.hx = 0.36; p.hz = 0.1; p.lz = 0.14; p.rz = -0.14; p.bob = -0.05 + Math.sin(t * 0.9) * 0.025; }
     if (talking && state === 'idle') { p.lz = 0.55 + Math.sin(t * 5) * 0.16; p.hx = Math.sin(t * 7) * 0.03; }
     return p;
   }
-  const AUTO_FACE = { wave: 'happy', cheer: 'happy', dance: 'music', think: 'think', point: 'neutral', shake: 'surprised' };
+  const AUTO_FACE = { sleep: 'sleepy', wave: 'happy', cheer: 'happy', dance: 'music', think: 'think', point: 'neutral', shake: 'surprised' };
 
   return {
     group: root,
