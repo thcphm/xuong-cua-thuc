@@ -1,4 +1,4 @@
-/* Fact của T.O.M: mỗi ngày một câu, lấy theo thứ tự rồi quay vòng. Thêm câu mới vào cuối danh sách. */
+/* Fact của X.M.A.S: mỗi ngày một câu, lấy theo thứ tự rồi quay vòng. Thêm câu mới vào cuối danh sách. */
 window.FACTS = [
   'Bạch tuộc có ba quả tim.',
   'Một ngày trên sao Kim dài hơn một năm của chính nó.',

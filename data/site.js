@@ -3,8 +3,10 @@ window.SITE = {
   siteName: 'Xưởng của Thức',
   tagline: 'Nơi Thức nghe nhạc, đọc sách, học, chơi và làm ra đồ công nghệ.',
 
-  /* Robot trợ lí T.O.M: màu vỏ và màu nhấn. */
-  mascot: { shell: '#e6eaf1', accent: '#1fb5b0', mark: '#e6fbf9' },
+  /* Robot trợ lí của trang: X.M.A.S, trợ lí tổng. Màu vỏ, màu nhấn, màu phát sáng. */
+  mascot: { kind: 'xmas', shell: '#f2f5f3', accent: '#1faf6b', glow: '#5cffb0', mark: '#e9fff3' },
+  /* T.O.M, agent quản lí ghi chú. Chỉ đứng ở Trạm X.M.A.S và trong tủ trưng bày. */
+  mascotTom: { kind: 'tom', shell: '#e6eaf1', accent: '#1fb5b0', mark: '#e6fbf9' },
 
   /* Tên tài khoản của chủ Xưởng. Tài khoản đăng ký đúng tên này là admin. */
   admin: 'Thức',
@@ -230,14 +232,26 @@ window.SITE = {
             title: 'Application',
             items: [
               {
-                id: 'tom', title: 'T.O.M', kind: 'Trợ lí ảo, Technical Operations Machine',
-                about: 'Robot dẫn đường của Xưởng. T.O.M sẽ có mặt trong mọi dự án công nghệ của Thức.',
-                images: ['img/showcase/tom-1.jpg', 'img/showcase/tom-2.jpg'],
+                id: 'xmas', title: 'X.M.A.S', kind: 'Trợ lí tổng, eXtensible Multi-Agent System',
+                about: 'Trợ lí ảo cá nhân của Thức và là robot dẫn đường của Xưởng. X.M.A.S đứng trên các agent chuyên việc như T.O.M và J.E.F.F.',
+                images: ['img/showcase/xmas-1.jpg', 'img/showcase/xmas-2.jpg'],
                 features: [
                   'Chào khách và dẫn tour căn nhà',
                   'Đi trước dẫn đường tới phòng được bấm',
                   'Chỉ cách dùng từng phòng',
+                  'Fact hôm nay và thời tiết hôm nay ở ba thành phố',
                   'Nhìn theo con trỏ chuột, nhảy theo khi có nhạc'
+                ],
+                status: 'Đang phát triển'
+              },
+              {
+                id: 'tom', title: 'T.O.M', kind: 'Agent quản lí ghi chú, Technical Operations Machine',
+                about: 'Agent của X.M.A.S chỉ lo một việc: ghi chú. T.O.M làm việc trong app Thư viện môn học. Ảnh chụp dùng dữ liệu mẫu.',
+                images: ['img/showcase/thuvien-3.jpg', 'img/showcase/thuvien-2.jpg'],
+                features: [
+                  'Trả lời câu hỏi chỉ từ nguồn trong thư viện, mỗi ý kèm nguồn để đối chiếu',
+                  'Tạo tóm tắt, đề cương, thuật ngữ, câu hỏi và thẻ nhớ từ bài giảng',
+                  'Liệt kê các bài chưa có ghi chú'
                 ],
                 status: 'Đang phát triển'
               },
@@ -294,14 +308,28 @@ window.SITE = {
 
   /* Các khu khác của Phòng Thực Nghiệm. */
   basement: {
-    tom: {
-      title: 'Trạm T.O.M',
-      kind: 'Technical Operations Machine',
-      about: [
-        'T.O.M là trợ lí ảo của Thức. Đây là trạm sạc, cũng là nhà của T.O.M.',
-        'Hiện tại T.O.M dẫn tour căn nhà, đi trước dẫn đường tới từng phòng và chỉ cách dùng mỗi phòng.',
-        'T.O.M sẽ có mặt trong các dự án công nghệ tiếp theo của Thức.'
-      ]
+    /* Trạm trợ lí: cây phân cấp các bot agent. Mỗi agent: { id, name, full, role, status, color, note, tasks, children } */
+    agents: {
+      title: 'Trạm X.M.A.S',
+      about: 'Mọi bot agent trong dự án trợ lí ảo cá nhân của Thức, xếp theo phân cấp. X.M.A.S ở trên cùng, mỗi agent bên dưới lo một việc.',
+      tree: {
+        id: 'xmas', name: 'X.M.A.S', full: 'eXtensible Multi-Agent System', role: 'Trợ lí tổng', color: '#5cffb0',
+        status: 'Đang chạy trên trang này',
+        tasks: ['Chào khách, dẫn tour và dẫn đường trong Xưởng', 'Fact hôm nay và thời tiết hôm nay', 'Đứng trên các agent chuyên việc bên dưới'],
+        children: [
+          {
+            id: 'tom', name: 'T.O.M', full: 'Technical Operations Machine', role: 'Quản lí ghi chú', color: '#4fdcff',
+            status: 'Đang chạy trong app Thư viện môn học',
+            tasks: ['Trả lời câu hỏi chỉ từ nguồn trong thư viện, mỗi ý kèm nguồn', 'Tạo tóm tắt, đề cương, thuật ngữ, câu hỏi và thẻ nhớ', 'Liệt kê các bài chưa có ghi chú']
+          },
+          {
+            id: 'jeff', name: 'J.E.F.F', full: 'Just Eat Food Forever', role: 'Bếp và món ăn', color: '#f2c879',
+            note: 'Đọc giống "chef".',
+            status: 'Sắp làm, chưa có avatar',
+            tasks: ['Lên ý tưởng và đề xuất món ăn', 'Quản lí và tổng hợp nguyên vật liệu']
+          }
+        ]
+      }
     },
     /* Sản phẩm đang thử. Mỗi mục giống một sản phẩm trong tủ: { title, kind, about, images, features, tech, status, link } */
     lab: {
@@ -332,8 +360,8 @@ window.SITE = {
     roadmap: {
       title: 'Bảng lộ trình',
       columns: [
-        { title: 'Đang làm', items: [{ title: 'Phòng Thực Nghiệm', about: 'Tầng hầm của Xưởng, dựng dần từng khu.' }, { title: 'T.O.M', about: 'Trợ lí ảo dùng chung cho mọi dự án.' }, { title: 'Thư viện môn học', about: 'App máy tính ghi chú theo môn học, đang bày ở Bàn thí nghiệm.' }] },
-        { title: 'Sắp làm', items: [] },
+        { title: 'Đang làm', items: [{ title: 'Phòng Thực Nghiệm', about: 'Tầng hầm của Xưởng, dựng dần từng khu.' }, { title: 'X.M.A.S', about: 'Trợ lí tổng, đang dẫn tour Xưởng.' }, { title: 'T.O.M', about: 'Agent quản lí ghi chú trong Thư viện môn học.' }, { title: 'Thư viện môn học', about: 'App máy tính ghi chú theo môn học, đang bày ở Bàn thí nghiệm.' }] },
+        { title: 'Sắp làm', items: [{ title: 'J.E.F.F', about: 'Agent đề xuất món ăn và tổng hợp nguyên vật liệu.' }] },
         { title: 'Đã xong', items: [{ title: 'Xưởng của Thức', about: 'Căn nhà 3D này, đang chạy.' }, { title: 'The Ticket', about: 'Game pixel kể chuyện, 5 chương.' }, { title: 'Fluffy Frenzy', about: 'Đại chiến thú cưng 3D.' }] }
       ]
     }

@@ -608,8 +608,13 @@ house.add(hamRamp);
       box(g, 0.03, 0.22, 0.5, -0.49, 0.17, 0, std('#22324f'));
     },
     tom(g) {
-      const bot = createMascot(Object.assign({}, window.SITE.mascot, { env: 0.3 }), renderer);
+      const bot = createMascot(Object.assign({}, window.SITE.mascotTom, { env: 0.3 }), renderer);
       bot.group.scale.setScalar(0.36);
+      g.add(bot.group);
+    },
+    xmas(g) {
+      const bot = createMascot(Object.assign({}, window.SITE.mascot, { env: 0.3 }), renderer);
+      bot.group.scale.setScalar(0.34);
       g.add(bot.group);
     },
     'the-ticket'(g) {
@@ -728,30 +733,64 @@ house.add(hamRamp);
   };
   const steel = std('#2c3a55', { roughness: 0.45, metalness: 0.5 });
 
-  /* Khu Trạm T.O.M ở tường trái: bệ sạc, vòm, bàn điều khiển */
+  /* Khu Trạm X.M.A.S ở tường trái: cây phân cấp các bot agent.
+     X.M.A.S đứng trên bệ lớn sát tường, các agent con đứng trên bệ nhỏ phía trước, nối với bệ lớn bằng đường sáng. */
   {
-    const cyan = glow('#4fdcff', 1.2);
-    room.glows.push({ mat: cyan, base: 1.3 });
-    cyl(house, 0.75, 0.82, 0.12, -8.4, FLOOR + 0.08, 0, steel);
-    cyl(house, 0.6, 0.6, 0.02, -8.4, FLOOR + 0.15, 0, cyan).castShadow = false;
+    const tree = (window.SITE.basement && window.SITE.basement.agents && window.SITE.basement.agents.tree) || {};
+    const LOOKS = { xmas: window.SITE.mascot, tom: window.SITE.mascotTom };
+    const lit = (color, power) => { const m = glow(color, power); room.glows.push({ mat: m, base: power + 0.1 }); return m; };
+    const cyan = lit(tree.color || '#5cffb0', 1.2);
+    const MX = -8.4;
+    cyl(house, 0.75, 0.82, 0.12, MX, FLOOR + 0.08, 0, steel);
+    cyl(house, 0.6, 0.6, 0.02, MX, FLOOR + 0.15, 0, cyan).castShadow = false;
     box(house, 0.14, 2.5, 2.0, -9.3, FLOOR + 1.27, 0, frame);
     [-0.86, 0.86].forEach((dz) => { box(house, 0.06, 2.3, 0.06, -9.2, FLOOR + 1.25, dz, cyan).castShadow = false; });
     box(house, 1.0, 0.1, 2.0, -8.85, FLOOR + 2.5, 0, frame);
     box(house, 0.8, 0.03, 1.6, -8.85, FLOOR + 2.44, 0, cyan).castShadow = false;
-    const bot = createMascot(Object.assign({}, window.SITE.mascot, { env: 0.3 }), renderer);
-    bot.group.scale.setScalar(0.78);
-    bot.group.position.set(-8.4, FLOOR + 0.16, 0);
-    bot.group.rotation.y = Math.PI / 2;
-    house.add(bot.group);
+    const stand = (look, scale, x, y, z) => {
+      /* Vỏ tối hơn một bậc: đèn trạm rọi gần nên vỏ trắng sẽ bị chói */
+      const b = createMascot(Object.assign({}, look, { shell: '#98a2ad', env: 0.3 }), renderer);
+      b.update(0.5);
+      b.group.scale.setScalar(scale);
+      b.group.position.set(x, y, z);
+      b.group.rotation.y = Math.PI / 2;
+      house.add(b.group);
+    };
+    stand(LOOKS[tree.id] || window.SITE.mascot, 0.78, MX, FLOOR + 0.16, 0);
+    /* Các agent con: bệ nhỏ, đường sáng nối về bệ lớn, bảng tên phía trước */
+    const kids = tree.children || [];
+    kids.forEach((kid, n) => {
+      const kx = -7.0, kz = (n - (kids.length - 1) / 2) * 2.3;
+      const mat = lit(kid.color || '#4fdcff', 1.2);
+      const dx = kx - MX, dz = kz, len = Math.hypot(dx, dz);
+      const line = box(house, len - 0.9, 0.02, 0.05, MX + dx / 2, FLOOR + 0.03, dz / 2, mat);
+      line.rotation.y = Math.atan2(-dz, dx);
+      line.castShadow = false;
+      cyl(house, 0.44, 0.48, 0.08, kx, FLOOR + 0.06, kz, steel);
+      cyl(house, 0.34, 0.34, 0.02, kx, FLOOR + 0.11, kz, mat).castShadow = false;
+      if (LOOKS[kid.id]) stand(LOOKS[kid.id], 0.46, kx, FLOOR + 0.12, kz);
+      else {
+        /* Agent chưa có avatar: khối lưới sáng giữ chỗ */
+        const ghost = new THREE.Mesh(new THREE.IcosahedronGeometry(0.26, 1), new THREE.MeshBasicMaterial({ color: kid.color || '#f2c879', wireframe: true, toneMapped: false }));
+        ghost.position.set(kx, FLOOR + 0.62, kz);
+        house.add(ghost);
+      }
+      const tag = new THREE.Mesh(new THREE.PlaneGeometry(0.72, 0.18), new THREE.MeshBasicMaterial({ map: plateTexture(kid.name, kid.color || '#4fdcff'), toneMapped: false }));
+      tag.position.set(kx + 0.5, FLOOR + 0.2, kz);
+      tag.rotation.order = 'YXZ';
+      tag.rotation.y = Math.PI / 2;
+      tag.rotation.x = -0.5;
+      house.add(tag);
+    });
     /* Bàn điều khiển cạnh bệ sạc */
     box(house, 0.5, 0.9, 0.9, -9.0, FLOOR + 0.49, 1.75, steel);
-    const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.2), new THREE.MeshBasicMaterial({ map: plateTexture('T.O.M', '#4fdcff'), toneMapped: false }));
+    const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.2), new THREE.MeshBasicMaterial({ map: plateTexture(tree.name || 'X.M.A.S', tree.color || '#5cffb0'), toneMapped: false }));
     screen.position.set(-8.74, FLOOR + 0.62, 1.75);
     screen.rotation.y = Math.PI / 2;
     house.add(screen);
-    sign('Trạm T.O.M', '#4fdcff', 2.2, -9.22, FLOOR + 2.82, 0, Math.PI / 2);
-    zone('tom', 'Trạm T.O.M', 1.9, 2.7, 3.2, -8.6, FLOOR + 1.35, 0.4);
-    FOCUS.tom = { look: new THREE.Vector3(-8.7, FLOOR + 1.25, 0.3), pos: new THREE.Vector3(-5.2, FLOOR + 1.45, 0.3) };
+    sign('Trạm X.M.A.S', tree.color || '#5cffb0', 2.2, -9.22, FLOOR + 2.82, 0, Math.PI / 2);
+    zone('agents', 'Trạm X.M.A.S', 2.9, 2.7, 4.0, -7.95, FLOOR + 1.35, 0.15);
+    FOCUS.agents = { look: new THREE.Vector3(-8.2, FLOOR + 0.95, 0), pos: new THREE.Vector3(-2.4, FLOOR + 2.3, 0) };
   }
 
   /* Khu Bàn thí nghiệm: bàn dài phía trước phòng, bày đồ đang thử */

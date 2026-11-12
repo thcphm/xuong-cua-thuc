@@ -47,10 +47,30 @@
 
   /* Các khu không phải tủ kính */
   var ZONES = {
-    tom: function () {
-      var t = base.tom || {};
-      card.replaceChildren(el('h3', '', t.title), el('p', 'kind', t.kind));
-      (t.about || []).forEach(function (line) { para(card, 'about', line); });
+    /* Cây phân cấp các bot agent: nhánh con thụt vào dưới nhánh cha */
+    agents: function () {
+      var t = base.agents || {};
+      card.replaceChildren(el('h3', '', t.title), el('p', 'about', t.about));
+      function node(a) {
+        var box = el('div', 'ham-node');
+        if (a.color) box.style.setProperty('--c', a.color);
+        var head = el('h4', '', a.name);
+        head.append(el('span', '', a.role));
+        box.append(head, el('p', 'full', a.full + (a.note ? '. ' + a.note : '')));
+        if (a.tasks && a.tasks.length) {
+          var ul = el('ul', 'ham-features');
+          a.tasks.forEach(function (f) { ul.append(el('li', '', f)); });
+          box.append(ul);
+        }
+        if (a.status) box.append(el('p', 'status', 'Trạng thái: ' + a.status));
+        if (a.children && a.children.length) {
+          var branch = el('div', 'ham-branch');
+          a.children.forEach(function (kid) { branch.append(node(kid)); });
+          box.append(branch);
+        }
+        return box;
+      }
+      if (t.tree) card.append(node(t.tree));
     },
     lab: function () {
       var t = base.lab || {};

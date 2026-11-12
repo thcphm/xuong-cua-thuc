@@ -1004,6 +1004,11 @@ body.has-3d[data-room="ham"]::before { background: linear-gradient(180deg, rgba(
 .ham-thumbs button { flex: 1 1 0; max-width: 110px; padding: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--wall); opacity: .65; transition: opacity 140ms, border-color 140ms; }
 .ham-thumbs button[aria-pressed="true"], .ham-thumbs button:hover { opacity: 1; border-color: var(--light); }
 .ham-thumbs img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.ham-node { padding-top: 10px; }
+.ham-node h4 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0; padding-left: 10px; border-left: 3px solid var(--c, var(--light)); font: 600 18px/1.2 var(--display); color: var(--c, var(--text)); }
+.ham-node h4 span { color: var(--text); font-family: inherit; font-weight: 500; font-size: 14px; }
+.ham-node .full { margin: 2px 0 6px; color: var(--muted); font-size: 13px; }
+.ham-branch { margin: 6px 0 0 4px; padding-left: 14px; border-left: 1px solid var(--line); }
 .ham-sub { margin: 10px 0 4px; font: 600 16px/1.2 var(--display); }
 .ham-features { margin: 0 0 10px; padding-left: 20px; list-style: disc; }
 .ham-features li { margin: 3px 0; }
@@ -1013,7 +1018,7 @@ body.has-3d[data-room="ham"]::before { background: linear-gradient(180deg, rgba(
 .ham-card a { display: inline-block; margin-top: 10px; color: var(--light); }
 @media (max-width: 900px) {
   .ham-panel, .ham-panel.wide { top: auto; bottom: 12px; left: 12px; right: 12px; width: auto; max-height: 52dvh; }
-  /* Màn hình hẹp: thẻ thông tin đang mở thì T.O.M tạm lánh để không che */
+  /* Màn hình hẹp: thẻ thông tin đang mở thì X.M.A.S tạm lánh để không che */
   body.ham-open .guide { display: none; }
 }
 .has-3d .room-list a { padding-top: 9px; padding-bottom: 9px; }

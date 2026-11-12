@@ -34,7 +34,7 @@ Key nằm công khai trong trang, nên bắt buộc làm bước 3. Hạn mức 
 ## Cấu trúc
 
 - `js/world.js`: căn nhà 3D, camera, đồ vật bấm được
-- `js/mascot.js`: logo TP và robot trợ lí T.O.M (Technical Operations Machine)
+- `js/mascot.js`: logo TP và hai robot: X.M.A.S (eXtensible Multi-Agent System, trợ lí tổng của trang) và T.O.M (Technical Operations Machine, agent quản lí ghi chú)
 - `js/guide.js`: lời thoại, tour, phản ứng của robot
 - `js/walk.js`: robot tự đi tới phòng được bấm
 - `js/study.js`: Phòng Học
@@ -48,9 +48,11 @@ Key nằm công khai trong trang, nên bắt buộc làm bước 3. Hạn mức 
 
 Hai file trong `assets/sounds/` đều là CC0, lấy từ Freesound: `rain.mp3` là "Rain from Indoors - Perfect loop" của samesamesame, `lofi.mp3` là "Chill Lofi Melody Loop 95 BPM" của holizna.
 
-## Trợ lí T.O.M
+## Trợ lí X.M.A.S
 
-Bấm vào T.O.M để mở menu: fact hôm nay, thời tiết hôm nay, đi tới phòng, mẹo.
+X.M.A.S là trợ lí tổng của trang. Các agent chuyên việc (T.O.M, J.E.F.F) được giới thiệu ở Trạm X.M.A.S dưới tầng hầm, nội dung nằm ở `basement.agents` trong `data/site.js`.
+
+Bấm vào X.M.A.S để mở menu: fact hôm nay, thời tiết hôm nay, đi tới phòng, mẹo.
 
 - Fact nằm trong `data/facts.js`, mỗi ngày một câu, hết danh sách thì quay vòng.
 - Thời tiết lấy từ [Open-Meteo](https://open-meteo.com/) (CC BY 4.0), không cần API key. Danh sách thành phố ở `CITIES` trong `js/guide.js`.

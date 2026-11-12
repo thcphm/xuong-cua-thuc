@@ -1,4 +1,4 @@
-/* Trợ lí T.O.M ở góc màn hình: nhìn theo chuột, nói chuyện, dẫn đường trong nhà. */
+/* Trợ lí X.M.A.S ở góc màn hình: nhìn theo chuột, nói chuyện, dẫn đường trong nhà. */
 import * as THREE from 'three';
 import { createMascot } from './mascot.js';
 
@@ -38,11 +38,13 @@ key.shadow.radius = 6;
 key.shadow.bias = -0.0008;
 key.shadow.normalBias = 0.02;
 scene.add(key);
-const rim = new THREE.DirectionalLight('#4fdcff', 2.6);
+const rim = new THREE.DirectionalLight((window.SITE.mascot && window.SITE.mascot.glow) || '#4fdcff', 2.6);
 rim.position.set(-4, 2, -3);
 scene.add(rim);
 
 const mascot = createMascot(window.SITE.mascot, renderer);
+/* X.M.A.S cao hơn vì có vòng sáng trên đầu: thu nhỏ một chút cho vừa khung */
+if (window.SITE.mascot && window.SITE.mascot.kind === 'xmas') mascot.group.scale.setScalar(0.9);
 scene.add(mascot.group);
 
 function fit() {
@@ -131,7 +133,7 @@ const TIPS = {
   cong: { text: 'Chọn ngôn ngữ, rồi vào tab Thực hành để viết code ngay trên trang.', target: '#labLangs', anim: 'point' },
   garage: { text: 'Chọn một bàn bên trái. Lần đầu cần tải mô hình, sau đó chạy ngay trên máy bạn.', target: '#garageBenches', anim: 'point' },
   san: { text: 'Đây là bầu trời thật lúc này. Kéo để nhìn quanh, bấm vào một ngôi sao để xem nó là ai.', target: '#skyFind', anim: 'point' },
-  ham: { text: 'Đây là tầng hầm, rộng bằng cả tầng chính. Kéo chuột để nhìn quanh phòng. Có bốn khu: tủ trưng bày, trạm của mình, bàn thí nghiệm và bảng lộ trình.', target: '#view-ham h1' },
+  ham: { text: 'Đây là tầng hầm, rộng bằng cả tầng chính. Kéo chuột để nhìn quanh phòng. Có bốn khu: tủ trưng bày, trạm X.M.A.S với các bot agent, bàn thí nghiệm và bảng lộ trình.', target: '#view-ham h1' },
   vuon: { text: 'Bấm vào một cây để xem thông tin. Cây nào khát thì tưới, nhưng đừng tưới quá tay.', target: '#gardenList', anim: 'point' }
 };
 const OPEN_ROOMS = Object.keys(ROOM_NAMES).filter((id) => !(window.SITE.lockedRooms || []).includes(id));
@@ -245,7 +247,7 @@ function tour() {
       { label: 'Đăng nhập', run: () => { finish(); hush(); window.Session.open('login'); } }
     ]
   });
-  say('Chào bạn, mình là T.O.M, viết tắt của Technical Operations Machine, trợ lí của Xưởng của Thức. Đây là căn nhà 3D của Thức: nghe nhạc, đọc sách, học code, thử AI, ngắm sao, chăm vườn và chơi game.', {
+  say('Chào bạn, mình là X.M.A.S, viết tắt của eXtensible Multi-Agent System, trợ lí tổng của Xưởng của Thức. Đây là căn nhà 3D của Thức: nghe nhạc, đọc sách, học code, thử AI, ngắm sao, chăm vườn và chơi game.', {
     anim: 'wave',
     actions: [{ label: 'Tiếp', run: person ? step2 : account }, { label: 'Tự đi', run: () => { finish(); hush(); } }]
   });
