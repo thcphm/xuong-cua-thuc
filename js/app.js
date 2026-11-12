@@ -36,7 +36,7 @@
     sach: 'Thư viện mở',
     game: SITE.games.list.length + ' game',
     hoc: 'Hẹn giờ, flashcard',
-    bep: 'Nơi J.E.F.F ở',
+    bep: 'J.E.F.F gợi ý món',
     cong: 'Học và luyện code',
     garage: 'AI chạy trong trình duyệt',
     san: window.Rooftop.dueCount() ? 'Có thư đến hạn' : 'Ngắm sao, nhật ký',

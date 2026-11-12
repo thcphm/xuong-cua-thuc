@@ -529,6 +529,8 @@ let jeffBot = null;
   hit.visible = false;
   house.add(hit);
   addHot(hit, 'bep', 'J.E.F.F', () => jeffBot.play('wave', 2), { noMove: true });
+  /* J.E.F.F vừa chọn xong một món */
+  document.addEventListener('tp:jeff', () => jeffBot.play('cheer', 1.4));
 }
 
 /* Khu phụ: tầng trệt là Garage AI, mái là Sân Thượng và Sân Vườn */

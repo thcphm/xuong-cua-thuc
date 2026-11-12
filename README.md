@@ -48,6 +48,13 @@ Key nằm công khai trong trang, nên bắt buộc làm bước 3. Hạn mức 
 
 Hai file trong `assets/sounds/` đều là CC0, lấy từ Freesound: `rain.mp3` là "Rain from Indoors - Perfect loop" của samesamesame, `lofi.mp3` là "Chill Lofi Melody Loop 95 BPM" của holizna.
 
+## Phòng Bếp và J.E.F.F
+
+J.E.F.F gợi ý món ở Phòng Bếp: chọn nguyên liệu đang có trong tab Tủ lạnh, xem món nấu được, hoặc bấm "Hôm nay ăn gì?". Không dùng AI, không gửi dữ liệu đi đâu; tủ lạnh lưu trong `localStorage` của trình duyệt.
+
+- Nguyên liệu và công thức nằm trong `data/recipes.js`. Thêm món bằng cách thêm một mục vào `recipes`.
+- Giao diện ở `js/kitchen.js`.
+
 ## Trợ lí X.M.A.S
 
 X.M.A.S là trợ lí tổng của trang. Các agent chuyên việc (T.O.M, J.E.F.F) được giới thiệu ở Trạm Agent dưới tầng hầm (bảng treo tường, ảnh đầu các bot nằm trong `img/agents/`), nội dung nằm ở `basement.agents` trong `data/site.js`.

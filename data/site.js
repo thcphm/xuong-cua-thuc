@@ -311,8 +311,8 @@ window.SITE = {
   /* Các khu khác của Phòng Thực Nghiệm. */
   /* Phòng Bếp, nơi J.E.F.F ở. Thông tin về J.E.F.F lấy từ basement.agents bên dưới. */
   kitchen: {
-    intro: 'Căn bếp của Xưởng, nơi J.E.F.F ở. Bấm vào J.E.F.F trong bếp để chào.',
-    about: 'J.E.F.F là robot đầu bếp trong nhóm agent của X.M.A.S. Hiện J.E.F.F mới có avatar và căn bếp này, phần gợi ý món ăn chưa được dựng.'
+    intro: 'Căn bếp của Xưởng, nơi J.E.F.F ở. Chọn nguyên liệu bạn đang có, J.E.F.F gợi ý món nấu được.',
+    about: 'J.E.F.F là robot đầu bếp trong nhóm agent của X.M.A.S. Hiện J.E.F.F gợi ý món bằng cách so nguyên liệu bạn chọn với kho công thức có sẵn, chưa dùng AI. Tủ lạnh của bạn chỉ lưu trên trình duyệt này.'
   },
 
   basement: {
@@ -333,7 +333,7 @@ window.SITE = {
           {
             id: 'jeff', name: 'J.E.F.F', full: 'Just Eat Food Forever', role: 'Bếp và món ăn', color: '#ffb14a', avatar: 'img/agents/jeff.png',
             note: 'Đọc giống "chef".',
-            status: 'Sắp làm. Đã có avatar và Phòng Bếp',
+            status: 'Đang dựng. Đã gợi ý được món từ nguyên liệu có sẵn',
             tasks: ['Lên ý tưởng và đề xuất món ăn', 'Quản lí và tổng hợp nguyên vật liệu']
           }
         ]
@@ -368,8 +368,8 @@ window.SITE = {
     roadmap: {
       title: 'Bảng lộ trình',
       columns: [
-        { title: 'Đang làm', items: [{ title: 'Phòng Thực Nghiệm', about: 'Tầng hầm của Xưởng, dựng dần từng khu.' }, { title: 'X.M.A.S', about: 'Trợ lí tổng, đang dẫn tour Xưởng.' }, { title: 'T.O.M', about: 'Agent quản lí ghi chú trong Thư viện môn học.' }, { title: 'Thư viện môn học', about: 'App máy tính ghi chú theo môn học, đang bày ở Bàn thí nghiệm.' }] },
-        { title: 'Sắp làm', items: [{ title: 'J.E.F.F', about: 'Agent đề xuất món ăn và tổng hợp nguyên vật liệu.' }] },
+        { title: 'Đang làm', items: [{ title: 'Phòng Thực Nghiệm', about: 'Tầng hầm của Xưởng, dựng dần từng khu.' }, { title: 'X.M.A.S', about: 'Trợ lí tổng, đang dẫn tour Xưởng.' }, { title: 'T.O.M', about: 'Agent quản lí ghi chú trong Thư viện môn học.' }, { title: 'J.E.F.F', about: 'Robot đầu bếp, gợi ý món từ nguyên liệu có sẵn.' }, { title: 'Thư viện môn học', about: 'App máy tính ghi chú theo môn học, đang bày ở Bàn thí nghiệm.' }] },
+        { title: 'Sắp làm', items: [{ title: 'J.E.F.F: thực đơn tuần', about: 'Lên thực đơn 7 ngày và tổng hợp danh sách đi chợ.' }] },
         { title: 'Đã xong', items: [{ title: 'Xưởng của Thức', about: 'Căn nhà 3D này, đang chạy.' }, { title: 'The Ticket', about: 'Game pixel kể chuyện, 5 chương.' }, { title: 'Fluffy Frenzy', about: 'Đại chiến thú cưng 3D.' }] }
       ]
     }
