@@ -7,6 +7,8 @@ window.SITE = {
   mascot: { kind: 'xmas', shell: '#f2f5f3', accent: '#1faf6b', glow: '#5cffb0', mark: '#e9fff3' },
   /* T.O.M, agent quản lí ghi chú. Chỉ đứng ở Trạm X.M.A.S và trong tủ trưng bày. */
   mascotTom: { kind: 'tom', shell: '#e6eaf1', accent: '#1fb5b0', mark: '#e6fbf9' },
+  /* J.E.F.F, robot đầu bếp: trắng kem, đỏ cà chua, cam lửa. */
+  mascotJeff: { kind: 'jeff', shell: '#f6f1e7', accent: '#d9482b', glow: '#ffb14a' },
 
   /* Tên tài khoản của chủ Xưởng. Tài khoản đăng ký đúng tên này là admin. */
   admin: 'Thức',
@@ -323,9 +325,9 @@ window.SITE = {
             tasks: ['Trả lời câu hỏi chỉ từ nguồn trong thư viện, mỗi ý kèm nguồn', 'Tạo tóm tắt, đề cương, thuật ngữ, câu hỏi và thẻ nhớ', 'Liệt kê các bài chưa có ghi chú']
           },
           {
-            id: 'jeff', name: 'J.E.F.F', full: 'Just Eat Food Forever', role: 'Bếp và món ăn', color: '#f2c879',
+            id: 'jeff', name: 'J.E.F.F', full: 'Just Eat Food Forever', role: 'Bếp và món ăn', color: '#ffb14a',
             note: 'Đọc giống "chef".',
-            status: 'Sắp làm, chưa có avatar',
+            status: 'Sắp làm, mới có avatar',
             tasks: ['Lên ý tưởng và đề xuất món ăn', 'Quản lí và tổng hợp nguyên vật liệu']
           }
         ]

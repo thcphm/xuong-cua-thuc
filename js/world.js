@@ -737,7 +737,7 @@ house.add(hamRamp);
      X.M.A.S đứng trên bệ lớn sát tường, các agent con đứng trên bệ nhỏ phía trước, nối với bệ lớn bằng đường sáng. */
   {
     const tree = (window.SITE.basement && window.SITE.basement.agents && window.SITE.basement.agents.tree) || {};
-    const LOOKS = { xmas: window.SITE.mascot, tom: window.SITE.mascotTom };
+    const LOOKS = { xmas: window.SITE.mascot, tom: window.SITE.mascotTom, jeff: window.SITE.mascotJeff };
     const lit = (color, power) => { const m = glow(color, power); room.glows.push({ mat: m, base: power + 0.1 }); return m; };
     const cyan = lit(tree.color || '#5cffb0', 1.2);
     const MX = -8.4;

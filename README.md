@@ -34,7 +34,7 @@ Key nằm công khai trong trang, nên bắt buộc làm bước 3. Hạn mức 
 ## Cấu trúc
 
 - `js/world.js`: căn nhà 3D, camera, đồ vật bấm được
-- `js/mascot.js`: logo TP và hai robot: X.M.A.S (eXtensible Multi-Agent System, trợ lí tổng của trang) và T.O.M (Technical Operations Machine, agent quản lí ghi chú)
+- `js/mascot.js`: logo TP và ba robot: X.M.A.S (eXtensible Multi-Agent System, trợ lí tổng của trang), T.O.M (Technical Operations Machine, agent quản lí ghi chú) và J.E.F.F (Just Eat Food Forever, robot đầu bếp)
 - `js/guide.js`: lời thoại, tour, phản ứng của robot
 - `js/walk.js`: robot tự đi tới phòng được bấm
 - `js/study.js`: Phòng Học
