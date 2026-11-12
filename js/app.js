@@ -5,6 +5,7 @@
     nhac: { title: 'Phòng Nhạc', cx: 265, cy: 185 },
     sach: { title: 'Phòng Sách', cx: 765, cy: 120 },
     hoc: { title: 'Phòng Học', cx: 165, cy: 465 },
+    bep: { title: 'Phòng Bếp', cx: 650, cy: 685 },
     game: { title: 'Phòng Giải Trí', cx: 765, cy: 495 },
     cong: { title: 'Phòng Công Nghệ', cx: 765, cy: 305 },
     garage: { title: 'Garage AI', cx: 1087, cy: 460 },
@@ -35,12 +36,37 @@
     sach: 'Thư viện mở',
     game: SITE.games.list.length + ' game',
     hoc: 'Hẹn giờ, flashcard',
+    bep: 'Nơi J.E.F.F ở',
     cong: 'Học và luyện code',
     garage: 'AI chạy trong trình duyệt',
     san: window.Rooftop.dueCount() ? 'Có thư đến hạn' : 'Ngắm sao, nhật ký',
     vuon: FLORA + ' cây để chăm',
     ham: 'Tầng hầm, tủ trưng bày'
   };
+  /* Phòng Bếp: thẻ giới thiệu J.E.F.F, lấy từ cây agent của Trạm Agent */
+  (function () {
+    var info = SITE.kitchen || {}, card = $('bepCard');
+    $('bepIntro').textContent = info.intro || '';
+    var kids = (((SITE.basement || {}).agents || {}).tree || {}).children || [];
+    var jeff = kids.filter(function (a) { return a.id === 'jeff'; })[0];
+    if (!jeff || !card) return;
+    var top = el('div', 'bep-top');
+    if (jeff.avatar) {
+      var face = el('img');
+      face.src = jeff.avatar;
+      face.alt = 'Ảnh J.E.F.F';
+      top.append(face);
+    }
+    var name = el('div');
+    name.append(el('h2', '', jeff.name), el('p', 'bep-full', jeff.full + (jeff.note ? '. ' + jeff.note : '')), el('p', 'bep-role', jeff.role));
+    top.append(name);
+    card.append(top);
+    if (info.about) card.append(el('p', '', info.about));
+    var ul = el('ul');
+    (jeff.tasks || []).forEach(function (t) { ul.append(el('li', '', t)); });
+    card.append(el('h3', '', 'J.E.F.F sẽ làm gì'), ul);
+    if (jeff.status) card.append(el('p', 'bep-status', 'Trạng thái: ' + jeff.status));
+  })();
   window.Study.init();
   window.Walk.init();
   window.Lab.init();
@@ -73,13 +99,31 @@
     $('roomList').append(li);
   });
 
+  /* Menu xổ: danh sách phòng ở sảnh gập lại, bấm nút để xổ ra */
+  (function () {
+    var menu = $('roomMenu'), btn = $('roomMenuBtn'), list = $('roomList');
+    $('roomMenuCount').textContent = Object.keys(ROOMS).length + ' phòng';
+    function set(open) {
+      list.hidden = !open;
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      menu.classList.toggle('open', open);
+    }
+    btn.addEventListener('click', function () { set(list.hidden); });
+    list.addEventListener('click', function (e) { if (e.target.closest('a')) set(false); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !list.hidden && menu.contains(document.activeElement)) { set(false); btn.focus(); }
+    });
+    /* Trợ lí có thể yêu cầu mở sẵn danh sách khi chỉ vào nó */
+    document.addEventListener('tp:room-menu', function (e) { set(e.detail !== false); });
+  })();
+
   /* Sơ đồ nhỏ trên thanh điều hướng */
   var NS = 'http://www.w3.org/2000/svg';
   var mini = document.createElementNS(NS, 'svg');
   mini.setAttribute('viewBox', '30 20 1175 650');
   [
     ['', 290, 340, 280, 250], ['', 490, 30, 80, 310],
-    ['nhac', 40, 30, 450, 310], ['sach', 570, 30, 390, 180], ['cong', 570, 210, 390, 190], ['game', 570, 400, 390, 190], ['hoc', 40, 340, 250, 250], ['san', 980, 30, 215, 150], ['vuon', 980, 180, 215, 150], ['garage', 980, 330, 215, 260], ['ham', 40, 606, 920, 54]
+    ['nhac', 40, 30, 450, 310], ['sach', 570, 30, 390, 180], ['cong', 570, 210, 390, 190], ['game', 570, 400, 390, 190], ['hoc', 40, 340, 250, 250], ['san', 980, 30, 215, 150], ['vuon', 980, 180, 215, 150], ['garage', 980, 330, 215, 260], ['ham', 40, 606, 410, 54], ['bep', 470, 596, 360, 64]
   ].forEach(function (r) {
     var rect = document.createElementNS(NS, 'rect');
     rect.setAttribute('x', r[1]); rect.setAttribute('y', r[2]);

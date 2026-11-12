@@ -58,7 +58,17 @@ svg a:focus-visible { outline: none; }
   letter-spacing: -.005em;
 }
 .intro p { margin-top: 20px; color: var(--muted); max-width: 30ch; }
-.room-list { margin-top: 36px; border-top: 1px solid var(--line); }
+.room-menu { margin-top: 32px; }
+.room-menu-btn { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid var(--line); border-radius: 10px; background: rgba(10,18,32,.8); color: var(--text); font: 600 17px var(--display); text-align: left; pointer-events: auto; transition: border-color 150ms, transform 140ms cubic-bezier(0.23, 1, 0.32, 1); }
+.room-menu-btn:hover, .room-menu.open .room-menu-btn { border-color: var(--brand); }
+.room-menu-btn:active { transform: scale(.98); }
+.room-menu-btn .rm-count { margin-left: auto; color: var(--muted); font: 400 14px var(--sans, inherit); }
+.room-menu-btn svg { width: 20px; height: 20px; flex: none; transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1); }
+.room-menu.open .room-menu-btn svg { transform: rotate(180deg); }
+.room-list { margin-top: 8px; border-top: 1px solid var(--line); }
+.room-menu.open .room-list { animation: room-menu-in 180ms cubic-bezier(0.23, 1, 0.32, 1); transform-origin: top; }
+@keyframes room-menu-in { from { opacity: 0; transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .room-menu.open .room-list { animation: none; } .room-menu-btn svg { transition: none; } }
 .room-list a {
   display: flex;
   justify-content: space-between;
@@ -139,7 +149,7 @@ svg a:focus-visible { outline: none; }
 .roomnav { display: flex; gap: 2px; flex: 0 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .roomnav a { white-space: nowrap; }
 .roomnav a {
-  padding: 8px 12px;
+  padding: 8px 7px;
   border-radius: 6px;
   color: var(--muted);
   text-decoration: none;
@@ -973,6 +983,17 @@ body[data-room="garage"], .room[data-room="garage"], .room-list a[data-room="gar
 body[data-room="san"], .room[data-room="san"], .room-list a[data-room="san"], .world-label[data-room="san"] { --light: #c7b8ff; }
 body[data-room="vuon"], .room[data-room="vuon"], .room-list a[data-room="vuon"], .world-label[data-room="vuon"] { --light: #a5e27f; }
 body[data-room="ham"], .room[data-room="ham"], .room-list a[data-room="ham"], .world-label[data-room="ham"] { --light: #ff8fa3; }
+/* Phòng Bếp */
+body[data-room="bep"], .room[data-room="bep"], .room-list a[data-room="bep"], .world-label[data-room="bep"] { --light: #ff7557; }
+.bep-card { width: min(420px, 100%); margin-top: 20px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: rgba(10,18,32,.92); }
+.bep-top { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+.bep-top img { width: 84px; height: 84px; flex: none; border: 1px solid var(--light); border-radius: 14px; background: var(--floor, #0d1626); }
+.bep-top h2 { margin: 0; font: 600 26px/1.1 var(--display); color: var(--light); }
+.bep-card h3 { margin: 12px 0 4px; font: 600 16px/1.2 var(--display); }
+.bep-card ul { margin: 0 0 10px; padding-left: 20px; list-style: disc; }
+.bep-card li { margin: 3px 0; }
+.bep-full, .bep-status { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+.bep-role { margin: 2px 0 0; font-weight: 500; }
 .has-3d .ham-room { width: 100%; max-width: 1380px; margin: 0 auto; padding-top: 20px; }
 body.has-3d[data-room="ham"]::before { background: linear-gradient(180deg, rgba(5,7,13,.62) 0, rgba(5,7,13,0) 34%); }
 /* Thẻ thông tin chỉ hiện khi đã lại gần một tủ kính */

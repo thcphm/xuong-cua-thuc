@@ -309,6 +309,12 @@ window.SITE = {
   },
 
   /* Các khu khác của Phòng Thực Nghiệm. */
+  /* Phòng Bếp, nơi J.E.F.F ở. Thông tin về J.E.F.F lấy từ basement.agents bên dưới. */
+  kitchen: {
+    intro: 'Căn bếp của Xưởng, nơi J.E.F.F ở. Bấm vào J.E.F.F trong bếp để chào.',
+    about: 'J.E.F.F là robot đầu bếp trong nhóm agent của X.M.A.S. Hiện J.E.F.F mới có avatar và căn bếp này, phần gợi ý món ăn chưa được dựng.'
+  },
+
   basement: {
     /* Trạm Agent: cây phân cấp các bot agent. Mỗi agent: { id, name, full, role, avatar, status, color, note, tasks, children } */
     agents: {
@@ -327,7 +333,7 @@ window.SITE = {
           {
             id: 'jeff', name: 'J.E.F.F', full: 'Just Eat Food Forever', role: 'Bếp và món ăn', color: '#ffb14a', avatar: 'img/agents/jeff.png',
             note: 'Đọc giống "chef".',
-            status: 'Sắp làm, mới có avatar',
+            status: 'Sắp làm. Đã có avatar và Phòng Bếp',
             tasks: ['Lên ý tưởng và đề xuất món ăn', 'Quản lí và tổng hợp nguyên vật liệu']
           }
         ]

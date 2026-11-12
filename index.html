@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Saira:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261112c">
+<link rel="stylesheet" href="css/style.css?v=20261112e">
 </head>
 <body data-room="">
 
@@ -21,6 +21,7 @@
   <span class="world-label" data-room="cong">Phòng Công Nghệ</span>
   <span class="world-label" data-room="game">Phòng Giải Trí</span>
   <span class="world-label" data-room="hoc">Phòng Học</span>
+  <span class="world-label" data-room="bep">Phòng Bếp</span>
   <span class="world-label" data-room="garage">Garage AI</span>
   <span class="world-label" data-room="san">Sân Thượng</span>
   <span class="world-label" data-room="vuon">Sân Vườn</span>
@@ -42,6 +43,7 @@
     <a href="#nhac" data-room="nhac">Nhạc</a>
     <a href="#sach" data-room="sach">Sách</a>
     <a href="#hoc" data-room="hoc">Học</a>
+    <a href="#bep" data-room="bep">Bếp</a>
     <a href="#game" data-room="game">Giải Trí</a>
     <a href="#cong" data-room="cong">Công Nghệ</a>
     <a href="#garage" data-room="garage">Garage AI</a>
@@ -66,8 +68,14 @@
       <svg class="mark hero-mark" viewBox="0 0 108 100" aria-hidden="true"><path fill-rule="evenodd" d="M0 0H78A30 30 0 0 1 78 60H62V100H48V14H34V100H20V14H0Z M62 14V46H76A16 16 0 0 0 76 14Z"/></svg>
       <h1 id="ownerTitle" tabindex="-1">Xưởng của Thức</h1>
       <p id="tagline"></p>
-      <ul class="room-list" id="roomList"></ul>
-      <p class="walk-tip">Bấm vào một phòng để đi vào, kéo chuột để xoay nhà.</p>
+      <div class="room-menu" id="roomMenu">
+        <button class="room-menu-btn" id="roomMenuBtn" type="button" aria-expanded="false" aria-controls="roomList">
+          <span class="rm-label">Chọn phòng</span><span class="rm-count" id="roomMenuCount"></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <ul class="room-list" id="roomList" hidden></ul>
+      </div>
+      <p class="walk-tip">Bấm vào một phòng trong căn nhà để đi vào, kéo chuột để xoay nhà.</p>
       <button class="donate-btn" id="donateBtn" type="button">Ủng hộ tôi</button>
     </div>
 
@@ -83,7 +91,8 @@
         <a class="room" href="#san" data-room="san" aria-label="Lên Sân Thượng"><rect class="glow" x="980" y="30" width="215" height="150"/><text class="label" x="1000" y="90"><tspan class="name">Sân Thượng</tspan></text></a>
         <a class="room" href="#vuon" data-room="vuon" aria-label="Lên Sân Vườn"><rect class="glow" x="980" y="180" width="215" height="150"/><text class="label" x="1000" y="250"><tspan class="name">Sân Vườn</tspan></text></a>
         <a class="room" href="#garage" data-room="garage" aria-label="Vào Garage AI"><rect class="glow" x="980" y="330" width="215" height="260"/><text class="label" x="1000" y="440"><tspan class="name">Garage AI</tspan></text></a>
-        <a class="room" href="#ham" data-room="ham" aria-label="Xuống Phòng Thực Nghiệm"><rect class="glow" x="40" y="606" width="920" height="54"/><text class="label" x="72" y="642"><tspan class="name">Phòng Thực Nghiệm (tầng hầm)</tspan></text></a>
+        <a class="room" href="#ham" data-room="ham" aria-label="Xuống Phòng Thực Nghiệm"><rect class="glow" x="40" y="606" width="410" height="54"/><text class="label" x="72" y="642"><tspan class="name">Thực Nghiệm (hầm)</tspan></text></a>
+        <a class="room" href="#bep" data-room="bep" aria-label="Vào Phòng Bếp"><rect class="glow" x="470" y="606" width="360" height="54"/><text class="label" x="502" y="642"><tspan class="name">Phòng Bếp</tspan></text></a>
         <text class="label" x="322" y="396" aria-hidden="true"><tspan class="name">Sảnh</tspan></text>
         <path class="wall" d="M390 590H40V30H960V470M960 530V590H470M980 30H1195V590H980Z"/>
         <path class="wall inner" d="M40 340H490M490 340V260M490 200V30M570 30V90M570 150V280M570 340V465M570 525V590M570 210H960M570 400H960M290 340V430M290 490V590"/>
@@ -196,6 +205,11 @@
     <aside class="garden-panel" id="gardenPanel" aria-label="Thông tin cây"></aside>
   </section>
 
+  <section class="view room-view bep-room" id="view-bep" hidden>
+    <div class="room-head"><h1 tabindex="-1">Phòng Bếp</h1><p id="bepIntro"></p></div>
+    <article class="bep-card" id="bepCard"></article>
+  </section>
+
   <section class="view room-view ham-room" id="view-ham" hidden>
     <div class="lab-top"><h1 tabindex="-1">Phòng Thực Nghiệm</h1><p class="garage-sub">Tầng hầm dưới căn nhà, rộng bằng cả tầng chính. Kéo chuột để nhìn quanh. Bấm vào một khu để lại gần. Trong tủ kính, bấm một sản phẩm để xem ảnh và tính năng.</p></div>
     <aside class="ham-panel" id="hamPanel" aria-live="polite" hidden>
@@ -250,30 +264,30 @@
   "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
   "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
 } }</script>
-<script src="data/firebase.js?v=20261112c"></script>
-<script src="js/session.js?v=20261112c"></script>
-<script src="data/site.js?v=20261112c"></script>
-<script src="js/music.js?v=20261112c"></script>
-<script src="js/study-scenes.js?v=20261112c"></script>
-<script src="js/study.js?v=20261112c"></script>
-<script src="js/walk.js?v=20261112c"></script>
-<script src="data/lab.js?v=20261112c"></script>
-<script src="data/w3.js?v=20261112c"></script>
-<script src="data/garden.js?v=20261112c"></script>
-<script src="data/facts.js?v=20261112c"></script>
-<script src="data/cards.js?v=20261112c"></script>
-<script src="js/flashcard.js?v=20261112c"></script>
-<script src="js/lab.js?v=20261112c"></script>
-<script src="js/rooftop.js?v=20261112c"></script>
-<script src="js/garage.js?v=20261112c"></script>
-<script src="js/exhibit.js?v=20261112c"></script>
-<script src="js/library.js?v=20261112c"></script>
-<script src="js/feedback.js?v=20261112c"></script>
-<script src="js/donate.js?v=20261112c"></script>
-<script src="js/app.js?v=20261112c"></script>
-<script type="module" src="js/world.js?v=20261112c"></script>
-<script type="module" src="js/guide.js?v=20261112c"></script>
-<script type="module" src="js/garden.js?v=20261112c"></script>
+<script src="data/firebase.js?v=20261112e"></script>
+<script src="js/session.js?v=20261112e"></script>
+<script src="data/site.js?v=20261112e"></script>
+<script src="js/music.js?v=20261112e"></script>
+<script src="js/study-scenes.js?v=20261112e"></script>
+<script src="js/study.js?v=20261112e"></script>
+<script src="js/walk.js?v=20261112e"></script>
+<script src="data/lab.js?v=20261112e"></script>
+<script src="data/w3.js?v=20261112e"></script>
+<script src="data/garden.js?v=20261112e"></script>
+<script src="data/facts.js?v=20261112e"></script>
+<script src="data/cards.js?v=20261112e"></script>
+<script src="js/flashcard.js?v=20261112e"></script>
+<script src="js/lab.js?v=20261112e"></script>
+<script src="js/rooftop.js?v=20261112e"></script>
+<script src="js/garage.js?v=20261112e"></script>
+<script src="js/exhibit.js?v=20261112e"></script>
+<script src="js/library.js?v=20261112e"></script>
+<script src="js/feedback.js?v=20261112e"></script>
+<script src="js/donate.js?v=20261112e"></script>
+<script src="js/app.js?v=20261112e"></script>
+<script type="module" src="js/world.js?v=20261112e"></script>
+<script type="module" src="js/guide.js?v=20261112e"></script>
+<script type="module" src="js/garden.js?v=20261112e"></script>
 <script>
   /* Cất màn hình chờ khi nhà 3D sẵn sàng; nếu không tải được 3D thì dùng mặt bằng 2D. */
   (function () {

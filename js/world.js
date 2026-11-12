@@ -121,6 +121,7 @@ const ROOMS = {
   garage: { rect: [965, 150, 1190, 590], color: '#ffa873', floor: '#191c25', light: [1075, 400, 2.1], power: 30, hit: 2.5, label: [1060, 590, 1.4] },
   san: { rect: [965, 150, 1190, 370], y: 2.7, color: '#c7b8ff', floor: '#20263a', light: [1075, 260, 4.6], power: 26, label: [1075, 260, 4.5] },
   vuon: { rect: [965, 370, 1140, 590], y: 2.7, color: '#a5e27f', floor: '#33291c', light: [1050, 480, 4.6], power: 26, label: [1050, 480, 4.5] },
+  bep: { rect: [470, 590, 830, 780], color: '#ff7557', floor: '#2a1c18', light: [730, 720, 2.8], power: 14 },
   ham: { rect: [20, 10, 980, 610], y: -3.6, color: '#ff8fa3', floor: '#1d2433', light: [500, 330, -1.2], power: 60, label: [140, 770, 0.5] }
 };
 const floors = [];
@@ -172,7 +173,8 @@ function wall(x1, y1, x2, y2, h, t = 0.16) {
 }
 const TALL = 2.5, MID = 1.7, LOW = 0.32;
 Walk.WALLS.forEach(([x1, y1, x2, y2]) => {
-  if (y1 === 590 && y2 === 590) { wall(40, 590, 390, 590, LOW); wall(470, 590, 960, 590, LOW); return; }
+  /* Tường trước: chừa cửa chính (390 tới 470) và lối sang Phòng Bếp (490 tới 550) */
+  if (y1 === 590 && y2 === 590) { wall(40, 590, 390, 590, LOW); wall(470, 590, 490, 590, LOW); wall(550, 590, 960, 590, LOW); return; }
   if (x1 === 960 && x2 === 960) return wall(x1, y1, x2, y2, LOW);
   if (y1 === 30 && y2 === 30) return wall(x1, y1, x2, y2, TALL, 0.2);
   if (x1 === 40 && x2 === 40) return wall(x1, y1, x2, y2, TALL, 0.2);
@@ -406,7 +408,8 @@ let termDraw = () => {};
   mat.position.set(x, 0.035, z);
   mat.receiveShadow = true;
   house.add(mat);
-  const [px, pz] = P(535, 552);
+  /* Cây cảnh đứng ở góc trong của sảnh, không chắn lối sang Phòng Bếp */
+  const [px, pz] = P(318, 372);
   cyl(house, 0.2, 0.15, 0.32, px, 0.18, pz, furn2);
   for (let i = 0; i < 7; i++) {
     const a = i / 7 * Math.PI * 2;
@@ -414,6 +417,118 @@ let termDraw = () => {};
   }
   const [sx, sz] = P(342, 562);
   box(house, 1.3, 0.42, 0.5, sx, 0.23, sz, wood);
+}
+
+/* Phòng Bếp: khối nối phía trước sảnh, bên phải cửa chính, vào bằng lối mở ở tường trước của sảnh.
+   Đây là nơi J.E.F.F ở. */
+let jeffBot = null;
+{
+  const room = ROOMS.bep;
+  const [x0, z0] = P(470, 590), [x1, z1] = P(830, 780);
+  box(house, x1 - x0 + 0.2, 0.5, z1 - z0 + 0.2, (x0 + x1) / 2, -0.27, (z0 + z1) / 2, std('#0a1220'));
+  /* Tường trái cao làm nền cho tủ lạnh và kệ, hai tường phía máy quay hạ thấp */
+  wall(470, 590, 470, 780, MID);
+  wall(470, 780, 830, 780, LOW);
+  wall(830, 590, 830, 780, LOW);
+  const stone = std('#aab8cc', { roughness: 0.35, metalness: 0.2 }), steel = std('#9aa7b8', { roughness: 0.3, metalness: 0.7 });
+  const cab = std(FURN2), dark = std('#0c111b', { roughness: 0.4 });
+  const hot = glow(room.color, 1.4);
+  room.glows.push({ mat: hot, base: 1.5 });
+
+  /* Dãy bếp dọc tường sau: tủ dưới, mặt đá, bồn rửa, bếp nấu */
+  const CZ = z0 + 0.44;
+  const [ca] = P(585), [cb] = P(820);
+  box(house, cb - ca, 0.86, 0.6, (ca + cb) / 2, 0.45, CZ, cab);
+  box(house, cb - ca + 0.06, 0.05, 0.66, (ca + cb) / 2, 0.9, CZ, stone);
+  for (let i = 0; i < 5; i++) box(house, 0.3, 0.02, 0.02, ca + 0.5 + i * 0.93, 0.7, CZ + 0.31, steel).castShadow = false;
+  const [sx] = P(640);
+  box(house, 0.7, 0.03, 0.4, sx, 0.93, CZ, dark);
+  cyl(house, 0.02, 0.02, 0.3, sx, 1.08, CZ - 0.2, steel, 12);
+  box(house, 0.03, 0.03, 0.2, sx, 1.22, CZ - 0.11, steel);
+  const [vx] = P(745);
+  box(house, 0.8, 0.03, 0.5, vx, 0.935, CZ, dark);
+  [[-0.2, -0.11], [0.2, -0.11], [-0.2, 0.12], [0.2, 0.12]].forEach(([dx, dz]) => { cyl(house, 0.1, 0.1, 0.012, vx + dx, 0.956, CZ + dz, hot).castShadow = false; });
+  /* Nồi đang nấu trên bếp */
+  cyl(house, 0.13, 0.13, 0.17, vx - 0.2, 1.05, CZ - 0.11, steel);
+  cyl(house, 0.135, 0.135, 0.02, vx - 0.2, 1.145, CZ - 0.11, dark);
+  ball(house, 0.025, vx - 0.2, 1.17, CZ - 0.11, dark);
+
+  /* Tủ lạnh và kệ gia vị dọc tường trái */
+  const LX = x0 + 0.47;
+  const [, fz] = P(0, 742);
+  box(house, 0.72, 1.62, 0.8, LX, 0.83, fz, steel);
+  box(house, 0.725, 0.02, 0.81, LX, 1.08, fz, dark).castShadow = false;
+  box(house, 0.03, 0.42, 0.04, LX + 0.38, 1.38, fz + 0.26, dark);
+  box(house, 0.03, 0.42, 0.04, LX + 0.38, 0.78, fz + 0.26, dark);
+  const [, kz] = P(0, 682);
+  [0.55, 0.98, 1.41].forEach((h, row) => {
+    box(house, 0.3, 0.04, 0.9, x0 + 0.25, h, kz, wood);
+    ['#ff7557', '#f2c879', '#86e28a', '#6fe0d2'].forEach((c, i) => {
+      cyl(house, 0.06, 0.06, 0.15, x0 + 0.25, h + 0.095, kz - 0.3 + ((i + row) % 4) * 0.2, std(c, { roughness: 0.4 }), 16);
+    });
+  });
+
+  /* Bảng tên trên tường trái, cạnh lối vào */
+  {
+    const canvas = document.createElement('canvas');
+    canvas.width = 640;
+    canvas.height = 320;
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    const draw = () => {
+      const g = canvas.getContext('2d');
+      g.fillStyle = '#0c111b';
+      g.fillRect(0, 0, 640, 320);
+      g.strokeStyle = room.color;
+      g.lineWidth = 8;
+      g.strokeRect(10, 10, 620, 300);
+      g.textAlign = 'center';
+      g.fillStyle = room.color;
+      g.font = '600 110px "Chakra Petch", sans-serif';
+      g.fillText('J.E.F.F', 320, 160);
+      g.fillStyle = '#dfe8f3';
+      g.font = '500 44px "Saira", sans-serif';
+      g.fillText('Just Eat Food Forever', 320, 240);
+      tex.needsUpdate = true;
+    };
+    draw();
+    if (document.fonts && document.fonts.load) Promise.all([document.fonts.load('600 110px "Chakra Petch"'), document.fonts.load('500 44px "Saira"')]).then(draw, () => {});
+    const plate = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.6), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }));
+    const [, pz] = P(0, 628);
+    plate.position.set(x0 + 0.1, 1.15, pz);
+    plate.rotation.y = Math.PI / 2;
+    house.add(plate);
+  }
+
+  /* Đảo bếp giữa phòng: thớt, rau củ, chảo, ba ghế đẩu phía trước */
+  const [ix, iz] = P(655, 712);
+  box(house, 2.0, 0.86, 0.8, ix, 0.45, iz, cab);
+  box(house, 2.12, 0.05, 0.92, ix, 0.9, iz, stone);
+  box(house, 2.0, 0.03, 0.02, ix, 0.2, iz + 0.41, hot).castShadow = false;
+  box(house, 0.5, 0.03, 0.32, ix - 0.55, 0.94, iz, std('#8a6238', { roughness: 0.6 }));
+  ball(house, 0.07, ix - 0.66, 1.02, iz - 0.03, std('#e2452f', { roughness: 0.35 }));
+  ball(house, 0.07, ix - 0.52, 1.02, iz + 0.06, std('#e2452f', { roughness: 0.35 }));
+  ball(house, 0.08, ix - 0.4, 1.03, iz - 0.05, std('#5fb04a', { roughness: 0.5 }));
+  cyl(house, 0.17, 0.14, 0.05, ix + 0.5, 0.955, iz, dark);
+  box(house, 0.26, 0.02, 0.04, ix + 0.78, 0.97, iz, dark);
+  cyl(house, 0.12, 0.08, 0.09, ix + 0.02, 0.97, iz + 0.1, std('#dfe8f3', { roughness: 0.3 }));
+  [-0.65, 0, 0.65].forEach((dx) => {
+    cyl(house, 0.17, 0.17, 0.05, ix + dx, 0.62, iz + 0.78, wood);
+    cyl(house, 0.03, 0.03, 0.6, ix + dx, 0.31, iz + 0.78, steel, 12);
+  });
+
+  /* J.E.F.F đứng sau đảo bếp. Vỏ tối hơn một bậc vì đèn phòng rọi gần. Bấm vào thì vẫy xẻng. */
+  jeffBot = createMascot(Object.assign({}, window.SITE.mascotJeff, { shell: '#a39e96', env: 0.3 }), renderer);
+  const [jx, jz] = P(655, 660);
+  jeffBot.group.scale.setScalar(0.72);
+  jeffBot.group.position.set(jx, 0.02, jz);
+  house.add(jeffBot.group);
+  const hit = new THREE.Mesh(new THREE.BoxGeometry(1.0, 1.5, 0.9), cab);
+  hit.position.set(jx, 0.85, jz);
+  hit.visible = false;
+  house.add(hit);
+  addHot(hit, 'bep', 'J.E.F.F', () => jeffBot.play('wave', 2), { noMove: true });
 }
 
 /* Khu phụ: tầng trệt là Garage AI, mái là Sân Thượng và Sân Vườn */
@@ -958,6 +1073,8 @@ const FRAME = {
   game: { look: P(760, 450), off: [-1.2, 2.3, 7.2], y: 1.0 },
   cong: { look: P(760, 265), off: [-1.2, 4.6, 5.4], y: 1.1 },
   hoc: { look: P(165, 420), off: [3, 3.6, 7.4], y: 0.6 },
+  /* Ngắm lệch sang trái để căn bếp nằm bên phải thẻ thông tin */
+  bep: { look: P(585, 690), off: [-1.5, 5.6, 11], y: 0.6 },
   garage: { look: P(1060, 340), off: [-1.4, 1.5, 8.4], y: 1.1 },
   san: { look: P(1075, 260), off: [-1.6, 3.2, 6.2], y: 3.2 },
   vuon: { look: P(1050, 480), off: [-1.2, 3.2, 6], y: 3.2 },
@@ -994,6 +1111,7 @@ const FIT_POINTS = [new THREE.Vector3(-5.7, 7.3, -6.8), new THREE.Vector3(-1.1, 
 [-9.7, 9.7].forEach((x) => [-6.1, 6.1].forEach((z) => [-0.6, 2.6].forEach((y) => FIT_POINTS.push(new THREE.Vector3(x, y, z)))));
 [-3.5, 5.8].forEach((z) => [-0.6, 3.9].forEach((y) => FIT_POINTS.push(new THREE.Vector3(14.0, y, z))));
 FIT_POINTS.push(new THREE.Vector3(-9.2, -0.5, 10.8), new THREE.Vector3(-5.2, -0.5, 10.8));
+FIT_POINTS.push(new THREE.Vector3(6.8, -0.5, 9.6), new THREE.Vector3(6.8, 1.6, 9.6));
 function measure(cam) {
   const out = { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity };
   const v = new THREE.Vector3();
@@ -1190,7 +1308,7 @@ applyOffset();
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const levels = new Uint8Array(128);
 const introStart = performance.now();
-const introOrder = { nhac: 0.3, sach: 0.6, cong: 0.9, game: 1.2, hoc: 1.5, garage: 1.7, san: 1.9, vuon: 2.1, ham: 2.3 };
+const introOrder = { nhac: 0.3, sach: 0.6, cong: 0.9, game: 1.2, hoc: 1.5, bep: 1.6, garage: 1.7, san: 1.9, vuon: 2.1, ham: 2.3 };
 let last = performance.now(), running = false, termTick = 0, gridTick = 0;
 
 function frame(now) {
@@ -1315,6 +1433,7 @@ function frame(now) {
   if (playing && !walking) { if (walker.state() !== 'dance') walker.play('dance', 0); }
   else if (walker.state() === 'dance') walker.idle();
   walker.update(dt);
+  if (jeffBot) jeffBot.update(dt);
 
   if (composer) composer.render(); else renderer.render(scene, camera);
 

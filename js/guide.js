@@ -123,13 +123,14 @@ function say(rawText, { actions = [], anim = 'idle', target = null, hold = 7000 
   if (!actions.length && hold) hideTimer = setTimeout(hush, hold);
 }
 
-const ROOM_NAMES = { nhac: 'Phòng Nhạc', sach: 'Phòng Sách', hoc: 'Phòng Học', game: 'Phòng Giải Trí', cong: 'Phòng Công Nghệ', garage: 'Garage AI', san: 'Sân Thượng', vuon: 'Sân Vườn', ham: 'Phòng Thực Nghiệm' };
+const ROOM_NAMES = { nhac: 'Phòng Nhạc', sach: 'Phòng Sách', hoc: 'Phòng Học', game: 'Phòng Giải Trí', cong: 'Phòng Công Nghệ', bep: 'Phòng Bếp', garage: 'Garage AI', san: 'Sân Thượng', vuon: 'Sân Vườn', ham: 'Phòng Thực Nghiệm' };
 const TIPS = {
-  '': { text: 'Bấm vào một phòng, mình sẽ đi vào trước. Kéo chuột để xoay căn nhà.', target: '#roomList' },
+  '': { text: 'Bấm vào một phòng trong căn nhà, hoặc mở Chọn phòng, mình sẽ đi vào trước. Kéo chuột để xoay căn nhà.', target: '#roomMenuBtn' },
   nhac: { text: 'Gõ tên bài, dán link YouTube hoặc chọn thể loại. Sang phòng khác nhạc vẫn chạy ở khung nhỏ.', target: '#ytForm', anim: 'point' },
   sach: { text: 'Bấm một tủ sách để xem sách tiêu biểu, hoặc tìm theo tên sách, tác giả, xuất xứ.', target: '#libForm', anim: 'point' },
   game: { text: matchMedia('(pointer: coarse)').matches ? 'Game này cần bàn phím. Mở xưởng trên máy tính để chơi nhé.' : 'Bấm vào máy arcade để chơi game Thức tự code. Muốn thoát thì bấm Ra khỏi game ở mép trái.', target: '#featuredGame .play-btn', anim: 'point' },
   hoc: { text: 'Kéo nút tròn trên đồng hồ để đặt số phút. Thanh dưới cùng bật thêm âm nền, ghi chú, flashcard. Xong một phiên được một sao.', target: '#toolbar', anim: 'point' },
+  bep: { text: 'Đây là bếp của J.E.F.F, robot đầu bếp trong nhóm agent của mình. J.E.F.F chưa nấu được gì, sau này sẽ gợi ý món ăn và tổng hợp nguyên liệu. Bấm vào J.E.F.F để chào.', target: '#bepCard' },
   cong: { text: 'Chọn ngôn ngữ, rồi vào tab Thực hành để viết code ngay trên trang.', target: '#labLangs', anim: 'point' },
   garage: { text: 'Chọn một bàn bên trái. Lần đầu cần tải mô hình, sau đó chạy ngay trên máy bạn.', target: '#garageBenches', anim: 'point' },
   san: { text: 'Đây là bầu trời thật lúc này. Kéo để nhìn quanh, bấm vào một ngôi sao để xem nó là ai.', target: '#skyFind', anim: 'point' },
@@ -231,7 +232,7 @@ function tour() {
   const finish = () => { seen.tour = true; remember(); };
   const step3 = () => say('Bạn vào phòng nào trước?', {
     anim: 'cheer',
-    target: '#roomList',
+    target: '#roomMenuBtn',
     actions: OPEN_ROOMS.map((id) => ({ label: ROOM_NAMES[id], run: () => { finish(); go(id)(); } }))
   });
   const step2 = () => say('Bấm vào một phòng, mình sẽ đi vào trước. Kéo chuột để xoay căn nhà.', {
