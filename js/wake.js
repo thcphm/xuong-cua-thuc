@@ -168,7 +168,8 @@ const has = (text, words) => words.some((w) => (' ' + text + ' ').includes(' ' +
 /* Tên X.M.A.S qua máy nhận dạng tiếng Việt ra nhiều dạng khác nhau */
 /* Bỏ dấu rồi thì "ích mát", "ích mạt" đều thành "ich mat"; "ích mợt", "ích một" thành "ich mot" */
 const NAME = /\b(x m a s|xmax|(x|ex|ich|ic|ech|ec|et|is) ?(mas|mat|mot|mac|mut)|christmas|giang sinh|noel)\b/;
-const WAKE = ['day di', 'thuc day', 'day thoi', 'day nao', 'day ngay'];
+/* Câu gọi chính là "Hello". Máy nhận dạng tiếng Việt có khi viết thành "hê lô", "hé lô". */
+const WAKE = ['hello', 'helo', 'he lo', 'ha lo', 'hey lo', 'day di', 'thuc day', 'day thoi', 'day nao', 'day ngay'];
 
 let awake = false, offered = false, sleepTimer = 0;
 function restAfter(ms) {
@@ -195,7 +196,7 @@ function sleep(sayBye) {
   awake = false;
   offered = false;
   clearTimeout(sleepTimer);
-  const down = () => { exposureGoal = DIM; mascot.play('sleep', 0); sayEl.textContent = ''; heardEl.textContent = ''; hint(micOn ? 'Gọi "X.M.A.S ơi" để đánh thức.' : 'Chạm vào màn hình để đánh thức.'); };
+  const down = () => { exposureGoal = DIM; mascot.play('sleep', 0); sayEl.textContent = ''; heardEl.textContent = ''; hint(micOn ? 'Nói "Hello" để đánh thức.' : 'Chạm vào màn hình để đánh thức.'); };
   if (sayBye) speak('Mình ngủ đây. Cần thì gọi mình nhé.', down); else down();
 }
 function goHome() {
@@ -264,7 +265,7 @@ touch.addEventListener('click', () => {
       micOn = true;
       listen();
       touch.setAttribute('aria-label', 'Đánh thức X.M.A.S');
-      hint('Gọi "X.M.A.S ơi" để đánh thức. Giọng nói được trình duyệt gửi đi để nhận dạng.');
+      hint('Nói "Hello" để đánh thức. Giọng nói được trình duyệt gửi đi để nhận dạng.');
       if (synth && !voice) heardEl.textContent = 'Máy này chưa có giọng đọc tiếng Việt, X.M.A.S có thể đọc không rõ dấu.';
       return;
     }
