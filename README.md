@@ -50,9 +50,9 @@ Hai file trong `assets/sounds/` đều là CC0, lấy từ Freesound: `rain.mp3`
 
 ## Phòng Bếp và J.E.F.F
 
-J.E.F.F gợi ý món ở Phòng Bếp: chọn nguyên liệu đang có trong tab Tủ lạnh, xem món nấu được, hoặc bấm "Hôm nay ăn gì?". Không dùng AI, không gửi dữ liệu đi đâu; tủ lạnh lưu trong `localStorage` của trình duyệt.
+J.E.F.F gợi ý món ở Phòng Bếp: chọn nguyên liệu đang có trong tab Tủ lạnh, xem món nấu được, hoặc bấm "Hôm nay ăn gì?". Tab Thực đơn xếp món vào 7 ngày, chọn số người ăn, rồi cộng dồn nguyên liệu thành danh sách đi chợ (trừ thứ đã có trong tủ lạnh) và chép ra chữ. Không dùng AI, không gửi dữ liệu đi đâu; tủ lạnh và thực đơn lưu trong `localStorage` của trình duyệt.
 
-- Nguyên liệu và công thức nằm trong `data/recipes.js`. Thêm món bằng cách thêm một mục vào `recipes`.
+- Nguyên liệu và công thức nằm trong `data/recipes.js`. Thêm món bằng cách thêm một mục vào `recipes`, kèm `qty` là lượng cho `serves` người.
 - Giao diện ở `js/kitchen.js`.
 
 ## Trợ lí X.M.A.S
