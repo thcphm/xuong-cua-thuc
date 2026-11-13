@@ -309,10 +309,10 @@ window.SITE = {
   },
 
   /* Các khu khác của Phòng Thực Nghiệm. */
-  /* Phòng Kế Hoạch, phòng chức năng của PLANNER. Thông tin về PLANNER lấy từ basement.agents bên dưới. */
+  /* Phòng Kế Hoạch. Planner là chức năng chính của phòng: lịch, việc cần làm, nhắc giờ. */
   planning: {
-    intro: 'Phòng làm việc của PLANNER. Ghi việc cần làm kèm ngày, xem theo hôm nay hoặc theo tuần.',
-    about: 'PLANNER là agent lo kế hoạch trong nhóm của X.M.A.S. Hiện PLANNER giữ danh sách việc cần làm của bạn. Việc chỉ lưu trên trình duyệt này, không gửi đi đâu.'
+    intro: 'Planner của Xưởng: lịch tháng, việc cần làm và nhắc giờ. Chọn một ngày, ghi việc, đặt giờ để được nhắc.',
+    about: 'Planner gộp lịch, danh sách việc và nhắc giờ vào một chỗ. Mỗi việc có ngày, giờ, mức ưu tiên, kiểu lặp và kiểu nhắc. Việc chỉ lưu trên trình duyệt này, không gửi đi đâu. Lời nhắc chỉ chạy khi trang đang mở.'
   },
 
   /* Phòng Bếp, nơi J.E.F.F ở. Thông tin về J.E.F.F lấy từ basement.agents bên dưới. */
@@ -329,7 +329,7 @@ window.SITE = {
       tree: {
         id: 'xmas', name: 'X.M.A.S', full: 'eXtensible Multi-Agent System', role: 'Trợ lí tổng', color: '#5cffb0', avatar: 'img/agents/xmas.png',
         status: 'Đang chạy trên trang này',
-        tasks: ['Chào khách, dẫn tour và dẫn đường trong Xưởng', 'Fact hôm nay và thời tiết hôm nay', 'Đứng trên các agent chuyên việc bên dưới'],
+        tasks: ['Chào khách, dẫn tour và dẫn đường trong Xưởng', 'Fact hôm nay và thời tiết hôm nay', 'Đọc lời nhắc của Planner ở Phòng Kế Hoạch', 'Đứng trên các agent chuyên việc bên dưới'],
         children: [
           {
             id: 'tom', name: 'T.O.M', full: 'Technical Operations Machine', role: 'Quản lí ghi chú', color: '#4fdcff', avatar: 'img/agents/tom.png',
@@ -341,11 +341,6 @@ window.SITE = {
             note: 'Đọc giống "chef".',
             status: 'Đang dựng. Đã gợi ý món, lên thực đơn tuần và danh sách đi chợ',
             tasks: ['Lên ý tưởng và đề xuất món ăn', 'Quản lí và tổng hợp nguyên vật liệu']
-          },
-          {
-            id: 'planner', name: 'PLANNER', full: '', role: 'Kế hoạch và việc cần làm', color: '#e88bff',
-            status: 'Đang dựng. Đã giữ được danh sách việc theo ngày và theo tuần, chưa có avatar',
-            tasks: ['Ghi việc cần làm kèm ngày', 'Xem việc hôm nay, việc quá hạn và lịch cả tuần']
           }
         ]
       }
@@ -379,7 +374,7 @@ window.SITE = {
     roadmap: {
       title: 'Bảng lộ trình',
       columns: [
-        { title: 'Đang làm', items: [{ title: 'Phòng Thực Nghiệm', about: 'Tầng hầm của Xưởng, dựng dần từng khu.' }, { title: 'X.M.A.S', about: 'Trợ lí tổng, đang dẫn tour Xưởng.' }, { title: 'T.O.M', about: 'Agent quản lí ghi chú trong Thư viện môn học.' }, { title: 'J.E.F.F', about: 'Robot đầu bếp: gợi ý món, thực đơn tuần, danh sách đi chợ.' }, { title: 'PLANNER', about: 'Agent kế hoạch: việc cần làm theo ngày và tuần.' }, { title: 'Thư viện môn học', about: 'App máy tính ghi chú theo môn học, đang bày ở Bàn thí nghiệm.' }] },
+        { title: 'Đang làm', items: [{ title: 'Phòng Thực Nghiệm', about: 'Tầng hầm của Xưởng, dựng dần từng khu.' }, { title: 'X.M.A.S', about: 'Trợ lí tổng, đang dẫn tour Xưởng.' }, { title: 'T.O.M', about: 'Agent quản lí ghi chú trong Thư viện môn học.' }, { title: 'J.E.F.F', about: 'Robot đầu bếp: gợi ý món, thực đơn tuần, danh sách đi chợ.' }, { title: 'Planner', about: 'Lịch tháng, việc cần làm và nhắc giờ ở Phòng Kế Hoạch.' }, { title: 'Thư viện môn học', about: 'App máy tính ghi chú theo môn học, đang bày ở Bàn thí nghiệm.' }] },
         { title: 'Sắp làm', items: [{ title: 'J.E.F.F: hỏi đáp', about: 'Hỏi tự do, J.E.F.F chỉ trả lời từ kho công thức.' }] },
         { title: 'Đã xong', items: [{ title: 'Xưởng của Thức', about: 'Căn nhà 3D này, đang chạy.' }, { title: 'The Ticket', about: 'Game pixel kể chuyện, 5 chương.' }, { title: 'Fluffy Frenzy', about: 'Đại chiến thú cưng 3D.' }] }
       ]

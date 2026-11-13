@@ -986,25 +986,75 @@ body[data-room="vuon"], .room[data-room="vuon"], .room-list a[data-room="vuon"],
 body[data-room="ham"], .room[data-room="ham"], .room-list a[data-room="ham"], .world-label[data-room="ham"] { --light: #ff8fa3; }
 /* Phòng Kế Hoạch. Khung, tab, nút dùng chung các lớp .bep-* của Phòng Bếp, màu lấy theo --light của phòng. */
 body[data-room="kehoach"], .room[data-room="kehoach"], .room-list a[data-room="kehoach"], .world-label[data-room="kehoach"] { --light: #e88bff; }
-.kh-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-bottom: 12px; }
-.kh-form input { min-height: 44px; min-width: 0; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--wall, #0a1220); color: var(--text); font: 500 15px var(--sans); color-scheme: dark; }
-.kh-form input:focus-visible { outline: 2px solid var(--light); outline-offset: 1px; }
-#khTitle { grid-column: 1 / -1; }
+.kh-form { display: grid; gap: 8px; margin-bottom: 12px; }
+.kh-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.kh-when { grid-template-columns: 1.3fr 1fr auto; }
+.kh-when input { padding: 0 8px; }
+.kh-form input, .kh-opts select { min-height: 44px; min-width: 0; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--wall, #0a1220); color: var(--text); font: 500 15px var(--sans); color-scheme: dark; }
+.kh-form input:focus-visible, .kh-opts select:focus-visible { outline: 2px solid var(--light); outline-offset: 1px; }
+.kh-when .bep-mini { min-height: 44px; }
+.kh-opts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.kh-opts label { display: grid; gap: 4px; color: var(--muted); font-size: 12px; min-width: 0; }
+.kh-opts select { width: 100%; padding: 0 6px; font-size: 14px; }
+.kh-editing { margin: 0; color: var(--light); font-size: 14px; }
+
+.kh-cal-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.kh-cal-head h3 { margin: 0 auto 0 0; font-size: 17px; }
+.kh-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.kh-dow { padding: 2px 0; color: var(--muted); font-size: 12px; text-align: center; }
+.kh-cell { display: grid; place-items: center; align-content: center; gap: 2px; min-height: 44px; padding: 0; border: 1px solid transparent; border-radius: 10px; background: rgba(255,255,255,.035); color: var(--text); font: 500 15px var(--sans); transition: transform .12s ease-out, border-color .15s ease; }
+.kh-cell:hover { border-color: var(--line); }
+.kh-cell:active { transform: scale(.95); }
+.kh-cell.out { background: none; color: var(--muted); opacity: .55; }
+.kh-cell.now .kh-num { color: var(--light); font-weight: 700; }
+.kh-cell[aria-pressed="true"] { border-color: var(--light); background: color-mix(in srgb, var(--light) 16%, transparent); }
+.kh-cell:focus-visible { outline: 2px solid var(--light); outline-offset: 1px; }
+.kh-dots { display: flex; gap: 3px; height: 5px; }
+.kh-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--light); }
+.kh-dots i.p2 { background: #ff8a7a; }
+.kh-dots i.p0, .kh-dots i.ok { background: var(--muted); }
+.kh-agenda { color: var(--light); }
+
 .kh-list { margin: 0; padding: 0; list-style: none; }
-.kh-task { display: flex; align-items: center; gap: 8px; min-height: 40px; border-top: 1px solid var(--line); }
-.kh-task label { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; min-height: 40px; cursor: pointer; }
+.kh-task { display: flex; align-items: center; gap: 6px; min-height: 44px; padding-left: 8px; border-top: 1px solid var(--line); border-left: 3px solid var(--light); }
+.kh-task.p2 { border-left-color: #ff8a7a; }
+.kh-task.p0 { border-left-color: var(--muted); }
+.kh-task label { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; min-height: 44px; cursor: pointer; }
 .kh-task input { width: 18px; height: 18px; flex: none; accent-color: var(--light); }
+.kh-text { display: grid; min-width: 0; padding: 4px 0; }
 .kh-name { overflow-wrap: anywhere; }
+.kh-meta { color: var(--muted); font-size: 12.5px; }
+.kh-meta.late { color: var(--lamp, #f2c879); }
 .kh-task.done .kh-name { color: var(--muted); text-decoration: line-through; }
-.kh-date { flex: none; color: var(--muted); font-size: 13px; white-space: nowrap; }
-.kh-date.late { color: var(--lamp, #f2c879); }
+.kh-task.done { border-left-color: transparent; }
+.kh-task.ghost { border-left-style: dashed; opacity: .6; }
+.kh-task.ghost .kh-text { padding-left: 28px; }
+.kh-edit { min-height: 32px; padding: 0 6px; flex: none; border: 0; border-radius: 8px; background: none; color: var(--muted); font: 500 13px var(--sans); }
+.kh-edit:hover { color: var(--light); background: rgba(255,255,255,.06); }
 .kh-day { padding: 8px 0; border-top: 1px solid var(--line); }
 .kh-day h3 { margin: 0 0 4px; }
 .kh-day.now h3 { color: var(--light); }
 .kh-day .bep-note { margin: 0; }
 .kh-day .kh-task:first-child { border-top: 0; }
-/* Phòng Bếp */
-body[data-room="bep"], .room[data-room="bep"], .room-list a[data-room="bep"], .world-label[data-room="bep"] { --light: #ff7557; }
+.kh-meter { height: 6px; margin: 8px 0 4px; border-radius: 3px; background: rgba(255,255,255,.08); overflow: hidden; }
+.kh-meter i { display: block; height: 100%; border-radius: 3px; background: var(--light); transition: width .25s ease-out; }
+.kh-switch { display: flex; align-items: center; gap: 10px; min-height: 44px; margin-top: 6px; cursor: pointer; }
+.kh-switch input { width: 18px; height: 18px; accent-color: var(--light); }
+.kh-soon { margin: 0; padding: 0; list-style: none; }
+.kh-soon li { display: grid; padding: 6px 0; border-top: 1px solid var(--line); }
+.kh-soon-at { color: var(--light); font-size: 13px; }
+
+/* Lời nhắc của Planner: nổi ở góc trang, hiện ở mọi phòng */
+.kh-toasts { --light: #e88bff; position: fixed; top: 72px; right: 16px; z-index: 60; display: grid; gap: 8px; width: min(340px, calc(100vw - 32px)); }
+.kh-toast { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; padding: 12px 12px 10px 14px; border: 1px solid var(--light); border-left-width: 4px; border-radius: 12px; background: #0d1626; color: var(--text); box-shadow: 0 12px 32px rgba(0,0,0,.45); transition: opacity .2s ease-out, transform .2s ease-out; }
+@starting-style { .kh-toast { opacity: 0; transform: translateY(-8px); } }
+.kh-toast p { margin: 0; }
+.kh-toast-kind { color: var(--light); font: 600 13px var(--display); }
+.kh-toast-title { font-weight: 600; overflow-wrap: anywhere; }
+.kh-toast-when { color: var(--muted); font-size: 13px; }
+.kh-toast-acts { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; }
+@media (prefers-reduced-motion: reduce) { .kh-toast, .kh-cell, .kh-meter i { transition: none; } }
+
 .bep-panel { width: min(440px, 100%); max-height: calc(100dvh - 300px); min-height: 260px; margin-top: 20px; padding: 0 16px 16px; overflow-y: auto; border: 1px solid var(--line); border-radius: 14px; background: rgba(10,18,32,.94); }
 .bep-tabs { position: sticky; top: 0; z-index: 1; display: flex; gap: 4px; margin: 0 -16px 12px; padding: 8px 12px 0; border-bottom: 1px solid var(--line); background: rgba(10,18,32,.98); }
 .bep-tabs button { min-height: 44px; padding: 0 9px; white-space: nowrap; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--muted); font: 600 15px var(--display); }

@@ -48,9 +48,17 @@ Key nằm công khai trong trang, nên bắt buộc làm bước 3. Hạn mức 
 
 Hai file trong `assets/sounds/` đều là CC0, lấy từ Freesound: `rain.mp3` là "Rain from Indoors - Perfect loop" của samesamesame, `lofi.mp3` là "Chill Lofi Melody Loop 95 BPM" của holizna.
 
-## Phòng Kế Hoạch và PLANNER
+## Phòng Kế Hoạch và Planner
 
-PLANNER giữ danh sách việc cần làm ở Phòng Kế Hoạch: thêm việc kèm ngày, xem theo hôm nay (kèm việc quá hạn), theo tuần hoặc tất cả, đánh dấu xong, xóa. Việc lưu trong `localStorage` của trình duyệt, không gửi đi đâu. Giao diện ở `js/planner.js`.
+Planner là chức năng chính của Phòng Kế Hoạch, gộp lịch, việc cần làm và nhắc giờ:
+
+- Lịch tháng, chấm màu theo mức ưu tiên, bấm một ngày để xem và thêm việc.
+- Mỗi việc có ngày, giờ, mức ưu tiên, kiểu lặp (ngày, tuần, tháng) và kiểu nhắc (đúng giờ, trước 10 phút, 1 giờ, 1 ngày).
+- Gõ nhanh: "mai 9h họp nhóm" tự hiểu ngày và giờ.
+- Xem theo hôm nay (kèm việc quá hạn), theo tuần hoặc tất cả. Sửa, đánh dấu xong, xóa.
+- Nhắc giờ: thẻ nhắc ở góc trang, tiếng chuông, thông báo của trình duyệt nếu được bật, X.M.A.S đọc lời nhắc. Nhắc chỉ chạy khi trang đang mở.
+
+Việc lưu trong `localStorage` của trình duyệt, không gửi đi đâu. Giao diện ở `js/planner.js`.
 
 ## Phòng Bếp và J.E.F.F
 

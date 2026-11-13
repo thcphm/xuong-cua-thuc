@@ -130,7 +130,7 @@ const TIPS = {
   sach: { text: 'Bấm một tủ sách để xem sách tiêu biểu, hoặc tìm theo tên sách, tác giả, xuất xứ.', target: '#libForm', anim: 'point' },
   game: { text: matchMedia('(pointer: coarse)').matches ? 'Game này cần bàn phím. Mở xưởng trên máy tính để chơi nhé.' : 'Bấm vào máy arcade để chơi game Thức tự code. Muốn thoát thì bấm Ra khỏi game ở mép trái.', target: '#featuredGame .play-btn', anim: 'point' },
   hoc: { text: 'Kéo nút tròn trên đồng hồ để đặt số phút. Thanh dưới cùng bật thêm âm nền, ghi chú, flashcard. Xong một phiên được một sao.', target: '#toolbar', anim: 'point' },
-  kehoach: { text: 'Đây là phòng của PLANNER. Gõ một việc cần làm, chọn ngày rồi bấm Thêm. Tab Hôm nay cho biết còn việc gì, tab Tuần này xếp việc theo từng ngày.', target: '#khForm', anim: 'point' },
+  kehoach: { text: 'Đây là Planner: lịch, việc cần làm và nhắc giờ. Bấm một ngày trên lịch, gõ việc rồi bấm Thêm. Đặt giờ thì đến giờ mình nhắc bạn.', target: '#khForm', anim: 'point' },
   bep: { text: 'Đây là bếp của J.E.F.F, robot đầu bếp trong nhóm agent của mình. Chọn những thứ bạn đang có ở tab Tủ lạnh, J.E.F.F sẽ tìm món nấu được. Tab Thực đơn xếp món cho cả tuần và ra danh sách đi chợ.', target: '#bepPanel' },
   cong: { text: 'Chọn ngôn ngữ, rồi vào tab Thực hành để viết code ngay trên trang.', target: '#labLangs', anim: 'point' },
   garage: { text: 'Chọn một bàn bên trái. Lần đầu cần tải mô hình, sau đó chạy ngay trên máy bạn.', target: '#garageBenches', anim: 'point' },
@@ -279,6 +279,7 @@ Music.subscribe((state, track) => {
 });
 document.addEventListener('tp:lab-solved', (e) => say('Chuẩn rồi! Cộng ' + e.detail + ' điểm.', { anim: 'cheer', hold: 2600 }));
 document.addEventListener('tp:ready', () => { if (window.Rooftop.dueCount()) setTimeout(() => say('Có thư bạn gửi cho chính mình đã đến hạn. Lên Sân Thượng đọc nhé.', { anim: 'wave', hold: 6000 }), 2500); });
+document.addEventListener('tp:remind', (e) => say((e.detail.late ? 'Bạn lỡ giờ một việc: ' : 'Đến giờ rồi: ') + e.detail.title + '.', { anim: 'wave', hold: 7000 }));
 document.addEventListener('tp:locked', () => say('Phòng này đang khóa. Thức chưa làm xong, quay lại sau nhé.', { anim: 'shake', hold: 3500 }));
 document.addEventListener('tp:focus-done', () => say('Xong một phiên, thêm một sao. Nghỉ chút đi.', { anim: 'cheer', hold: 6000 }));
 document.addEventListener('tp:lights', (e) => {

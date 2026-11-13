@@ -536,7 +536,7 @@ let jeffBot = null;
 }
 
 /* Phòng Kế Hoạch: khối nối phía trước sảnh, bên trái cửa chính, vào bằng lối mở ở tường trước của sảnh.
-   Phòng làm việc của PLANNER: bảng kế hoạch trên tường, bàn làm việc, đồng hồ. */
+   Phòng của Planner (lịch, việc, nhắc giờ): bảng kế hoạch trên tường, bàn làm việc, đồng hồ. */
 {
   const room = ROOMS.kehoach;
   const [x0, z0] = P(250, 590), [x1, z1] = P(390, 780);
