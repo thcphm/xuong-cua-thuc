@@ -345,7 +345,7 @@ window.SITE = {
             id: 'icare', name: 'I.C.A.R.E', full: 'Intelligent Companion for Awareness, Rest and Energy', role: 'Ngủ, nghỉ và năng lượng', color: '#ff8fa3', avatar: 'img/agents/icare.png',
             note: 'Bạn đồng hành nhắc ngủ nghỉ, không phải bác sĩ: không chẩn đoán, không khuyên thuốc.',
             status: 'Mới có hình tượng. Chức năng chưa dựng',
-            tasks: ['Hỏi thăm mỗi ngày: giấc ngủ, năng lượng, tâm trạng', 'Nhắc nghỉ, uống nước và vận động khi học lâu', 'Nhìn lại tuần từ chính dữ liệu của bạn']
+            tasks: ['Nhắc uống đủ nước', 'Nhắc nghỉ ngơi', 'Nhắc vận động', 'Nhắc đứng dậy, không ngồi lâu']
           }
         ]
       }
