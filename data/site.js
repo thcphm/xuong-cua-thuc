@@ -9,6 +9,8 @@ window.SITE = {
   mascotTom: { kind: 'tom', shell: '#e6eaf1', accent: '#1fb5b0', mark: '#e6fbf9' },
   /* J.E.F.F, robot đầu bếp: trắng kem, đỏ cà chua, cam lửa. */
   mascotJeff: { kind: 'jeff', shell: '#f6f1e7', accent: '#d9482b', glow: '#ffb14a' },
+  /* I.C.A.R.E, bạn đồng hành chăm sóc: trắng áo blouse, hồng san hô. */
+  mascotIcare: { kind: 'icare', shell: '#f1f4f8', accent: '#ff8fa3', glow: '#ffb3c1' },
 
   /* Tên tài khoản của chủ Xưởng. Tài khoản đăng ký đúng tên này là admin. */
   admin: 'Thức',
