@@ -2,6 +2,7 @@
    Bấm "Bắt đầu phiên" thì I.C.A.R.E đếm giờ. Tới mốc của việc nào thì hiện lời nhắc việc đó,
    kèm hai nút: "Xong rồi" (đếm lại từ đầu) và "Nhắc lại sau 10 phút".
    Phiên vẫn chạy khi bạn sang phòng khác, nhưng chỉ nhắc được khi thẻ trang này còn mở.
+   Ngoài phiên, I.C.A.R.E nhắc giờ đi ngủ mỗi tối: đúng giờ ngủ và trước đó theo các mốc trong SITE.rest.bedtime.
    Mọi thứ lưu trên trình duyệt, không gửi đi đâu. I.C.A.R.E không chẩn đoán và không khuyên thuốc. */
 (function () {
   'use strict';
@@ -32,7 +33,7 @@
   }
 
   /* Trạng thái: on (đang trong phiên), started (lúc bắt đầu), next[id] (lúc sẽ nhắc), due[id] (đang chờ bấm), day và count[id] (số lần xong trong ngày) */
-  var state = { on: false, started: 0, next: {}, due: {}, day: '', count: {} };
+  var state = { on: false, started: 0, next: {}, due: {}, day: '', count: {}, bedOn: true, bedDay: '', bedSent: [], bedDue: null };
   try {
     var saved = JSON.parse(localStorage.getItem(KEY));
     if (saved && typeof saved === 'object') state = Object.assign(state, saved);
@@ -80,6 +81,63 @@
   }
   function find(id) { return LIST.filter(function (r) { return r.id === id; })[0]; }
 
+  /* ---------- Giờ đi ngủ ---------- */
+  var BED = INFO.bedtime || null;
+  var BED_AT = BED ? BED.time.split(':').map(Number) : null;
+  var BED_MARKS = BED ? (BED.before || []).slice().sort(function (a, b) { return b - a; }).concat([0]) : [];
+  var LATE = 4 * 60 * MIN;                 // quá giờ ngủ hơn 4 tiếng thì thôi không nhắc nữa
+  /* Giờ ngủ của "đêm nay". Sau nửa đêm tới 4 giờ sáng vẫn tính là đêm hôm trước. */
+  function bedTarget(now) {
+    var d = new Date(now);
+    if (d.getHours() < 4) d.setDate(d.getDate() - 1);
+    d.setHours(BED_AT[0], BED_AT[1], 0, 0);
+    return d.getTime();
+  }
+  function clock(ms) {
+    var d = new Date(ms);
+    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+  function bedText(now) {
+    var mins = Math.ceil((bedTarget(now) - now) / MIN);
+    if (mins > 0) return 'Còn ' + (mins >= 60 ? '1 giờ' + (mins > 60 ? ' ' + (mins - 60) + ' phút' : '') : mins + ' phút') + ' nữa là tới giờ ngủ ' + BED.time + '. Thu xếp việc dần nhé.';
+    if (mins > -5) return 'Đến giờ ngủ rồi (' + BED.time + '). Tắt máy và đi ngủ thôi.';
+    return 'Đã quá giờ ngủ ' + BED.time + '. Đi ngủ sớm nhất có thể nhé.';
+  }
+  /* Mỗi mốc chỉ nhắc một lần mỗi đêm. Mở trang muộn thì chỉ nhắc mốc gần nhất, không nhắc dồn. */
+  function checkBed() {
+    if (!BED || !state.bedOn) return false;
+    var now = Date.now(), target = bedTarget(now), key = today(target);
+    if (state.bedDay !== key) { state.bedDay = key; state.bedSent = []; state.bedDue = null; }
+    if (now - target > LATE) return false;
+    var left = (target - now) / MIN;
+    var passed = BED_MARKS.filter(function (m) { return left <= m; });
+    if (!passed.length) return false;
+    var latest = passed[passed.length - 1];
+    if (state.bedSent.indexOf(latest) >= 0) return false;
+    state.bedSent = passed;
+    state.bedDue = { mark: latest };
+    save();
+    if ('Notification' in window && Notification.permission === 'granted' && document.hidden) {
+      try { new Notification('I.C.A.R.E: Giờ đi ngủ', { body: bedText(now), icon: 'img/agents/icare.png', tag: 'icare-ngu' }); } catch (e) { /* bỏ qua */ }
+    }
+    document.dispatchEvent(new CustomEvent('tp:icare', { detail: ['ngu'] }));
+    return true;
+  }
+  function bedSeen() { state.bedDue = null; save(); render(); }
+  function bedToggle() {
+    state.bedOn = !state.bedOn;
+    if (!state.bedOn) state.bedDue = null;
+    save();
+    askNotify();
+    checkBed();
+    render();
+  }
+  function askNotify() {
+    if ('Notification' in window && Notification.permission === 'default') {
+      try { Notification.requestPermission().then(render, render); } catch (e) { /* trình duyệt cũ */ }
+    }
+  }
+
   /* Tới mốc: đánh dấu đang chờ, hiện thông báo của máy nếu được phép, cho I.C.A.R.E trong phòng vẫy tay */
   function check() {
     if (!state.on) return false;
@@ -112,7 +170,9 @@
   var toggle = button('nghi-go', '', function () { if (state.on) stop(); else start(); });
   var rows = el('ul', 'nghi-list');
   var note = el('p', 'nghi-note', INFO.note || '');
-  panel.append(lead, toggle, rows, note);
+  var bed = el('div', 'nghi-bed');
+  var allow = button('nghi-allow', 'Cho phép thông báo của máy', askNotify);
+  panel.append(lead, toggle, rows, bed, allow, note);
 
   /* ---------- Lời nhắc nổi: hiện ở mọi phòng khi có việc tới mốc ---------- */
   var toast = el('div', 'nghi-toast');
@@ -137,9 +197,32 @@
       if (state.due[r.id]) li.append(actions(r));
       return li;
     }));
+    /* Khối giờ đi ngủ */
+    if (BED) {
+      var times = BED_MARKS.map(function (m) { return clock(bedTarget(now) - m * MIN); });
+      var head = el('div', 'nghi-row-head');
+      head.append(el('strong', '', 'Giờ đi ngủ: ' + BED.time), button('nghi-switch' + (state.bedOn ? ' on' : ''), state.bedOn ? 'Đang bật' : 'Đang tắt', bedToggle));
+      head.lastChild.setAttribute('aria-pressed', state.bedOn ? 'true' : 'false');
+      head.lastChild.setAttribute('aria-label', 'Nhắc giờ đi ngủ');
+      bed.replaceChildren(head, el('p', 'nghi-status', state.bedOn ? 'Mỗi tối I.C.A.R.E nhắc lúc ' + times.join(', ') + '. Không cần bắt đầu phiên.' : 'Đang tắt. Bấm nút để I.C.A.R.E nhắc giờ đi ngủ.'));
+    }
+    allow.hidden = !('Notification' in window) || Notification.permission !== 'default';
+
     var due = LIST.filter(function (r) { return state.due[r.id]; });
-    toast.hidden = !due.length;
-    if (due.length) {
+    toast.hidden = !due.length && !state.bedDue;
+    if (state.bedDue) {
+      var bedBox = el('div', 'nghi-toast-box');
+      var bedFace = el('img');
+      bedFace.src = 'img/agents/icare.png';
+      bedFace.alt = '';
+      var bedWords = el('div');
+      bedWords.append(el('strong', '', 'I.C.A.R.E: Giờ đi ngủ'), el('p', '', bedText(now)));
+      if (due.length) bedWords.append(el('p', 'nghi-more', 'Còn ' + due.length + ' lời nhắc nữa ở Phòng nghỉ.'));
+      bedBox.append(bedFace, bedWords);
+      var bedActs = el('div', 'nghi-acts');
+      bedActs.append(button('nghi-done', state.bedDue.mark === 0 ? 'Đi ngủ đây' : 'Đã biết', bedSeen));
+      toast.replaceChildren(bedBox, bedActs);
+    } else if (due.length) {
       var r = due[0];
       var box = el('div', 'nghi-toast-box');
       var face = el('img');
@@ -165,10 +248,12 @@
   var ticks = 0;
   setInterval(function () {
     ticks += 1;
-    if (check() || (state.on && ticks % 15 === 0 && !panel.closest('[hidden]'))) render();
+    var fresh = check(), bedFresh = checkBed();
+    if (fresh || bedFresh || ((state.on || state.bedDue) && ticks % 15 === 0)) render();
   }, 1000);
-  document.addEventListener('visibilitychange', function () { if (!document.hidden) { check(); render(); } });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) { check(); checkBed(); render(); } });
   check();
+  checkBed();
   render();
 
   /* Cho việc kiểm thử và cho các phần khác của trang hỏi trạng thái */

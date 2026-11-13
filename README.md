@@ -70,6 +70,7 @@ Phòng nghỉ là khối nối bên trái Phòng Học, nơi I.C.A.R.E ở. I.C.
 - Mỗi lời nhắc có hai nút: nút xong (đếm lại từ đầu, cộng một lần cho hôm nay) và "Nhắc lại sau 10 phút".
 - Phiên và số lần trong ngày lưu trên trình duyệt (`localStorage`, khóa `xuong.nghi`), tải lại trang vẫn còn.
 - Chỉ nhắc được khi thẻ trang còn mở. Nếu đã cho phép thông báo và thẻ đang bị che, trình duyệt hiện thêm thông báo của máy.
+- Giờ đi ngủ: mỗi tối I.C.A.R.E nhắc lúc 22:30 và nhắc trước 1 giờ, 30 phút, 15 phút (21:30, 22:00, 22:15). Không cần bắt đầu phiên. Mỗi mốc nhắc một lần; mở trang muộn thì chỉ nhắc mốc gần nhất. Bật tắt bằng nút trong Phòng nghỉ. Sửa giờ và các mốc ở `rest.bedtime` trong `data/site.js`.
 - I.C.A.R.E không chẩn đoán và không khuyên thuốc. Các mốc thời gian là mặc định phổ biến, không phải lời khuyên y khoa.
 
 Sửa lời nhắc và mốc thời gian ở `rest` trong `data/site.js`. Code nhắc việc: `js/rest.js`. Căn phòng 3D: khối "Phòng nghỉ" trong `js/world.js`.

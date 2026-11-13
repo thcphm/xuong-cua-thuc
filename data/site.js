@@ -325,6 +325,8 @@ window.SITE = {
     lead: 'Bấm Bắt đầu phiên khi bạn ngồi vào bàn. I.C.A.R.E đếm giờ và nhắc từng việc khi tới mốc.',
     note: 'I.C.A.R.E chỉ nhắc được khi thẻ trang này còn mở. Các mốc thời gian là mặc định phổ biến, không phải lời khuyên y khoa. Số lần trong ngày lưu trên trình duyệt của bạn.',
     snooze: 10,
+    /* Giờ đi ngủ: I.C.A.R.E nhắc đúng giờ này và nhắc trước theo các mốc (phút). Không cần bắt đầu phiên. */
+    bedtime: { time: '22:30', before: [60, 30, 15] },
     reminders: [
       { id: 'mat', name: 'Nghỉ ngơi', every: 25, text: 'Rời mắt khỏi màn hình, nhìn ra xa 20 giây.', done: 'Đã nghỉ mắt' },
       { id: 'dung', name: 'Không ngồi lâu', every: 45, text: 'Bạn ngồi khá lâu rồi. Đứng dậy đi vài bước.', done: 'Đã đứng dậy' },
@@ -366,7 +368,7 @@ window.SITE = {
             id: 'icare', name: 'I.C.A.R.E', full: 'Intelligent Companion for Awareness, Rest and Energy', role: 'Ngủ, nghỉ và năng lượng', color: '#ff8fa3', avatar: 'img/agents/icare.png',
             note: 'Bạn đồng hành nhắc ngủ nghỉ, không phải bác sĩ: không chẩn đoán, không khuyên thuốc.',
             status: 'Đang dựng. Đã nhắc được bốn việc trong một phiên ngồi làm việc',
-            tasks: ['Nhắc uống đủ nước', 'Nhắc nghỉ ngơi', 'Nhắc vận động', 'Nhắc đứng dậy, không ngồi lâu'],
+            tasks: ['Nhắc uống đủ nước', 'Nhắc nghỉ ngơi', 'Nhắc vận động', 'Nhắc đứng dậy, không ngồi lâu', 'Nhắc đi ngủ lúc 22:30, nhắc trước 1 giờ, 30 phút và 15 phút'],
             go: { href: '#nghi', to: 'Phòng nghỉ' }
           }
         ]

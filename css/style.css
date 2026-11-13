@@ -1629,7 +1629,8 @@ body[data-room="nghi"], .room[data-room="nghi"], .room-list a[data-room="nghi"],
 .nghi-later:hover { border-color: #ff9fb2; }
 .nghi-note { margin: 12px 0 0; color: var(--muted); font-size: 13px; }
 /* Lời nhắc nổi: nằm góc dưới bên trái, hiện ở mọi phòng */
-.nghi-toast { position: fixed; left: 16px; bottom: 16px; z-index: 60; width: min(360px, calc(100vw - 32px)); padding: 12px 14px; border: 1px solid #ff9fb2; border-radius: 14px; background: rgba(10,18,32,.97); box-shadow: 0 16px 40px rgba(0,0,0,.5); }
+/* z-index cao hơn mọi lớp phủ của các phòng (lớp lời nhắn ở Phòng Học là 200) để nút trên lời nhắc luôn bấm được */
+.nghi-toast { position: fixed; left: 16px; bottom: 16px; z-index: 250; width: min(360px, calc(100vw - 32px)); padding: 12px 14px; border: 1px solid #ff9fb2; border-radius: 14px; background: rgba(10,18,32,.97); box-shadow: 0 16px 40px rgba(0,0,0,.5); }
 .nghi-toast[hidden] { display: none; }
 .nghi-toast-box { display: flex; align-items: flex-start; gap: 12px; }
 .nghi-toast-box img { width: 48px; height: 48px; flex: none; border-radius: 10px; background: var(--floor, #0d1626); }
@@ -1637,3 +1638,11 @@ body[data-room="nghi"], .room[data-room="nghi"], .room-list a[data-room="nghi"],
 .nghi-toast-box p { margin: 2px 0 0; font-size: 15px; }
 .nghi-toast-box .nghi-more { color: var(--muted); font-size: 13px; }
 @media (prefers-reduced-motion: reduce) { .nghi-go { transition: none; } }
+
+/* Phòng nghỉ: khối giờ đi ngủ */
+.nghi-bed { margin-top: 4px; padding: 12px 0 10px; border-top: 1px solid var(--line); }
+.nghi-switch { min-height: 36px; padding: 0 12px; border: 1px solid var(--line); border-radius: 18px; background: none; color: var(--muted); font: 600 13px var(--display); white-space: nowrap; }
+.nghi-switch.on { border-color: #ff9fb2; background: #ff9fb2; color: #2a0d14; }
+.nghi-allow { min-height: 40px; margin-top: 4px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: none; color: var(--text); font: 500 14px var(--sans); }
+.nghi-allow:hover { border-color: #ff9fb2; }
+.nghi-allow[hidden] { display: none; }
