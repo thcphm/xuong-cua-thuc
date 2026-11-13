@@ -34,7 +34,7 @@ Key nằm công khai trong trang, nên bắt buộc làm bước 3. Hạn mức 
 ## Cấu trúc
 
 - `js/world.js`: căn nhà 3D, camera, đồ vật bấm được
-- `js/mascot.js`: logo TP và bốn robot: X.M.A.S (eXtensible Multi-Agent System, trợ lí tổng của trang), T.O.M (Technical Operations Machine, agent quản lí ghi chú), J.E.F.F (Just Eat Food Forever, robot đầu bếp) và I.C.A.R.E (Intelligent Companion for Awareness, Rest and Energy, bạn đồng hành chăm sóc, mới có hình tượng)
+- `js/mascot.js`: logo TP và bốn robot: X.M.A.S (eXtensible Multi-Agent System, trợ lí tổng của trang), T.O.M (Technical Operations Machine, agent quản lí ghi chú), J.E.F.F (Just Eat Food Forever, robot đầu bếp) và I.C.A.R.E (Intelligent Companion for Awareness, Rest and Energy, bạn đồng hành nhắc ngủ nghỉ)
 - `js/guide.js`: lời thoại, tour, phản ứng của robot
 - `js/walk.js`: robot tự đi tới phòng được bấm
 - `js/study.js`: Phòng Học
@@ -47,6 +47,18 @@ Key nằm công khai trong trang, nên bắt buộc làm bước 3. Hạn mức 
 ## Âm thanh Phòng Học
 
 Hai file trong `assets/sounds/` đều là CC0, lấy từ Freesound: `rain.mp3` là "Rain from Indoors - Perfect loop" của samesamesame, `lofi.mp3` là "Chill Lofi Melody Loop 95 BPM" của holizna.
+
+## Phòng nghỉ và I.C.A.R.E
+
+Phòng nghỉ là khối nối bên trái Phòng Học, nơi I.C.A.R.E ở. I.C.A.R.E nhắc bốn việc trong lúc bạn ngồi làm việc: nghỉ mắt, đứng dậy, uống nước, vận động.
+
+- Bấm "Bắt đầu phiên" khi ngồi vào bàn. Tới mốc của việc nào thì hiện lời nhắc việc đó ở góc dưới bên trái, ở mọi phòng.
+- Mỗi lời nhắc có hai nút: nút xong (đếm lại từ đầu, cộng một lần cho hôm nay) và "Nhắc lại sau 10 phút".
+- Phiên và số lần trong ngày lưu trên trình duyệt (`localStorage`, khóa `xuong.nghi`), tải lại trang vẫn còn.
+- Chỉ nhắc được khi thẻ trang còn mở. Nếu đã cho phép thông báo và thẻ đang bị che, trình duyệt hiện thêm thông báo của máy.
+- I.C.A.R.E không chẩn đoán và không khuyên thuốc. Các mốc thời gian là mặc định phổ biến, không phải lời khuyên y khoa.
+
+Sửa lời nhắc và mốc thời gian ở `rest` trong `data/site.js`. Code nhắc việc: `js/rest.js`. Căn phòng 3D: khối "Phòng nghỉ" trong `js/world.js`.
 
 ## Phòng Bếp và J.E.F.F
 

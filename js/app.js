@@ -5,6 +5,7 @@
     nhac: { title: 'Phòng Nhạc', cx: 265, cy: 185 },
     sach: { title: 'Phòng Sách', cx: 765, cy: 120 },
     hoc: { title: 'Phòng Học', cx: 165, cy: 465 },
+    nghi: { title: 'Phòng nghỉ', cx: -100, cy: 465 },
     bep: { title: 'Phòng Bếp', cx: 650, cy: 685 },
     game: { title: 'Phòng Giải Trí', cx: 765, cy: 495 },
     cong: { title: 'Phòng Công Nghệ', cx: 765, cy: 305 },
@@ -36,6 +37,7 @@
     sach: 'Thư viện mở',
     game: SITE.games.list.length + ' game',
     hoc: 'Hẹn giờ, flashcard',
+    nghi: 'Nhắc uống nước, nghỉ, vận động',
     bep: 'Gợi ý món, thực đơn tuần',
     cong: 'Học và luyện code',
     garage: 'AI chạy trong trình duyệt',
@@ -43,6 +45,8 @@
     vuon: FLORA + ' cây để chăm',
     ham: 'Tầng hầm, tủ trưng bày'
   };
+  /* Phòng nghỉ: lời giới thiệu lấy từ SITE.rest, phần nhắc việc nằm ở js/rest.js */
+  if ($('nghiIntro')) $('nghiIntro').textContent = (SITE.rest || {}).intro || '';
   /* Phòng Bếp: thẻ giới thiệu J.E.F.F, lấy từ cây agent của Trạm Agent */
   (function () {
     var info = SITE.kitchen || {}, card = $('bepCard');
@@ -120,10 +124,10 @@
   /* Sơ đồ nhỏ trên thanh điều hướng */
   var NS = 'http://www.w3.org/2000/svg';
   var mini = document.createElementNS(NS, 'svg');
-  mini.setAttribute('viewBox', '30 20 1175 650');
+  mini.setAttribute('viewBox', '-250 20 1455 650');
   [
     ['', 290, 340, 280, 250], ['', 490, 30, 80, 310],
-    ['nhac', 40, 30, 450, 310], ['sach', 570, 30, 390, 180], ['cong', 570, 210, 390, 190], ['game', 570, 400, 390, 190], ['hoc', 40, 340, 250, 250], ['san', 980, 30, 215, 150], ['vuon', 980, 180, 215, 150], ['garage', 980, 330, 215, 260], ['ham', 40, 606, 410, 54], ['bep', 470, 596, 360, 64]
+    ['nhac', 40, 30, 450, 310], ['sach', 570, 30, 390, 180], ['cong', 570, 210, 390, 190], ['game', 570, 400, 390, 190], ['hoc', 40, 340, 250, 250], ['san', 980, 30, 215, 150], ['vuon', 980, 180, 215, 150], ['garage', 980, 330, 215, 260], ['ham', 40, 606, 410, 54], ['bep', 470, 596, 360, 64], ['nghi', -240, 340, 280, 250]
   ].forEach(function (r) {
     var rect = document.createElementNS(NS, 'rect');
     rect.setAttribute('x', r[1]); rect.setAttribute('y', r[2]);

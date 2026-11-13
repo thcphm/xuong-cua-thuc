@@ -122,6 +122,7 @@ const ROOMS = {
   san: { rect: [965, 150, 1190, 370], y: 2.7, color: '#c7b8ff', floor: '#20263a', light: [1075, 260, 4.6], power: 26, label: [1075, 260, 4.5] },
   vuon: { rect: [965, 370, 1140, 590], y: 2.7, color: '#a5e27f', floor: '#33291c', light: [1050, 480, 4.6], power: 26, label: [1050, 480, 4.5] },
   bep: { rect: [470, 590, 830, 780], color: '#ff7557', floor: '#2a1c18', light: [730, 720, 2.8], power: 14 },
+  nghi: { rect: [-240, 340, 40, 590], color: '#ff9fb2', floor: '#241a26', light: [-110, 470, 2.8], power: 14 },
   ham: { rect: [20, 10, 980, 610], y: -3.6, color: '#ff8fa3', floor: '#1d2433', light: [500, 330, -1.2], power: 60, label: [140, 770, 0.5] }
 };
 const floors = [];
@@ -177,7 +178,8 @@ Walk.WALLS.forEach(([x1, y1, x2, y2]) => {
   if (y1 === 590 && y2 === 590) { wall(40, 590, 390, 590, LOW); wall(470, 590, 490, 590, LOW); wall(550, 590, 960, 590, LOW); return; }
   if (x1 === 960 && x2 === 960) return wall(x1, y1, x2, y2, LOW);
   if (y1 === 30 && y2 === 30) return wall(x1, y1, x2, y2, TALL, 0.2);
-  if (x1 === 40 && x2 === 40) return wall(x1, y1, x2, y2, TALL, 0.2);
+  /* Tường trái: đoạn giáp Phòng nghỉ hạ thấp để nhìn thấy phòng, chừa lối sang (500 tới 560) */
+  if (x1 === 40 && x2 === 40) return wall(x1, y1, x2, y2, y1 >= 340 ? LOW : TALL, 0.2);
   wall(x1, y1, x2, y2, MID);
 });
 
@@ -531,6 +533,108 @@ let jeffBot = null;
   addHot(hit, 'bep', 'J.E.F.F', () => jeffBot.play('wave', 2), { noMove: true });
   /* J.E.F.F vừa chọn xong một món */
   document.addEventListener('tp:jeff', () => jeffBot.play('cheer', 1.4));
+}
+
+/* Phòng nghỉ: khối nối bên trái Phòng Học, vào bằng lối mở ở tường trái của Phòng Học.
+   Đây là nơi I.C.A.R.E ở. */
+let icareBot = null;
+{
+  const room = ROOMS.nghi;
+  const [x0, z0] = P(-240, 340), [x1, z1] = P(40, 590);
+  box(house, x1 - x0 + 0.2, 0.5, z1 - z0 + 0.2, (x0 + x1) / 2, -0.27, (z0 + z1) / 2, std('#0a1220'));
+  /* Tường sau và tường trái cao vừa làm nền, tường phía máy quay hạ thấp */
+  wall(-240, 340, 40, 340, MID);
+  wall(-240, 340, -240, 590, MID);
+  wall(-240, 590, 40, 590, LOW);
+  const soft = glow(room.color, 1.2);
+  room.glows.push({ mat: soft, base: 1.3 });
+  const steel = std('#9aa7b8', { roughness: 0.3, metalness: 0.7 }), linen = std('#e8edf5', { roughness: 0.85 });
+
+  /* Giường nghỉ dọc tường sau: khung, nệm, gối, chăn gấp */
+  const [bx, bz] = P(-140, 372);
+  box(house, 2.3, 0.3, 1.0, bx, 0.19, bz, furn2);
+  box(house, 2.2, 0.18, 0.9, bx, 0.43, bz, linen);
+  box(house, 0.55, 0.13, 0.62, bx - 0.75, 0.585, bz, std('#ffd0d9', { roughness: 0.9 }));
+  box(house, 0.95, 0.06, 0.9, bx + 0.58, 0.55, bz, std(room.color, { roughness: 0.9 }));
+  box(house, 0.1, 0.62, 1.0, bx - 1.2, 0.35, bz, furn2);
+
+  /* Đèn sàn cạnh giường */
+  const [lx, lz] = P(-30, 372);
+  cyl(house, 0.14, 0.16, 0.04, lx, 0.04, lz, steel);
+  cyl(house, 0.025, 0.025, 1.3, lx, 0.7, lz, steel, 12);
+  cyl(house, 0.14, 0.2, 0.26, lx, 1.42, lz, soft).castShadow = false;
+
+  /* Cây nước nóng lạnh ở tường trái: thân máy, bình nước úp ngược, hai vòi */
+  const [wx, wz] = P(-218, 452);
+  box(house, 0.38, 0.92, 0.38, wx, 0.48, wz, std('#dfe8f3', { roughness: 0.4 }));
+  cyl(house, 0.15, 0.15, 0.44, wx, 1.17, wz, new THREE.MeshPhysicalMaterial({ color: '#7fd4ff', transparent: true, opacity: 0.6, roughness: 0.1 }), 24).castShadow = false;
+  cyl(house, 0.06, 0.1, 0.06, wx, 0.96, wz, std('#dfe8f3', { roughness: 0.4 }), 20);
+  box(house, 0.04, 0.05, 0.06, wx + 0.2, 0.74, wz - 0.07, std('#4fa8ff', { roughness: 0.4 }));
+  box(house, 0.04, 0.05, 0.06, wx + 0.2, 0.74, wz + 0.07, std('#ff7557', { roughness: 0.4 }));
+  box(house, 0.1, 0.02, 0.26, wx + 0.22, 0.6, wz, steel);
+  cyl(house, 0.04, 0.03, 0.09, wx + 0.24, 0.655, wz, std('#ffffff', { roughness: 0.3 }), 16);
+
+  /* Thảm tập ở giữa phòng, hai quả tạ nhỏ bên cạnh */
+  const [mx, mz] = P(-150, 520);
+  box(house, 1.9, 0.03, 0.78, mx, 0.035, mz, std('#6fd6c4', { roughness: 0.9 }));
+  box(house, 1.9, 0.032, 0.05, mx, 0.036, mz - 0.3, std('#4bb5a4', { roughness: 0.9 })).castShadow = false;
+  [-0.14, 0.14].forEach((dz) => {
+    box(house, 0.3, 0.04, 0.04, mx + 1.2, 0.1, mz + dz, steel);
+    [-0.15, 0.15].forEach((dx) => { ball(house, 0.085, mx + 1.2 + dx, 0.1, mz + dz, black); });
+  });
+
+  /* Cây cảnh ở góc trước bên trái */
+  const [px, pz] = P(-212, 560);
+  cyl(house, 0.2, 0.15, 0.34, px, 0.19, pz, std('#b97a56', { roughness: 0.8 }));
+  [[0, 0.62, 0, 0.3], [-0.16, 0.5, 0.08, 0.2], [0.16, 0.52, -0.06, 0.21], [0.02, 0.86, 0.04, 0.2]].forEach(([dx, y, dz, r]) => {
+    ball(house, r, px + dx, y, pz + dz, std('#4f9a5d', { roughness: 0.75 }));
+  });
+
+  /* Bảng tên trên tường sau */
+  {
+    const canvas = document.createElement('canvas');
+    canvas.width = 640;
+    canvas.height = 320;
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    const draw = () => {
+      const g = canvas.getContext('2d');
+      g.fillStyle = '#0c111b';
+      g.fillRect(0, 0, 640, 320);
+      g.strokeStyle = room.color;
+      g.lineWidth = 8;
+      g.strokeRect(10, 10, 620, 300);
+      g.textAlign = 'center';
+      g.fillStyle = room.color;
+      g.font = '600 104px "Chakra Petch", sans-serif';
+      g.fillText('I.C.A.R.E', 320, 156);
+      g.fillStyle = '#dfe8f3';
+      g.font = '500 40px "Saira", sans-serif';
+      g.fillText('Uống nước, nghỉ ngơi, vận động', 320, 236);
+      tex.needsUpdate = true;
+    };
+    draw();
+    if (document.fonts && document.fonts.load) Promise.all([document.fonts.load('600 104px "Chakra Petch"'), document.fonts.load('500 40px "Saira"')]).then(draw, () => {});
+    const plate = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.6), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }));
+    const [tx] = P(-140, 0);
+    plate.position.set(tx, 1.2, z0 + 0.1);
+    house.add(plate);
+  }
+
+  /* I.C.A.R.E đứng giữa phòng, cạnh thảm tập. Vỏ tối hơn một bậc vì đèn phòng rọi gần.
+     Bấm vào thì vẫy tay; khi có lời nhắc tới mốc (sự kiện tp:icare) cũng vẫy tay. */
+  icareBot = createMascot(Object.assign({}, window.SITE.mascotIcare, { shell: '#979ca6', env: 0.3 }), renderer);
+  const [ix, iz] = P(-92, 468);
+  icareBot.group.scale.setScalar(0.72);
+  icareBot.group.position.set(ix, 0.02, iz);
+  house.add(icareBot.group);
+  const hit = new THREE.Mesh(new THREE.BoxGeometry(1.0, 1.5, 0.9), furn2);
+  hit.position.set(ix, 0.85, iz);
+  hit.visible = false;
+  house.add(hit);
+  addHot(hit, 'nghi', 'I.C.A.R.E', () => icareBot.play('wave', 2), { noMove: true });
+  document.addEventListener('tp:icare', () => icareBot.play('wave', 2.6));
 }
 
 /* Khu phụ: tầng trệt là Garage AI, mái là Sân Thượng và Sân Vườn */
@@ -1077,6 +1181,8 @@ const FRAME = {
   hoc: { look: P(165, 420), off: [3, 3.6, 7.4], y: 0.6 },
   /* Ngắm lệch sang trái để căn bếp nằm bên phải thẻ thông tin */
   bep: { look: P(585, 690), off: [-1.5, 5.6, 11], y: 0.6 },
+  /* Ngắm lệch sang trái để phòng nghỉ nằm bên phải thẻ thông tin */
+  nghi: { look: P(-190, 480), off: [-1.2, 5.4, 10.5], y: 0.6 },
   garage: { look: P(1060, 340), off: [-1.4, 1.5, 8.4], y: 1.1 },
   san: { look: P(1075, 260), off: [-1.6, 3.2, 6.2], y: 3.2 },
   vuon: { look: P(1050, 480), off: [-1.2, 3.2, 6], y: 3.2 },
@@ -1114,6 +1220,7 @@ const FIT_POINTS = [new THREE.Vector3(-5.7, 7.3, -6.8), new THREE.Vector3(-1.1, 
 [-3.5, 5.8].forEach((z) => [-0.6, 3.9].forEach((y) => FIT_POINTS.push(new THREE.Vector3(14.0, y, z))));
 FIT_POINTS.push(new THREE.Vector3(-9.2, -0.5, 10.8), new THREE.Vector3(-5.2, -0.5, 10.8));
 FIT_POINTS.push(new THREE.Vector3(6.8, -0.5, 9.6), new THREE.Vector3(6.8, 1.6, 9.6));
+FIT_POINTS.push(new THREE.Vector3(-15.0, -0.5, 5.8), new THREE.Vector3(-15.0, 1.9, 0.5));
 function measure(cam) {
   const out = { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity };
   const v = new THREE.Vector3();
@@ -1310,7 +1417,7 @@ applyOffset();
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const levels = new Uint8Array(128);
 const introStart = performance.now();
-const introOrder = { nhac: 0.3, sach: 0.6, cong: 0.9, game: 1.2, hoc: 1.5, bep: 1.6, garage: 1.7, san: 1.9, vuon: 2.1, ham: 2.3 };
+const introOrder = { nhac: 0.3, sach: 0.6, cong: 0.9, game: 1.2, hoc: 1.5, nghi: 1.55, bep: 1.6, garage: 1.7, san: 1.9, vuon: 2.1, ham: 2.3 };
 let last = performance.now(), running = false, termTick = 0, gridTick = 0;
 
 function frame(now) {
@@ -1436,6 +1543,7 @@ function frame(now) {
   else if (walker.state() === 'dance') walker.idle();
   walker.update(dt);
   if (jeffBot) jeffBot.update(dt);
+  if (icareBot) icareBot.update(dt);
 
   if (composer) composer.render(); else renderer.render(scene, camera);
 

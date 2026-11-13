@@ -671,6 +671,8 @@ export function createMascot(cfg = {}, renderer) {
     look(x, y) { lookAt.x = x; lookAt.y = y; },
     face(name, seconds = 2) { face = name; clock.faceUntil = seconds > 0 ? clock.t + seconds : Infinity; },
     update(dt) {
+      /* Bước thời gian âm hoặc quá dài (khung hình đầu, thẻ vừa được mở lại) làm tư thế văng đi rất xa: chặn lại */
+      dt = Math.max(0, Math.min(0.1, dt || 0));
       clock.t += dt;
       const t = clock.t;
       if (t > clock.until) state = 'idle';

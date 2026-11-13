@@ -123,13 +123,14 @@ function say(rawText, { actions = [], anim = 'idle', target = null, hold = 7000 
   if (!actions.length && hold) hideTimer = setTimeout(hush, hold);
 }
 
-const ROOM_NAMES = { nhac: 'Phòng Nhạc', sach: 'Phòng Sách', hoc: 'Phòng Học', game: 'Phòng Giải Trí', cong: 'Phòng Công Nghệ', bep: 'Phòng Bếp', garage: 'Garage AI', san: 'Sân Thượng', vuon: 'Sân Vườn', ham: 'Phòng Thực Nghiệm' };
+const ROOM_NAMES = { nhac: 'Phòng Nhạc', sach: 'Phòng Sách', hoc: 'Phòng Học', nghi: 'Phòng nghỉ', game: 'Phòng Giải Trí', cong: 'Phòng Công Nghệ', bep: 'Phòng Bếp', garage: 'Garage AI', san: 'Sân Thượng', vuon: 'Sân Vườn', ham: 'Phòng Thực Nghiệm' };
 const TIPS = {
   '': { text: 'Bấm vào một phòng trong căn nhà, hoặc mở Chọn phòng, mình sẽ đi vào trước. Kéo chuột để xoay căn nhà.', target: '#roomMenuBtn' },
   nhac: { text: 'Gõ tên bài, dán link YouTube hoặc chọn thể loại. Sang phòng khác nhạc vẫn chạy ở khung nhỏ.', target: '#ytForm', anim: 'point' },
   sach: { text: 'Bấm một tủ sách để xem sách tiêu biểu, hoặc tìm theo tên sách, tác giả, xuất xứ.', target: '#libForm', anim: 'point' },
   game: { text: matchMedia('(pointer: coarse)').matches ? 'Game này cần bàn phím. Mở xưởng trên máy tính để chơi nhé.' : 'Bấm vào máy arcade để chơi game Thức tự code. Muốn thoát thì bấm Ra khỏi game ở mép trái.', target: '#featuredGame .play-btn', anim: 'point' },
   hoc: { text: 'Kéo nút tròn trên đồng hồ để đặt số phút. Thanh dưới cùng bật thêm âm nền, ghi chú, flashcard. Xong một phiên được một sao.', target: '#toolbar', anim: 'point' },
+  nghi: { text: 'Đây là phòng nghỉ của I.C.A.R.E, bạn đồng hành nhắc bạn giữ sức trong nhóm agent của mình. Bấm Bắt đầu phiên khi ngồi vào bàn, I.C.A.R.E sẽ nhắc uống nước, nghỉ mắt, đứng dậy và vận động. Bấm vào I.C.A.R.E để chào.', target: '#nghiPanel' },
   bep: { text: 'Đây là bếp của J.E.F.F, robot đầu bếp trong nhóm agent của mình. Chọn những thứ bạn đang có ở tab Tủ lạnh, J.E.F.F sẽ tìm món nấu được. Tab Thực đơn xếp món cho cả tuần và ra danh sách đi chợ.', target: '#bepPanel' },
   cong: { text: 'Chọn ngôn ngữ, rồi vào tab Thực hành để viết code ngay trên trang.', target: '#labLangs', anim: 'point' },
   garage: { text: 'Chọn một bàn bên trái. Lần đầu cần tải mô hình, sau đó chạy ngay trên máy bạn.', target: '#garageBenches', anim: 'point' },
