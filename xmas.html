@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>X.M.A.S</title>
+<meta name="description" content="X.M.A.S đang ngủ. Gọi tên để đánh thức và nói chuyện bằng tiếng Việt.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-26 -30 160 160'%3E%3Crect x='-26' y='-30' width='160' height='160' rx='30' fill='%2305070d'/%3E%3Cpath fill='%234fdcff' fill-rule='evenodd' d='M0 0H78A30 30 0 0 1 78 60H62V100H48V14H34V100H20V14H0Z M62 14V46H76A16 16 0 0 0 76 14Z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=Saira:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root { --text: #dfe8f3; --muted: #7f90a8; --glow: #5cffb0; --sans: "Saira", "Segoe UI", system-ui, sans-serif; --display: "Chakra Petch", "Segoe UI", system-ui, sans-serif; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: #000; color: var(--text); font: 400 16px/1.5 var(--sans); overflow: hidden; -webkit-tap-highlight-color: transparent; }
+#stage { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+/* Cả màn hình là một nút: chạm để bật micro hoặc để đánh thức */
+#touch { position: fixed; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: pointer; }
+#touch:focus-visible { outline: 2px solid var(--glow); outline-offset: -6px; }
+.words { position: fixed; left: 50%; bottom: max(28px, env(safe-area-inset-bottom)); translate: -50% 0; width: min(100% - 32px, 620px); text-align: center; pointer-events: none; }
+#say { margin: 0; min-height: 1.4em; font: 500 20px/1.4 var(--display); color: var(--glow); text-wrap: balance; }
+#heard { margin: 6px 0 0; min-height: 1.5em; color: var(--muted); font-size: 14px; }
+#hint { margin: 10px 0 0; color: var(--muted); font-size: 14px; transition: opacity 400ms; }
+#hint.quiet { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { #hint { transition: none; } }
+</style>
+</head>
+<body>
+
+<canvas id="stage" aria-hidden="true"></canvas>
+<button id="touch" type="button" aria-label="Bật micro và đánh thức X.M.A.S"></button>
+
+<div class="words">
+  <p id="say" role="status" aria-live="polite"></p>
+  <p id="heard" aria-live="off"></p>
+  <p id="hint">Chạm vào màn hình để bật micro, rồi nói "Hello".</p>
+</div>
+
+<script src="data/site.js?v=20261112j"></script>
+<script type="importmap">{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+} }</script>
+<script type="module" src="js/wake.js?v=20261112j"></script>
+</body>
+</html>
