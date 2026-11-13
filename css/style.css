@@ -146,7 +146,8 @@ svg a:focus-visible { outline: none; }
 .minimap svg { display: block; width: 74px; height: auto; }
 .minimap rect { fill: var(--floor); stroke: #4a6184; stroke-width: 12; cursor: pointer; transition: fill .25s; }
 .minimap rect.here { fill: var(--light); }
-.roomnav { display: flex; gap: 2px; flex: 0 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+/* Hàng tên phòng dài hơn chỗ trống thì cuộn ngang, mép phải mờ dần để báo còn mục phía sau */
+.roomnav { display: flex; gap: 2px; flex: 0 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); padding-right: 20px; }
 .roomnav a { white-space: nowrap; }
 .roomnav a {
   padding: 8px 7px;
@@ -983,6 +984,25 @@ body[data-room="garage"], .room[data-room="garage"], .room-list a[data-room="gar
 body[data-room="san"], .room[data-room="san"], .room-list a[data-room="san"], .world-label[data-room="san"] { --light: #c7b8ff; }
 body[data-room="vuon"], .room[data-room="vuon"], .room-list a[data-room="vuon"], .world-label[data-room="vuon"] { --light: #a5e27f; }
 body[data-room="ham"], .room[data-room="ham"], .room-list a[data-room="ham"], .world-label[data-room="ham"] { --light: #ff8fa3; }
+/* Phòng Kế Hoạch. Khung, tab, nút dùng chung các lớp .bep-* của Phòng Bếp, màu lấy theo --light của phòng. */
+body[data-room="kehoach"], .room[data-room="kehoach"], .room-list a[data-room="kehoach"], .world-label[data-room="kehoach"] { --light: #e88bff; }
+.kh-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-bottom: 12px; }
+.kh-form input { min-height: 44px; min-width: 0; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--wall, #0a1220); color: var(--text); font: 500 15px var(--sans); color-scheme: dark; }
+.kh-form input:focus-visible { outline: 2px solid var(--light); outline-offset: 1px; }
+#khTitle { grid-column: 1 / -1; }
+.kh-list { margin: 0; padding: 0; list-style: none; }
+.kh-task { display: flex; align-items: center; gap: 8px; min-height: 40px; border-top: 1px solid var(--line); }
+.kh-task label { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; min-height: 40px; cursor: pointer; }
+.kh-task input { width: 18px; height: 18px; flex: none; accent-color: var(--light); }
+.kh-name { overflow-wrap: anywhere; }
+.kh-task.done .kh-name { color: var(--muted); text-decoration: line-through; }
+.kh-date { flex: none; color: var(--muted); font-size: 13px; white-space: nowrap; }
+.kh-date.late { color: var(--lamp, #f2c879); }
+.kh-day { padding: 8px 0; border-top: 1px solid var(--line); }
+.kh-day h3 { margin: 0 0 4px; }
+.kh-day.now h3 { color: var(--light); }
+.kh-day .bep-note { margin: 0; }
+.kh-day .kh-task:first-child { border-top: 0; }
 /* Phòng Bếp */
 body[data-room="bep"], .room[data-room="bep"], .room-list a[data-room="bep"], .world-label[data-room="bep"] { --light: #ff7557; }
 .bep-panel { width: min(440px, 100%); max-height: calc(100dvh - 300px); min-height: 260px; margin-top: 20px; padding: 0 16px 16px; overflow-y: auto; border: 1px solid var(--line); border-radius: 14px; background: rgba(10,18,32,.94); }

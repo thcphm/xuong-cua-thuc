@@ -63,7 +63,8 @@
           head.prepend(face);
         }
         head.append(el('span', '', a.role));
-        box.append(head, el('p', 'full', a.full + (a.note ? '. ' + a.note : '')));
+        if (a.full) box.append(head, el('p', 'full', a.full + (a.note ? '. ' + a.note : '')));
+        else box.append(head);
         if (a.tasks && a.tasks.length) {
           var ul = el('ul', 'ham-features');
           a.tasks.forEach(function (f) { ul.append(el('li', '', f)); });

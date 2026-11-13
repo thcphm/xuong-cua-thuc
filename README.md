@@ -48,6 +48,10 @@ Key nằm công khai trong trang, nên bắt buộc làm bước 3. Hạn mức 
 
 Hai file trong `assets/sounds/` đều là CC0, lấy từ Freesound: `rain.mp3` là "Rain from Indoors - Perfect loop" của samesamesame, `lofi.mp3` là "Chill Lofi Melody Loop 95 BPM" của holizna.
 
+## Phòng Kế Hoạch và PLANNER
+
+PLANNER giữ danh sách việc cần làm ở Phòng Kế Hoạch: thêm việc kèm ngày, xem theo hôm nay (kèm việc quá hạn), theo tuần hoặc tất cả, đánh dấu xong, xóa. Việc lưu trong `localStorage` của trình duyệt, không gửi đi đâu. Giao diện ở `js/planner.js`.
+
 ## Phòng Bếp và J.E.F.F
 
 J.E.F.F gợi ý món ở Phòng Bếp: chọn nguyên liệu đang có trong tab Tủ lạnh, xem món nấu được, hoặc bấm "Hôm nay ăn gì?". Tab Thực đơn xếp món vào 7 ngày, chọn số người ăn, rồi cộng dồn nguyên liệu thành danh sách đi chợ (trừ thứ đã có trong tủ lạnh) và chép ra chữ. Không dùng AI, không gửi dữ liệu đi đâu; tủ lạnh và thực đơn lưu trong `localStorage` của trình duyệt.

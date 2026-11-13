@@ -121,6 +121,7 @@ const ROOMS = {
   garage: { rect: [965, 150, 1190, 590], color: '#ffa873', floor: '#191c25', light: [1075, 400, 2.1], power: 30, hit: 2.5, label: [1060, 590, 1.4] },
   san: { rect: [965, 150, 1190, 370], y: 2.7, color: '#c7b8ff', floor: '#20263a', light: [1075, 260, 4.6], power: 26, label: [1075, 260, 4.5] },
   vuon: { rect: [965, 370, 1140, 590], y: 2.7, color: '#a5e27f', floor: '#33291c', light: [1050, 480, 4.6], power: 26, label: [1050, 480, 4.5] },
+  kehoach: { rect: [250, 590, 390, 780], color: '#e88bff', floor: '#1d1830', light: [330, 700, 2.6], power: 14 },
   bep: { rect: [470, 590, 830, 780], color: '#ff7557', floor: '#2a1c18', light: [730, 720, 2.8], power: 14 },
   ham: { rect: [20, 10, 980, 610], y: -3.6, color: '#ff8fa3', floor: '#1d2433', light: [500, 330, -1.2], power: 60, label: [140, 770, 0.5] }
 };
@@ -173,8 +174,8 @@ function wall(x1, y1, x2, y2, h, t = 0.16) {
 }
 const TALL = 2.5, MID = 1.7, LOW = 0.32;
 Walk.WALLS.forEach(([x1, y1, x2, y2]) => {
-  /* Tường trước: chừa cửa chính (390 tới 470) và lối sang Phòng Bếp (490 tới 550) */
-  if (y1 === 590 && y2 === 590) { wall(40, 590, 390, 590, LOW); wall(470, 590, 490, 590, LOW); wall(550, 590, 960, 590, LOW); return; }
+  /* Tường trước: chừa lối sang Phòng Kế Hoạch (300 tới 360), cửa chính (390 tới 470) và lối sang Phòng Bếp (490 tới 550) */
+  if (y1 === 590 && y2 === 590) { wall(40, 590, 300, 590, LOW); wall(360, 590, 390, 590, LOW); wall(470, 590, 490, 590, LOW); wall(550, 590, 960, 590, LOW); return; }
   if (x1 === 960 && x2 === 960) return wall(x1, y1, x2, y2, LOW);
   if (y1 === 30 && y2 === 30) return wall(x1, y1, x2, y2, TALL, 0.2);
   if (x1 === 40 && x2 === 40) return wall(x1, y1, x2, y2, TALL, 0.2);
@@ -415,8 +416,9 @@ let termDraw = () => {};
     const a = i / 7 * Math.PI * 2;
     ball(house, 0.2, px + Math.cos(a) * 0.17, 0.56 + (i % 3) * 0.14, pz + Math.sin(a) * 0.17, std('#2a6b58'));
   }
-  const [sx, sz] = P(342, 562);
-  box(house, 1.3, 0.42, 0.5, sx, 0.23, sz, wood);
+  /* Kệ giày dựa tường phải của sảnh, không chắn lối sang Phòng Kế Hoạch */
+  const [sx, sz] = P(552, 402);
+  box(house, 0.5, 0.42, 1.3, sx, 0.23, sz, wood);
 }
 
 /* Phòng Bếp: khối nối phía trước sảnh, bên phải cửa chính, vào bằng lối mở ở tường trước của sảnh.
@@ -531,6 +533,124 @@ let jeffBot = null;
   addHot(hit, 'bep', 'J.E.F.F', () => jeffBot.play('wave', 2), { noMove: true });
   /* J.E.F.F vừa chọn xong một món */
   document.addEventListener('tp:jeff', () => jeffBot.play('cheer', 1.4));
+}
+
+/* Phòng Kế Hoạch: khối nối phía trước sảnh, bên trái cửa chính, vào bằng lối mở ở tường trước của sảnh.
+   Phòng làm việc của PLANNER: bảng kế hoạch trên tường, bàn làm việc, đồng hồ. */
+{
+  const room = ROOMS.kehoach;
+  const [x0, z0] = P(250, 590), [x1, z1] = P(390, 780);
+  box(house, x1 - x0 + 0.2, 0.5, z1 - z0 + 0.2, (x0 + x1) / 2, -0.27, (z0 + z1) / 2, std('#0a1220'));
+  /* Tường trái cao để treo bảng, hai tường phía máy quay hạ thấp */
+  wall(250, 590, 250, 780, MID);
+  wall(250, 780, 390, 780, LOW);
+  wall(390, 590, 390, 780, LOW);
+  const lit = glow(room.color, 1.3);
+  room.glows.push({ mat: lit, base: 1.4 });
+  const steel = std('#9aa7b8', { roughness: 0.3, metalness: 0.7 }), dark = std('#0c111b', { roughness: 0.4 });
+
+  /* Bảng kế hoạch trên tường trái: lịch tháng và ba cột thẻ việc, chỉ để trang trí */
+  {
+    const canvas = document.createElement('canvas');
+    canvas.width = 880;
+    canvas.height = 440;
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    const draw = () => {
+      const g = canvas.getContext('2d');
+      g.fillStyle = '#070b14';
+      g.fillRect(0, 0, 880, 440);
+      g.strokeStyle = room.color;
+      g.lineWidth = 6;
+      g.strokeRect(6, 6, 868, 428);
+      g.textAlign = 'left';
+      g.fillStyle = room.color;
+      g.font = '600 50px "Chakra Petch", sans-serif';
+      g.fillText('Kế hoạch', 34, 68);
+      /* Lịch tháng: 7 cột, 5 hàng, vài ô đã có việc */
+      const marked = [3, 9, 10, 16, 22, 24, 30];
+      for (let r = 0; r < 5; r++) for (let c = 0; c < 7; c++) {
+        const n = r * 7 + c;
+        g.fillStyle = marked.includes(n) ? room.color : '#16253d';
+        g.globalAlpha = marked.includes(n) ? 0.85 : 1;
+        g.fillRect(34 + c * 54, 100 + r * 62, 46, 54);
+      }
+      g.globalAlpha = 1;
+      /* Ba cột thẻ việc */
+      [['#4fdcff', 3], ['#f2c879', 2], ['#86e28a', 4]].forEach(([color, count], col) => {
+        const x = 450 + col * 138;
+        g.fillStyle = color;
+        g.fillRect(x, 100, 120, 8);
+        for (let i = 0; i < count; i++) {
+          g.fillStyle = '#16253d';
+          g.fillRect(x, 124 + i * 72, 120, 58);
+          g.fillStyle = color;
+          g.globalAlpha = 0.8;
+          g.fillRect(x + 12, 140 + i * 72, 76, 8);
+          g.globalAlpha = 0.4;
+          g.fillRect(x + 12, 158 + i * 72, 52, 8);
+          g.globalAlpha = 1;
+        }
+      });
+      tex.needsUpdate = true;
+    };
+    draw();
+    if (document.fonts && document.fonts.load) document.fonts.load('600 50px "Chakra Petch"').then(draw, () => {});
+    const [, bz] = P(0, 692);
+    box(house, 0.06, 1.24, 2.34, x0 + 0.11, 1.0, bz, dark);
+    const board = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 1.1), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }));
+    board.position.set(x0 + 0.15, 1.0, bz);
+    board.rotation.y = Math.PI / 2;
+    house.add(board);
+  }
+  /* Đồng hồ treo tường cạnh bảng */
+  {
+    const [, cz] = P(0, 616);
+    const face = new THREE.Mesh(new THREE.CircleGeometry(0.19, 40), new THREE.MeshBasicMaterial({ color: '#0c111b' }));
+    face.position.set(x0 + 0.1, 1.3, cz);
+    face.rotation.y = Math.PI / 2;
+    house.add(face);
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.19, 0.015, 10, 48), lit);
+    rim.position.copy(face.position);
+    rim.rotation.y = Math.PI / 2;
+    house.add(rim);
+    box(house, 0.01, 0.13, 0.016, x0 + 0.12, 1.36, cz, lit).castShadow = false;
+    box(house, 0.01, 0.016, 0.1, x0 + 0.12, 1.3, cz + 0.05, lit).castShadow = false;
+  }
+
+  /* Bàn làm việc sát tường phải: màn hình, bàn phím, sổ, ghế */
+  const DX = x1 - 0.5;
+  const [, dz] = P(0, 706);
+  box(house, 0.7, 0.05, 1.7, DX, 0.76, dz, wood);
+  [-0.75, 0.75].forEach((k) => box(house, 0.6, 0.72, 0.05, DX, 0.37, dz + k, furn));
+  box(house, 0.04, 0.5, 0.86, DX + 0.2, 1.16, dz - 0.15, dark);
+  const screen = box(house, 0.01, 0.44, 0.8, DX + 0.175, 1.16, dz - 0.15, lit);
+  screen.castShadow = false;
+  box(house, 0.1, 0.14, 0.1, DX + 0.2, 0.85, dz - 0.15, dark);
+  box(house, 0.16, 0.02, 0.5, DX - 0.12, 0.8, dz - 0.15, dark);
+  box(house, 0.26, 0.03, 0.2, DX - 0.05, 0.8, dz + 0.55, std('#dfe8f3', { roughness: 0.6 }));
+  cyl(house, 0.045, 0.045, 0.12, DX + 0.18, 0.85, dz + 0.6, std('#35527f'), 16);
+  /* Ghế xoay */
+  const CX = DX - 0.85;
+  cyl(house, 0.26, 0.26, 0.07, CX, 0.5, dz - 0.1, furn2);
+  box(house, 0.07, 0.6, 0.5, CX - 0.24, 0.82, dz - 0.1, furn2);
+  cyl(house, 0.03, 0.03, 0.44, CX, 0.25, dz - 0.1, steel, 12);
+  cyl(house, 0.22, 0.24, 0.04, CX, 0.04, dz - 0.1, dark);
+
+  /* Thảm, và chậu cây ở góc trước bên phải để không che bảng */
+  const rug = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 2.0), std('#241a33', { roughness: 0.9 }));
+  rug.rotation.x = -Math.PI / 2;
+  rug.position.set((x0 + x1) / 2 - 0.2, 0.035, dz - 0.1);
+  rug.receiveShadow = true;
+  house.add(rug);
+  const [, pz] = P(0, 762);
+  const PX = x1 - 0.42;
+  cyl(house, 0.2, 0.15, 0.32, PX, 0.18, pz, furn2);
+  for (let i = 0; i < 7; i++) {
+    const a = i / 7 * Math.PI * 2;
+    ball(house, 0.2, PX + Math.cos(a) * 0.17, 0.56 + (i % 3) * 0.14, pz + Math.sin(a) * 0.17, std('#2a6b58'));
+  }
 }
 
 /* Khu phụ: tầng trệt là Garage AI, mái là Sân Thượng và Sân Vườn */
@@ -884,6 +1004,15 @@ house.add(hamRamp);
         g.fill();
         g.clip();
         if (pic && pic.complete && pic.naturalWidth) g.drawImage(pic, x, y, size, size);
+        else {
+          /* Agent chưa có avatar: chữ cái đầu của tên */
+          g.textAlign = 'center';
+          g.fillStyle = color;
+          g.globalAlpha = 0.5;
+          g.font = '600 ' + Math.round(size * 0.5) + 'px "Chakra Petch", sans-serif';
+          g.fillText((agent.name || '?').charAt(0), cx, cy + size * 0.17);
+          g.globalAlpha = 1;
+        }
         g.restore();
         g.beginPath();
         g.roundRect(x, y, size, size, 26);
@@ -1075,6 +1204,8 @@ const FRAME = {
   game: { look: P(760, 450), off: [-1.2, 2.3, 7.2], y: 1.0 },
   cong: { look: P(760, 265), off: [-1.2, 4.6, 5.4], y: 1.1 },
   hoc: { look: P(165, 420), off: [3, 3.6, 7.4], y: 0.6 },
+  /* Máy quay đứng bên phải tường trái của phòng để thấy được bảng kế hoạch */
+  kehoach: { look: P(262, 690), off: [4.6, 3.8, 8.4], y: 0.6 },
   /* Ngắm lệch sang trái để căn bếp nằm bên phải thẻ thông tin */
   bep: { look: P(585, 690), off: [-1.5, 5.6, 11], y: 0.6 },
   garage: { look: P(1060, 340), off: [-1.4, 1.5, 8.4], y: 1.1 },
@@ -1310,7 +1441,7 @@ applyOffset();
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const levels = new Uint8Array(128);
 const introStart = performance.now();
-const introOrder = { nhac: 0.3, sach: 0.6, cong: 0.9, game: 1.2, hoc: 1.5, bep: 1.6, garage: 1.7, san: 1.9, vuon: 2.1, ham: 2.3 };
+const introOrder = { nhac: 0.3, sach: 0.6, cong: 0.9, game: 1.2, hoc: 1.5, kehoach: 1.55, bep: 1.6, garage: 1.7, san: 1.9, vuon: 2.1, ham: 2.3 };
 let last = performance.now(), running = false, termTick = 0, gridTick = 0;
 
 function frame(now) {
