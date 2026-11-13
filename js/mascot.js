@@ -1,6 +1,7 @@
 /* Logo TP và các robot trợ lí, dựng hoàn toàn bằng hình khối, không dùng file 3D ngoài.
    Kiểu 'tom' là T.O.M, kiểu 'xmas' là X.M.A.S (trợ lí tổng: dáng thon, vòng sáng, tông trắng xanh lá),
-   kiểu 'jeff' là J.E.F.F (robot đầu bếp: mũ bếp, áo hai hàng cúc, khăn cổ đỏ, tông trắng kem, đỏ cà chua, cam lửa). */
+   kiểu 'jeff' là J.E.F.F (robot đầu bếp: mũ bếp, áo hai hàng cúc, khăn cổ đỏ, tông trắng kem, đỏ cà chua, cam lửa),
+   kiểu 'icare' là I.C.A.R.E (bạn đồng hành chăm sóc: áo blouse trắng, gương khám trên trán, ống nghe, tông trắng và hồng san hô). */
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
@@ -235,6 +236,51 @@ function jacketTexture(color) {
   return texture;
 }
 
+/* Áo blouse của I.C.A.R.E: cổ chữ V màu nhấn, hai ve áo, túi ngực có dấu cộng, đường nhịp tim.
+   Dùng dấu cộng màu hồng, không dùng chữ thập đỏ. */
+function coatTexture(color) {
+  const size = 256;
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const g = canvas.getContext('2d');
+  g.lineCap = 'round';
+  g.lineJoin = 'round';
+  g.fillStyle = color;
+  g.beginPath();
+  g.moveTo(84, 0);
+  g.lineTo(172, 0);
+  g.lineTo(128, 92);
+  g.closePath();
+  g.fill();
+  g.strokeStyle = '#c3ccd9';
+  g.lineWidth = 7;
+  g.beginPath();
+  g.moveTo(78, 0);
+  g.lineTo(128, 100);
+  g.lineTo(178, 0);
+  g.moveTo(128, 100);
+  g.lineTo(128, 252);
+  g.stroke();
+  g.lineWidth = 6;
+  g.strokeRect(166, 106, 60, 54);
+  g.fillStyle = color;
+  g.fillRect(190, 116, 12, 34);
+  g.fillRect(179, 127, 34, 12);
+  g.strokeStyle = color;
+  g.lineWidth = 8;
+  g.beginPath();
+  g.moveTo(18, 150);
+  g.lineTo(40, 150);
+  g.lineTo(50, 122);
+  g.lineTo(64, 178);
+  g.lineTo(74, 150);
+  g.lineTo(94, 150);
+  g.stroke();
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
 /* Lõi ngực của X.M.A.S: lục giác sáng, bên trong là dấu X */
 function coreTexture(color) {
   const size = 256;
@@ -333,7 +379,7 @@ function roundedMask() {
 
 export function createMascot(cfg = {}, renderer) {
   const look = Object.assign({ kind: 'tom', shell: '#dfe3ea', accent: '#1fb5b0', mark: '#e6fbf9', glow: '#5cffb0', env: 0.62 }, cfg);
-  const X = look.kind === 'xmas', J = look.kind === 'jeff';
+  const X = look.kind === 'xmas', J = look.kind === 'jeff', I = look.kind === 'icare';
 
   /* Phản chiếu môi trường studio: thứ làm vật liệu trông thật */
   const pmrem = new THREE.PMREMGenerator(renderer);
@@ -395,6 +441,21 @@ export function createMascot(cfg = {}, renderer) {
       tail.rotation.set(0.25, 0, side * 0.5);
     });
     add(body, new THREE.SphereGeometry(0.07, 20, 14), accent, 0, 1.09, 0.39);
+  } else if (I) {
+    /* I.C.A.R.E: áo blouse có cổ chữ V, túi ngực, đường nhịp tim; ống nghe vắt quanh cổ */
+    quiet(add(body, surfaceMesh({ ...BODY, t0: 0.95, t1: 1.9, p0: -0.7, p1: 0.7, grow: 1.012, segT: 30, segP: 40 }),
+      vinyl('#ffffff', { map: coatTexture(look.accent), transparent: true, alphaTest: 0.5, roughness: 0.4 }), 0, 0.6, 0));
+    const tube = vinyl('#33415c', { roughness: 0.55, clearcoat: 0.2 });
+    const neck = add(body, new THREE.TorusGeometry(0.34, 0.032, 16, 64), tube, 0, 1.13, 0);
+    neck.rotation.x = Math.PI / 2;
+    neck.scale.set(1, 0.9, 1);
+    const hose = (points) => add(body, new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points.map(([x, y, z]) => new THREE.Vector3(x, y, z))), 40, 0.026, 12), tube);
+    hose([[0.27, 1.12, 0.17], [0.25, 0.98, 0.385], [0.16, 0.8, 0.475], [0.03, 0.67, 0.505]]);
+    hose([[-0.27, 1.12, 0.17], [-0.24, 1.0, 0.375], [-0.2, 0.9, 0.44]]);
+    const piece = add(body, new THREE.CylinderGeometry(0.075, 0.075, 0.035, 40), chrome, 0.01, 0.635, 0.512);
+    piece.rotation.x = Math.PI / 2 - 0.06;
+    quiet(add(body, new THREE.CircleGeometry(0.05, 32), accent, 0.01, 0.634, 0.532)).rotation.x = -0.06;
+    add(body, new THREE.SphereGeometry(0.04, 20, 14), chrome, -0.2, 0.89, 0.445);
   } else {
     add(body, surfaceMesh({ ...BODY, t0: 1.72, t1: 1.745, grow: 1.004, segT: 2 }), new THREE.MeshStandardMaterial({ color: '#1b2f6b', roughness: 0.5 }), 0, 0.6, 0).castShadow = false;
     const chest = add(body, surfaceMesh({ ...BODY, t0: 1.32, t1: 2.5, p0: -0.74, p1: 0.74, grow: 1.012, segT: 40, segP: 50 }),
@@ -482,6 +543,23 @@ export function createMascot(cfg = {}, renderer) {
       const lobe = add(hat, new THREE.SphereGeometry(0.24, 28, 18), shell, Math.cos(a) * 0.3, 0.4, Math.sin(a) * 0.3);
       lobe.scale.y = 0.82;
     }
+  } else if (I) {
+    /* Gương khám của bác sĩ: đai quanh trán, đĩa gương lệch một bên */
+    add(head, surfaceMesh({ ...HEAD, t0: 0.62, t1: 0.74, grow: 1.012, segT: 4 }), vinyl('#55647f', { roughness: 0.6, clearcoat: 0.1 }), 0, headY, 0).castShadow = false;
+    const pw = (v, e) => Math.sign(v) * Math.pow(Math.abs(v), e);
+    const t = 0.68, p = -0.42, e = 2 / HEAD.n, h = pw(Math.sin(t), e);
+    const at = new THREE.Vector3(HEAD.rx * h * pw(Math.sin(p), e), HEAD.ry * pw(Math.cos(t), e), HEAD.rz * h * pw(Math.cos(p), e));
+    const out = at.clone().normalize().lerp(new THREE.Vector3(0, 0.25, 1), 0.45).normalize();
+    const mirror = new THREE.Group();
+    mirror.position.copy(at).addScaledVector(out, 0.1);
+    mirror.position.y += headY;
+    mirror.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), out);
+    head.add(mirror);
+    add(mirror, new THREE.CylinderGeometry(0.15, 0.15, 0.03, 48), chrome);
+    add(mirror, new THREE.TorusGeometry(0.15, 0.02, 12, 48), vinyl('#55647f', { roughness: 0.5 }), 0, 0.012, 0).rotation.x = Math.PI / 2;
+    quiet(add(mirror, new THREE.CylinderGeometry(0.04, 0.04, 0.04, 28), vinyl('#33415c', { roughness: 0.5 }), 0, 0.004, 0));
+    /* Khớp nối gương với dây đai */
+    add(mirror, new THREE.CylinderGeometry(0.03, 0.03, 0.1, 16), vinyl('#55647f', { roughness: 0.5 }), 0, -0.06, 0);
   } else {
     /* Mào trên đỉnh */
     const crest = add(head, softTrapezoid(0.6, 0.42, 0.14, 0.34, 0.07), shell, 0, headY + 0.585, -0.03);
@@ -512,12 +590,18 @@ export function createMascot(cfg = {}, renderer) {
     const ear = add(head, earGeo, shell, side * 0.735, headY, -0.02);
     ear.rotation.z = Math.PI / 2;
     if (J) return;
+    if (I) {
+      /* Tai tròn có chấm màu nhấn, không có vây */
+      const dot = quiet(add(head, new THREE.CircleGeometry(0.1, 32), accent, side * 0.857, headY, -0.02));
+      dot.rotation.y = side * Math.PI / 2;
+      return;
+    }
     const fin = add(head, softTrapezoid(0.3, 0.17, 0.44, 0.08, 0.04), accent, side * 0.76, headY + 0.42, -0.02);
     fin.rotation.order = 'YXZ';
     fin.rotation.y = side * 0.95;
     fin.rotation.z = -side * 0.12;
   });
-  if (!X && !J) {
+  if (!X && !J && !I) {
     const lens = add(head, new THREE.SphereGeometry(0.1, 40, 24), new THREE.MeshPhysicalMaterial({ color: '#060a24', roughness: 0.06, clearcoat: 1, envMap, envMapIntensity: 1.4 }), -0.925, headY, -0.02);
     lens.scale.x = 0.34;
     lens.castShadow = false;
@@ -528,7 +612,7 @@ export function createMascot(cfg = {}, renderer) {
   const VISOR = { ...HEAD, t0: 0.92, t1: 2.22, p0: -1.04, p1: 1.04, segT: 60, segP: 90 };
   add(head, surfaceMesh({ ...VISOR, t0: 0.87, t1: 2.27, p0: -1.1, p1: 1.1, grow: 1.003 }),
     new THREE.MeshPhysicalMaterial({ color: '#c4ccda', roughness: 0.3, envMap, alphaMap: mask, transparent: true, alphaTest: 0.5 }), 0, headY, 0).castShadow = false;
-  const screen = createScreen(X ? { glow: '#e2fff0', halo: look.glow, top: '#075c3c', bottom: '#04271a', rim: look.glow } : J ? { glow: '#fff1d8', halo: look.glow, top: '#6e2c12', bottom: '#2a0f07', rim: look.glow, mustache: true } : {});
+  const screen = createScreen(X ? { glow: '#e2fff0', halo: look.glow, top: '#075c3c', bottom: '#04271a', rim: look.glow } : J ? { glow: '#fff1d8', halo: look.glow, top: '#6e2c12', bottom: '#2a0f07', rim: look.glow, mustache: true } : I ? { glow: '#fff0f3', halo: look.glow, top: '#1b3a86', bottom: '#0b1a4a', rim: look.glow } : {});
   const visor = add(head, surfaceMesh({ ...VISOR, grow: 1.008 }), new THREE.MeshBasicMaterial({ map: screen.texture, transparent: true, alphaTest: 0.02, toneMapped: false }), 0, headY, 0);
   visor.castShadow = false;
   visor.receiveShadow = false;
@@ -536,7 +620,7 @@ export function createMascot(cfg = {}, renderer) {
   glass.castShadow = false;
   glass.receiveShadow = false;
 
-  const hover = new THREE.Mesh(new THREE.CircleGeometry(0.34, 48), new THREE.MeshBasicMaterial({ color: X || J ? look.glow : '#4fdcff', transparent: true, opacity: 0.3, depthWrite: false, blending: THREE.AdditiveBlending }));
+  const hover = new THREE.Mesh(new THREE.CircleGeometry(0.34, 48), new THREE.MeshBasicMaterial({ color: X || J || I ? look.glow : '#4fdcff', transparent: true, opacity: 0.3, depthWrite: false, blending: THREE.AdditiveBlending }));
   hover.rotation.x = -Math.PI / 2;
   hover.position.y = 0.02;
   root.add(hover);
@@ -587,6 +671,8 @@ export function createMascot(cfg = {}, renderer) {
     look(x, y) { lookAt.x = x; lookAt.y = y; },
     face(name, seconds = 2) { face = name; clock.faceUntil = seconds > 0 ? clock.t + seconds : Infinity; },
     update(dt) {
+      /* Bước thời gian âm hoặc quá dài (khung hình đầu, thẻ vừa được mở lại) làm tư thế văng đi rất xa: chặn lại */
+      dt = Math.max(0, Math.min(0.1, dt || 0));
       clock.t += dt;
       const t = clock.t;
       if (t > clock.until) state = 'idle';
@@ -605,6 +691,11 @@ export function createMascot(cfg = {}, renderer) {
       head.rotation.y = pose.hy + lookAt.x * 0.5 * follow;
       head.rotation.z = pose.hz;
       hover.scale.setScalar(1 - pose.bob * 1.6);
+      /* I.C.A.R.E: quầng sáng dưới chân đập theo nhịp tim, hai nhịp liền nhau rồi nghỉ */
+      if (I) {
+        const beat = (t * 1.1) % 1;
+        hover.material.opacity = 0.24 + 0.3 * (Math.exp(-Math.pow((beat - 0.1) * 14, 2)) + 0.7 * Math.exp(-Math.pow((beat - 0.3) * 14, 2)));
+      }
       if (halo) {
         halo.rotation.y = t * 0.9;
         halo.position.y = headY + 0.74 + Math.sin(t * 1.7) * 0.018;

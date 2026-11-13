@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Saira:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261113c">
+<link rel="stylesheet" href="css/style.css?v=20261114a">
 </head>
 <body data-room="">
 
@@ -21,6 +21,7 @@
   <span class="world-label" data-room="cong">Phòng Công Nghệ</span>
   <span class="world-label" data-room="game">Phòng Giải Trí</span>
   <span class="world-label" data-room="hoc">Phòng Học</span>
+  <span class="world-label" data-room="nghi">Phòng nghỉ</span>
   <span class="world-label" data-room="kehoach">Phòng Kế Hoạch</span>
   <span class="world-label" data-room="bep">Phòng Bếp</span>
   <span class="world-label" data-room="garage">Garage AI</span>
@@ -44,6 +45,7 @@
     <a href="#nhac" data-room="nhac">Nhạc</a>
     <a href="#sach" data-room="sach">Sách</a>
     <a href="#hoc" data-room="hoc">Học</a>
+    <a href="#nghi" data-room="nghi">Nghỉ</a>
     <a href="#kehoach" data-room="kehoach">Kế Hoạch</a>
     <a href="#bep" data-room="bep">Bếp</a>
     <a href="#game" data-room="game">Giải Trí</a>
@@ -83,13 +85,14 @@
 
     <!-- Mặt bằng 2D: chỉ hiện khi máy không chạy được 3D -->
     <figure class="plan-wrap">
-      <svg class="plan" id="plan" viewBox="0 0 1220 676" role="group" aria-label="Mặt bằng căn nhà">
+      <svg class="plan" id="plan" viewBox="-260 0 1480 676" role="group" aria-label="Mặt bằng căn nhà">
         <rect class="floor" x="40" y="30" width="920" height="560"/>
         <a class="room" href="#nhac" data-room="nhac" aria-label="Vào Phòng Nhạc"><rect class="glow" x="40" y="30" width="450" height="310"/><text class="label" x="72" y="90"><tspan class="name">Phòng Nhạc</tspan></text></a>
         <a class="room" href="#sach" data-room="sach" aria-label="Vào Phòng Sách"><rect class="glow" x="570" y="30" width="390" height="180"/><text class="label" x="646" y="90"><tspan class="name">Phòng Sách</tspan></text></a>
         <a class="room" href="#cong" data-room="cong" aria-label="Vào Phòng Công Nghệ"><rect class="glow" x="570" y="210" width="390" height="190"/><text class="label" x="646" y="270"><tspan class="name">Phòng Công Nghệ</tspan></text></a>
         <a class="room" href="#game" data-room="game" aria-label="Vào Phòng Giải Trí"><rect class="glow" x="570" y="400" width="390" height="190"/><text class="label" x="646" y="460"><tspan class="name">Phòng Giải Trí</tspan></text></a>
         <a class="room" href="#hoc" data-room="hoc" aria-label="Vào Phòng Học"><rect class="glow" x="40" y="340" width="250" height="250"/><text class="label" x="72" y="400"><tspan class="name">Phòng Học</tspan></text></a>
+        <a class="room" href="#nghi" data-room="nghi" aria-label="Vào Phòng nghỉ"><rect class="glow" x="-240" y="340" width="280" height="250"/><text class="label" x="-212" y="400"><tspan class="name">Phòng nghỉ</tspan></text></a>
         <a class="room" href="#san" data-room="san" aria-label="Lên Sân Thượng"><rect class="glow" x="980" y="30" width="215" height="150"/><text class="label" x="1000" y="90"><tspan class="name">Sân Thượng</tspan></text></a>
         <a class="room" href="#vuon" data-room="vuon" aria-label="Lên Sân Vườn"><rect class="glow" x="980" y="180" width="215" height="150"/><text class="label" x="1000" y="250"><tspan class="name">Sân Vườn</tspan></text></a>
         <a class="room" href="#garage" data-room="garage" aria-label="Vào Garage AI"><rect class="glow" x="980" y="330" width="215" height="260"/><text class="label" x="1000" y="440"><tspan class="name">Garage AI</tspan></text></a>
@@ -97,7 +100,7 @@
         <a class="room" href="#kehoach" data-room="kehoach" aria-label="Vào Phòng Kế Hoạch"><rect class="glow" x="250" y="606" width="200" height="54"/><text class="label" x="262" y="642"><tspan class="name">Kế Hoạch</tspan></text></a>
         <a class="room" href="#bep" data-room="bep" aria-label="Vào Phòng Bếp"><rect class="glow" x="470" y="606" width="360" height="54"/><text class="label" x="502" y="642"><tspan class="name">Phòng Bếp</tspan></text></a>
         <text class="label" x="322" y="396" aria-hidden="true"><tspan class="name">Sảnh</tspan></text>
-        <path class="wall" d="M390 590H40V30H960V470M960 530V590H470M980 30H1195V590H980Z"/>
+        <path class="wall" d="M390 590H40V560M40 500V30H960V470M960 530V590H470M980 30H1195V590H980ZM40 340H-240V590H40"/>
         <path class="wall inner" d="M40 340H490M490 340V260M490 200V30M570 30V90M570 150V280M570 340V465M570 525V590M570 210H960M570 400H960M290 340V430M290 490V590"/>
         <g class="walker" id="walker" aria-hidden="true"><circle class="here" r="7"/><text class="here-text" id="walkerText" x="16" y="6">Bạn đang ở đây</text></g>
       </svg>
@@ -243,6 +246,16 @@
     </div>
   </section>
 
+  <section class="view room-view nghi-room" id="view-nghi" hidden>
+    <div class="room-head"><h1 tabindex="-1">Phòng nghỉ</h1><p id="nghiIntro"></p></div>
+    <div class="nghi-panel" id="nghiPanel">
+      <div class="nghi-top">
+        <img src="img/agents/icare.png" alt="Ảnh I.C.A.R.E" width="84" height="84">
+        <div><h2>I.C.A.R.E</h2><p class="nghi-full">Intelligent Companion for Awareness, Rest and Energy</p></div>
+      </div>
+    </div>
+  </section>
+
   <section class="view room-view bep-room" id="view-bep" hidden>
     <div class="room-head"><h1 tabindex="-1">Phòng Bếp</h1><p id="bepIntro"></p></div>
     <div class="bep-panel" id="bepPanel">
@@ -313,33 +326,34 @@
   "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
   "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
 } }</script>
-<script src="data/firebase.js?v=20261113c"></script>
-<script src="js/session.js?v=20261113c"></script>
-<script src="data/site.js?v=20261113c"></script>
-<script src="js/music.js?v=20261113c"></script>
-<script src="js/study-scenes.js?v=20261113c"></script>
-<script src="js/study.js?v=20261113c"></script>
-<script src="js/walk.js?v=20261113c"></script>
-<script src="data/lab.js?v=20261113c"></script>
-<script src="data/w3.js?v=20261113c"></script>
-<script src="data/garden.js?v=20261113c"></script>
-<script src="data/facts.js?v=20261113c"></script>
-<script src="data/recipes.js?v=20261113c"></script>
-<script src="data/cards.js?v=20261113c"></script>
-<script src="js/flashcard.js?v=20261113c"></script>
-<script src="js/lab.js?v=20261113c"></script>
-<script src="js/rooftop.js?v=20261113c"></script>
-<script src="js/garage.js?v=20261113c"></script>
-<script src="js/exhibit.js?v=20261113c"></script>
-<script src="js/library.js?v=20261113c"></script>
-<script src="js/feedback.js?v=20261113c"></script>
-<script src="js/donate.js?v=20261113c"></script>
-<script src="js/app.js?v=20261113c"></script>
-<script src="js/kitchen.js?v=20261113c"></script>
-<script src="js/planner.js?v=20261113c"></script>
-<script type="module" src="js/world.js?v=20261113c"></script>
-<script type="module" src="js/guide.js?v=20261113c"></script>
-<script type="module" src="js/garden.js?v=20261113c"></script>
+<script src="data/firebase.js?v=20261114a"></script>
+<script src="js/session.js?v=20261114a"></script>
+<script src="data/site.js?v=20261114a"></script>
+<script src="js/music.js?v=20261114a"></script>
+<script src="js/study-scenes.js?v=20261114a"></script>
+<script src="js/study.js?v=20261114a"></script>
+<script src="js/walk.js?v=20261114a"></script>
+<script src="data/lab.js?v=20261114a"></script>
+<script src="data/w3.js?v=20261114a"></script>
+<script src="data/garden.js?v=20261114a"></script>
+<script src="data/facts.js?v=20261114a"></script>
+<script src="data/recipes.js?v=20261114a"></script>
+<script src="data/cards.js?v=20261114a"></script>
+<script src="js/flashcard.js?v=20261114a"></script>
+<script src="js/lab.js?v=20261114a"></script>
+<script src="js/rooftop.js?v=20261114a"></script>
+<script src="js/garage.js?v=20261114a"></script>
+<script src="js/exhibit.js?v=20261114a"></script>
+<script src="js/library.js?v=20261114a"></script>
+<script src="js/feedback.js?v=20261114a"></script>
+<script src="js/donate.js?v=20261114a"></script>
+<script src="js/app.js?v=20261114a"></script>
+<script src="js/kitchen.js?v=20261114a"></script>
+<script src="js/rest.js?v=20261114a"></script>
+<script src="js/planner.js?v=20261114a"></script>
+<script type="module" src="js/world.js?v=20261114a"></script>
+<script type="module" src="js/guide.js?v=20261114a"></script>
+<script type="module" src="js/garden.js?v=20261114a"></script>
 <script>
   /* Cất màn hình chờ khi nhà 3D sẵn sàng; nếu không tải được 3D thì dùng mặt bằng 2D. */
   (function () {

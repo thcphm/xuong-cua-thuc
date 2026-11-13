@@ -1566,3 +1566,36 @@ body[data-room=""] .session-home { display: flex; }
 .donate-btn:hover { background: rgba(242,200,121,.12); }
 .donate-btn:active { transform: scale(.97); }
 .donate-card img { display: block; width: min(300px, 100%); height: auto; margin: 12px auto 0; border-radius: 12px; }
+
+/* Phòng nghỉ và I.C.A.R.E */
+body[data-room="nghi"], .room[data-room="nghi"], .room-list a[data-room="nghi"], .world-label[data-room="nghi"] { --light: #ff9fb2; }
+.nghi-panel { width: min(440px, 100%); max-height: calc(100dvh - 300px); min-height: 260px; margin-top: 20px; padding: 16px; overflow-y: auto; border: 1px solid var(--line); border-radius: 14px; background: rgba(10,18,32,.94); }
+.nghi-top { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.nghi-top img { width: 84px; height: 84px; flex: none; border: 1px solid var(--light); border-radius: 14px; background: var(--floor, #0d1626); }
+.nghi-top h2 { margin: 0; font: 600 26px/1.1 var(--display); color: var(--light); }
+.nghi-full { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+.nghi-lead { margin: 0 0 12px; }
+.nghi-go { min-height: 44px; padding: 0 18px; border: 0; border-radius: 10px; background: var(--light, #ff9fb2); color: #2a0d14; font: 600 15px var(--display); transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1); }
+.nghi-go.on { border: 1px solid var(--line); background: none; color: var(--text); }
+.nghi-go:active { transform: scale(.97); }
+.nghi-list { margin: 14px 0 0; padding: 0; list-style: none; }
+.nghi-row { padding: 10px 0; border-top: 1px solid var(--line); }
+.nghi-row-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.nghi-row-head strong { font: 600 16px/1.3 var(--display); }
+.nghi-every, .nghi-count { margin: 0; color: var(--muted); font-size: 13px; white-space: nowrap; }
+.nghi-status { margin: 2px 0 0; font-size: 15px; }
+.nghi-row.due .nghi-row-head strong, .nghi-row.due .nghi-status { color: var(--light, #ff9fb2); }
+.nghi-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.nghi-done { min-height: 40px; padding: 0 14px; border: 0; border-radius: 10px; background: #ff9fb2; color: #2a0d14; font: 600 14px var(--display); }
+.nghi-later { min-height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: none; color: var(--text); font: 500 14px var(--sans); }
+.nghi-later:hover { border-color: #ff9fb2; }
+.nghi-note { margin: 12px 0 0; color: var(--muted); font-size: 13px; }
+/* Lời nhắc nổi: nằm góc dưới bên trái, hiện ở mọi phòng */
+.nghi-toast { position: fixed; left: 16px; bottom: 16px; z-index: 60; width: min(360px, calc(100vw - 32px)); padding: 12px 14px; border: 1px solid #ff9fb2; border-radius: 14px; background: rgba(10,18,32,.97); box-shadow: 0 16px 40px rgba(0,0,0,.5); }
+.nghi-toast[hidden] { display: none; }
+.nghi-toast-box { display: flex; align-items: flex-start; gap: 12px; }
+.nghi-toast-box img { width: 48px; height: 48px; flex: none; border-radius: 10px; background: var(--floor, #0d1626); }
+.nghi-toast-box strong { font: 600 15px/1.3 var(--display); color: #ff9fb2; }
+.nghi-toast-box p { margin: 2px 0 0; font-size: 15px; }
+.nghi-toast-box .nghi-more { color: var(--muted); font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { .nghi-go { transition: none; } }

@@ -9,6 +9,8 @@ window.SITE = {
   mascotTom: { kind: 'tom', shell: '#e6eaf1', accent: '#1fb5b0', mark: '#e6fbf9' },
   /* J.E.F.F, robot đầu bếp: trắng kem, đỏ cà chua, cam lửa. */
   mascotJeff: { kind: 'jeff', shell: '#f6f1e7', accent: '#d9482b', glow: '#ffb14a' },
+  /* I.C.A.R.E, bạn đồng hành chăm sóc: trắng áo blouse, hồng san hô. */
+  mascotIcare: { kind: 'icare', shell: '#f1f4f8', accent: '#ff8fa3', glow: '#ffb3c1' },
 
   /* Tên tài khoản của chủ Xưởng. Tài khoản đăng ký đúng tên này là admin. */
   admin: 'Thức',
@@ -316,6 +318,21 @@ window.SITE = {
   },
 
   /* Phòng Bếp, nơi J.E.F.F ở. Thông tin về J.E.F.F lấy từ basement.agents bên dưới. */
+  /* Phòng nghỉ, nơi I.C.A.R.E ở. Mỗi lời nhắc: { id, name, every (phút), text, done (chữ trên nút xong) }.
+     Các mốc thời gian là mặc định phổ biến, không phải chỉ định y khoa. */
+  rest: {
+    intro: 'Góc nghỉ của Xưởng, nơi I.C.A.R.E ở. Bắt đầu một phiên khi ngồi vào bàn, I.C.A.R.E sẽ nhắc bạn uống nước, nghỉ mắt, đứng dậy và vận động.',
+    lead: 'Bấm Bắt đầu phiên khi bạn ngồi vào bàn. I.C.A.R.E đếm giờ và nhắc từng việc khi tới mốc.',
+    note: 'I.C.A.R.E chỉ nhắc được khi thẻ trang này còn mở. Các mốc thời gian là mặc định phổ biến, không phải lời khuyên y khoa. Số lần trong ngày lưu trên trình duyệt của bạn.',
+    snooze: 10,
+    reminders: [
+      { id: 'mat', name: 'Nghỉ ngơi', every: 25, text: 'Rời mắt khỏi màn hình, nhìn ra xa 20 giây.', done: 'Đã nghỉ mắt' },
+      { id: 'dung', name: 'Không ngồi lâu', every: 45, text: 'Bạn ngồi khá lâu rồi. Đứng dậy đi vài bước.', done: 'Đã đứng dậy' },
+      { id: 'nuoc', name: 'Uống nước', every: 60, text: 'Uống một ngụm nước nhé.', done: 'Đã uống' },
+      { id: 'van', name: 'Vận động', every: 120, text: 'Vươn vai, xoay cổ, xoay vai trong một phút.', done: 'Đã vận động' }
+    ]
+  },
+
   kitchen: {
     intro: 'Căn bếp của Xưởng, nơi J.E.F.F ở. Chọn nguyên liệu bạn đang có, J.E.F.F gợi ý món, lên thực đơn tuần và danh sách đi chợ.',
     about: 'J.E.F.F là robot đầu bếp trong nhóm agent của X.M.A.S. Hiện J.E.F.F gợi ý món bằng cách so nguyên liệu bạn chọn với kho công thức có sẵn, rồi cộng dồn nguyên liệu của thực đơn tuần thành danh sách đi chợ. Chưa dùng AI. Tủ lạnh và thực đơn của bạn chỉ lưu trên trình duyệt này.'
@@ -344,6 +361,13 @@ window.SITE = {
             status: 'Đang dựng. Đã gợi ý món, lên thực đơn tuần và danh sách đi chợ',
             tasks: ['Lên ý tưởng và đề xuất món ăn', 'Quản lí và tổng hợp nguyên vật liệu'],
             go: { href: '#bep', to: 'Phòng Bếp' }
+          },
+          {
+            id: 'icare', name: 'I.C.A.R.E', full: 'Intelligent Companion for Awareness, Rest and Energy', role: 'Ngủ, nghỉ và năng lượng', color: '#ff8fa3', avatar: 'img/agents/icare.png',
+            note: 'Bạn đồng hành nhắc ngủ nghỉ, không phải bác sĩ: không chẩn đoán, không khuyên thuốc.',
+            status: 'Đang dựng. Đã nhắc được bốn việc trong một phiên ngồi làm việc',
+            tasks: ['Nhắc uống đủ nước', 'Nhắc nghỉ ngơi', 'Nhắc vận động', 'Nhắc đứng dậy, không ngồi lâu'],
+            go: { href: '#nghi', to: 'Phòng nghỉ' }
           }
         ]
       }
