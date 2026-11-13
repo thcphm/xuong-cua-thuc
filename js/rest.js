@@ -3,6 +3,7 @@
    kèm hai nút: "Xong rồi" (đếm lại từ đầu) và "Nhắc lại sau 10 phút".
    Phiên vẫn chạy khi bạn sang phòng khác, nhưng chỉ nhắc được khi thẻ trang này còn mở.
    Ngoài phiên, I.C.A.R.E nhắc giờ đi ngủ mỗi tối: đúng giờ ngủ và trước đó theo các mốc trong SITE.rest.bedtime.
+   Mỗi lời nhắc kèm một tiếng chuông ngắn phát ngay trên thẻ trang; tắt được trong Phòng nghỉ.
    Mọi thứ lưu trên trình duyệt, không gửi đi đâu. I.C.A.R.E không chẩn đoán và không khuyên thuốc. */
 (function () {
   'use strict';
@@ -33,7 +34,7 @@
   }
 
   /* Trạng thái: on (đang trong phiên), started (lúc bắt đầu), next[id] (lúc sẽ nhắc), due[id] (đang chờ bấm), day và count[id] (số lần xong trong ngày) */
-  var state = { on: false, started: 0, next: {}, due: {}, day: '', count: {}, bedOn: true, bedDay: '', bedSent: [], bedDue: null };
+  var state = { on: false, started: 0, next: {}, due: {}, day: '', count: {}, bedOn: true, bedDay: '', bedSent: [], bedDue: null, sound: true };
   try {
     var saved = JSON.parse(localStorage.getItem(KEY));
     if (saved && typeof saved === 'object') state = Object.assign(state, saved);
@@ -81,6 +82,49 @@
   }
   function find(id) { return LIST.filter(function (r) { return r.id === id; })[0]; }
 
+  /* ---------- Tiếng chuông ----------
+     Ba nốt sin ngắn, nhỏ, tắt dần, cùng kiểu với chuông của Planner và đồng hồ Phòng Học.
+     Nhắc việc: ba nốt đi lên. Nhắc giờ ngủ: ba nốt đi xuống, chậm hơn.
+     Trình duyệt chỉ cho phát tiếng sau khi người dùng đã bấm hoặc gõ gì đó trên trang, nên lần chạm đầu tiên mở sẵn đường tiếng. */
+  var audio = null;
+  function getAudio() {
+    try {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      if (audio.state === 'suspended') audio.resume();
+      return audio;
+    } catch (e) { return null; }
+  }
+  var TUNES = {
+    viec: { notes: [784, 988, 1175], gap: 0.2, hold: 0.7 },
+    ngu: { notes: [659, 523, 392], gap: 0.3, hold: 1.0 }
+  };
+  function chime(kind, force) {
+    if (state.sound === false && !force) return;
+    var ctx = getAudio(), tune = TUNES[kind] || TUNES.viec;
+    if (!ctx) return;
+    try {
+      tune.notes.forEach(function (hz, n) {
+        var osc = ctx.createOscillator(), gain = ctx.createGain(), at = ctx.currentTime + 0.05 + n * tune.gap;
+        osc.type = 'sine';
+        osc.frequency.value = hz;
+        gain.gain.setValueAtTime(0.0001, at);
+        gain.gain.exponentialRampToValueAtTime(0.15, at + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, at + tune.hold);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(at);
+        osc.stop(at + tune.hold + 0.05);
+      });
+    } catch (e) { /* trình duyệt chưa cho phát tiếng */ }
+  }
+  function unlock() { getAudio(); }
+  ['pointerdown', 'keydown'].forEach(function (type) { document.addEventListener(type, unlock, { once: true, capture: true }); });
+  function soundToggle() {
+    state.sound = state.sound === false;
+    save();
+    if (state.sound) chime('viec');
+    render();
+  }
+
   /* ---------- Giờ đi ngủ ---------- */
   var BED = INFO.bedtime || null;
   var BED_AT = BED ? BED.time.split(':').map(Number) : null;
@@ -120,6 +164,7 @@
     if ('Notification' in window && Notification.permission === 'granted' && document.hidden) {
       try { new Notification('I.C.A.R.E: Giờ đi ngủ', { body: bedText(now), icon: 'img/agents/icare.png', tag: 'icare-ngu' }); } catch (e) { /* bỏ qua */ }
     }
+    chime('ngu');
     document.dispatchEvent(new CustomEvent('tp:icare', { detail: ['ngu'] }));
     return true;
   }
@@ -155,6 +200,7 @@
         try { new Notification('I.C.A.R.E: ' + r.name, { body: r.text, icon: 'img/agents/icare.png', tag: 'icare-' + r.id }); } catch (e) { /* bỏ qua */ }
       }
     });
+    chime('viec');
     document.dispatchEvent(new CustomEvent('tp:icare', { detail: fresh.map(function (r) { return r.id; }) }));
     return true;
   }
@@ -171,8 +217,9 @@
   var rows = el('ul', 'nghi-list');
   var note = el('p', 'nghi-note', INFO.note || '');
   var bed = el('div', 'nghi-bed');
+  var sound = el('div', 'nghi-bed nghi-sound');
   var allow = button('nghi-allow', 'Cho phép thông báo của máy', askNotify);
-  panel.append(lead, toggle, rows, bed, allow, note);
+  panel.append(lead, toggle, rows, bed, sound, allow, note);
 
   /* ---------- Lời nhắc nổi: hiện ở mọi phòng khi có việc tới mốc ---------- */
   var toast = el('div', 'nghi-toast');
@@ -206,6 +253,18 @@
       head.lastChild.setAttribute('aria-label', 'Nhắc giờ đi ngủ');
       bed.replaceChildren(head, el('p', 'nghi-status', state.bedOn ? 'Mỗi tối I.C.A.R.E nhắc lúc ' + times.join(', ') + '. Không cần bắt đầu phiên.' : 'Đang tắt. Bấm nút để I.C.A.R.E nhắc giờ đi ngủ.'));
     }
+    /* Khối âm thanh: bật tắt chuông, nghe thử hai kiểu chuông */
+    var soundOn = state.sound !== false;
+    var soundHead = el('div', 'nghi-row-head');
+    soundHead.append(el('strong', '', 'Chuông khi nhắc'), button('nghi-switch' + (soundOn ? ' on' : ''), soundOn ? 'Đang bật' : 'Đang tắt', soundToggle));
+    soundHead.lastChild.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+    soundHead.lastChild.setAttribute('aria-label', 'Chuông khi nhắc');
+    var tryRow = el('div', 'nghi-acts');
+    tryRow.append(
+      button('nghi-later', 'Nghe thử chuông nhắc việc', function () { chime('viec', true); }),
+      button('nghi-later', 'Nghe thử chuông giờ ngủ', function () { chime('ngu', true); })
+    );
+    sound.replaceChildren(soundHead, el('p', 'nghi-status', soundOn ? 'Tới mốc, thẻ trang này phát một tiếng chuông ngắn.' : 'Đang tắt. Lời nhắc vẫn hiện, chỉ không có tiếng.'), tryRow);
     allow.hidden = !('Notification' in window) || Notification.permission !== 'default';
 
     var due = LIST.filter(function (r) { return state.due[r.id]; });
