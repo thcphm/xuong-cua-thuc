@@ -229,6 +229,17 @@ window.SITE = {
                   'Đổi ngôn ngữ ngay trên trang'
                 ],
                 link: { label: 'Mở olivenow.com', href: 'https://olivenow.com' }
+              },
+              /* open: bấm vào là mở thẳng trang đó ở thẻ mới, không qua thẻ chi tiết */
+              {
+                id: 'quan-ly-ghi-chu', title: 'Quản lý ghi chú cá nhân', kind: 'Trang ghi chú theo môn học, có trợ lí T.O.M',
+                images: ['img/showcase/ghichu-1.jpg'],
+                open: 'https://thcphm.github.io/quan-ly-ghi-chu-web/'
+              },
+              {
+                id: 'luu-do-c', title: 'Lưu Đồ C', kind: 'Học vẽ lưu đồ cho ngôn ngữ C',
+                images: ['img/showcase/luudoc-1.jpg'],
+                open: 'https://thcphm.github.io/luu-do-c/'
               }
             ]
           },

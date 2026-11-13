@@ -117,8 +117,10 @@
 
   /* Nút chọn một sản phẩm trong danh sách */
   function pick(item, run) {
-    var b = el('button', 'ham-pick');
-    b.type = 'button';
+    /* Món có open là một đường link: bấm là mở trang đó ở thẻ mới */
+    var b = el(item.open ? 'a' : 'button', 'ham-pick');
+    if (item.open) { b.href = item.open; b.target = '_blank'; b.rel = 'noopener'; }
+    else b.type = 'button';
     if (item.images && item.images.length) {
       var thumb = el('img');
       thumb.src = item.images[0];
@@ -129,8 +131,9 @@
     var text = el('span', 'ham-pick-text');
     text.append(el('strong', '', item.title));
     if (item.kind) text.append(el('span', '', item.kind));
+    if (item.open) text.append(el('span', 'ham-out', 'Mở ở thẻ mới'));
     b.append(text);
-    b.addEventListener('click', run);
+    if (!item.open) b.addEventListener('click', run);
     return b;
   }
 
@@ -151,6 +154,8 @@
   function showProduct(i, n) {
     var slot = cabinets[i], item = slot && (slot.group.items || [])[n];
     if (!item) return;
+    /* Bấm món đó trong tủ kính 3D: mở trang ở thẻ mới, thẻ bên trái giữ danh sách của tủ */
+    if (item.open) { window.open(item.open, '_blank', 'noopener'); return; }
     detail(item, 'Về tủ ' + slot.group.title, function () { showCabinet(i); });
   }
 

@@ -1187,6 +1187,8 @@ body.has-3d[data-room="ham"]::before { background: linear-gradient(180deg, rgba(
 .ham-pick:active { transform: scale(.98); }
 .ham-pick img { width: 96px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 6px; flex: none; background: var(--wall); }
 .ham-pick-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ham-card a.ham-pick { display: flex; margin-top: 8px; color: var(--text); text-decoration: none; }
+.ham-pick-text .ham-out { color: var(--light); }
 .ham-pick-text strong { font: 600 16px/1.25 var(--display); }
 .ham-pick-text span { color: var(--muted); font-size: 13px; }
 .ham-up { min-height: 32px; margin-bottom: 8px; padding: 0; border: 0; background: none; color: var(--muted); font: 500 14px var(--sans); text-decoration: underline; }
