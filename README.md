@@ -52,6 +52,8 @@ Hai file trong `assets/sounds/` đều là CC0, lấy từ Freesound: `rain.mp3`
 
 Planner là chức năng chính của Phòng Kế Hoạch, gộp lịch, việc cần làm và nhắc giờ:
 
+- Trang kế hoạch tuần theo kiểu sổ planner: tiêu đề kèm ngày giờ thật, Lịch hẹn (việc có giờ), bảy ngày thứ Hai đến Chủ Nhật, Việc cần làm (việc chưa gắn ngày), Ghi chú theo tuần.
+- Ngày giờ lấy theo đồng hồ máy người xem: đồng hồ chạy từng giây, ô hôm nay tự đổi khi sang ngày mới, bảng lịch và đồng hồ treo tường trong phòng 3D cũng chạy theo.
 - Lịch tháng, chấm màu theo mức ưu tiên, bấm một ngày để xem và thêm việc.
 - Mỗi việc có ngày, giờ, mức ưu tiên, kiểu lặp (ngày, tuần, tháng) và kiểu nhắc (đúng giờ, trước 10 phút, 1 giờ, 1 ngày).
 - Gõ nhanh: "mai 9h họp nhóm" tự hiểu ngày và giờ.

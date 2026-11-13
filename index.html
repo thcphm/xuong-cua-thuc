@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Saira:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261114a">
+<link rel="stylesheet" href="css/style.css?v=20261114b">
 </head>
 <body data-room="">
 
@@ -215,9 +215,9 @@
     <div class="room-head"><h1 tabindex="-1">Phòng Kế Hoạch</h1><p id="khIntro"></p></div>
     <div class="bep-panel" id="khPanel">
       <div class="bep-tabs" role="tablist" aria-label="Planner">
-        <button type="button" role="tab" id="khTabCal" aria-selected="true" aria-controls="khCal">Lịch</button>
+        <button type="button" role="tab" id="khTabSheet" aria-selected="true" aria-controls="khSheet">Tuần</button>
+        <button type="button" role="tab" id="khTabCal" aria-selected="false" aria-controls="khCal" tabindex="-1">Tháng</button>
         <button type="button" role="tab" id="khTabToday" aria-selected="false" aria-controls="khToday" tabindex="-1">Hôm nay <span class="bep-count" id="khCount"></span></button>
-        <button type="button" role="tab" id="khTabWeek" aria-selected="false" aria-controls="khWeek" tabindex="-1">Tuần</button>
         <button type="button" role="tab" id="khTabAll" aria-selected="false" aria-controls="khAll" tabindex="-1">Tất cả</button>
         <button type="button" role="tab" id="khTabBell" aria-selected="false" aria-controls="khBell" tabindex="-1">Nhắc</button>
       </div>
@@ -227,7 +227,7 @@
           <button class="bep-go" type="submit" id="khSubmit">Thêm</button>
         </div>
         <div class="kh-row kh-when">
-          <input id="khDate" type="date" aria-label="Ngày làm">
+          <input id="khDate" type="date" aria-label="Ngày làm, bỏ trống nếu chưa gắn ngày">
           <input id="khTime" type="time" aria-label="Giờ làm, không bắt buộc">
           <button class="bep-mini" type="button" id="khMore" aria-expanded="false" aria-controls="khOpts">Tùy chọn</button>
         </div>
@@ -238,9 +238,9 @@
         </div>
         <p class="kh-editing" id="khEditing" hidden>Đang sửa một việc. <button class="bep-clear" type="button" id="khCancel">Hủy sửa</button></p>
       </form>
-      <div role="tabpanel" id="khCal" aria-labelledby="khTabCal"></div>
+      <div class="kh-sheet" role="tabpanel" id="khSheet" aria-labelledby="khTabSheet"></div>
+      <div role="tabpanel" id="khCal" aria-labelledby="khTabCal" hidden></div>
       <div role="tabpanel" id="khToday" aria-labelledby="khTabToday" hidden></div>
-      <div role="tabpanel" id="khWeek" aria-labelledby="khTabWeek" hidden></div>
       <div role="tabpanel" id="khAll" aria-labelledby="khTabAll" hidden></div>
       <div class="bep-card" role="tabpanel" id="khBell" aria-labelledby="khTabBell" hidden></div>
     </div>
@@ -326,34 +326,34 @@
   "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
   "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
 } }</script>
-<script src="data/firebase.js?v=20261114a"></script>
-<script src="js/session.js?v=20261114a"></script>
-<script src="data/site.js?v=20261114a"></script>
-<script src="js/music.js?v=20261114a"></script>
-<script src="js/study-scenes.js?v=20261114a"></script>
-<script src="js/study.js?v=20261114a"></script>
-<script src="js/walk.js?v=20261114a"></script>
-<script src="data/lab.js?v=20261114a"></script>
-<script src="data/w3.js?v=20261114a"></script>
-<script src="data/garden.js?v=20261114a"></script>
-<script src="data/facts.js?v=20261114a"></script>
-<script src="data/recipes.js?v=20261114a"></script>
-<script src="data/cards.js?v=20261114a"></script>
-<script src="js/flashcard.js?v=20261114a"></script>
-<script src="js/lab.js?v=20261114a"></script>
-<script src="js/rooftop.js?v=20261114a"></script>
-<script src="js/garage.js?v=20261114a"></script>
-<script src="js/exhibit.js?v=20261114a"></script>
-<script src="js/library.js?v=20261114a"></script>
-<script src="js/feedback.js?v=20261114a"></script>
-<script src="js/donate.js?v=20261114a"></script>
-<script src="js/app.js?v=20261114a"></script>
-<script src="js/kitchen.js?v=20261114a"></script>
-<script src="js/rest.js?v=20261114a"></script>
-<script src="js/planner.js?v=20261114a"></script>
-<script type="module" src="js/world.js?v=20261114a"></script>
-<script type="module" src="js/guide.js?v=20261114a"></script>
-<script type="module" src="js/garden.js?v=20261114a"></script>
+<script src="data/firebase.js?v=20261114b"></script>
+<script src="js/session.js?v=20261114b"></script>
+<script src="data/site.js?v=20261114b"></script>
+<script src="js/music.js?v=20261114b"></script>
+<script src="js/study-scenes.js?v=20261114b"></script>
+<script src="js/study.js?v=20261114b"></script>
+<script src="js/walk.js?v=20261114b"></script>
+<script src="data/lab.js?v=20261114b"></script>
+<script src="data/w3.js?v=20261114b"></script>
+<script src="data/garden.js?v=20261114b"></script>
+<script src="data/facts.js?v=20261114b"></script>
+<script src="data/recipes.js?v=20261114b"></script>
+<script src="data/cards.js?v=20261114b"></script>
+<script src="js/flashcard.js?v=20261114b"></script>
+<script src="js/lab.js?v=20261114b"></script>
+<script src="js/rooftop.js?v=20261114b"></script>
+<script src="js/garage.js?v=20261114b"></script>
+<script src="js/exhibit.js?v=20261114b"></script>
+<script src="js/library.js?v=20261114b"></script>
+<script src="js/feedback.js?v=20261114b"></script>
+<script src="js/donate.js?v=20261114b"></script>
+<script src="js/app.js?v=20261114b"></script>
+<script src="js/kitchen.js?v=20261114b"></script>
+<script src="js/rest.js?v=20261114b"></script>
+<script src="js/planner.js?v=20261114b"></script>
+<script type="module" src="js/world.js?v=20261114b"></script>
+<script type="module" src="js/guide.js?v=20261114b"></script>
+<script type="module" src="js/garden.js?v=20261114b"></script>
 <script>
   /* Cất màn hình chờ khi nhà 3D sẵn sàng; nếu không tải được 3D thì dùng mặt bằng 2D. */
   (function () {

@@ -130,7 +130,7 @@ const TIPS = {
   sach: { text: 'Bấm một tủ sách để xem sách tiêu biểu, hoặc tìm theo tên sách, tác giả, xuất xứ.', target: '#libForm', anim: 'point' },
   game: { text: matchMedia('(pointer: coarse)').matches ? 'Game này cần bàn phím. Mở xưởng trên máy tính để chơi nhé.' : 'Bấm vào máy arcade để chơi game Thức tự code. Muốn thoát thì bấm Ra khỏi game ở mép trái.', target: '#featuredGame .play-btn', anim: 'point' },
   hoc: { text: 'Kéo nút tròn trên đồng hồ để đặt số phút. Thanh dưới cùng bật thêm âm nền, ghi chú, flashcard. Xong một phiên được một sao.', target: '#toolbar', anim: 'point' },
-  kehoach: { text: 'Đây là Planner: lịch, việc cần làm và nhắc giờ. Bấm một ngày trên lịch, gõ việc rồi bấm Thêm. Đặt giờ thì đến giờ mình nhắc bạn.', target: '#khForm', anim: 'point' },
+  kehoach: { text: 'Đây là Planner, trang kế hoạch tuần chạy theo ngày giờ thật. Bấm một ngày, gõ việc rồi bấm Thêm. Đặt giờ thì việc vào Lịch hẹn và đến giờ mình nhắc bạn.', target: '#khForm', anim: 'point' },
   nghi: { text: 'Đây là phòng nghỉ của I.C.A.R.E, bạn đồng hành nhắc bạn giữ sức trong nhóm agent của mình. Bấm Bắt đầu phiên khi ngồi vào bàn, I.C.A.R.E sẽ nhắc uống nước, nghỉ mắt, đứng dậy và vận động. Bấm vào I.C.A.R.E để chào.', target: '#nghiPanel' },
   bep: { text: 'Đây là bếp của J.E.F.F, robot đầu bếp trong nhóm agent của mình. Chọn những thứ bạn đang có ở tab Tủ lạnh, J.E.F.F sẽ tìm món nấu được. Tab Thực đơn xếp món cho cả tuần và ra danh sách đi chợ.', target: '#bepPanel' },
   cong: { text: 'Chọn ngôn ngữ, rồi vào tab Thực hành để viết code ngay trên trang.', target: '#labLangs', anim: 'point' },
