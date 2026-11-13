@@ -537,6 +537,7 @@ let jeffBot = null;
 
 /* Phòng Kế Hoạch: khối nối phía trước sảnh, bên trái cửa chính, vào bằng lối mở ở tường trước của sảnh.
    Phòng của Planner (lịch, việc, nhắc giờ): bảng kế hoạch trên tường, bàn làm việc, đồng hồ. */
+let plannerTick = null;
 {
   const room = ROOMS.kehoach;
   const [x0, z0] = P(250, 590), [x1, z1] = P(390, 780);
@@ -549,7 +550,8 @@ let jeffBot = null;
   room.glows.push({ mat: lit, base: 1.4 });
   const steel = std('#9aa7b8', { roughness: 0.3, metalness: 0.7 }), dark = std('#0c111b', { roughness: 0.4 });
 
-  /* Bảng kế hoạch trên tường trái: lịch tháng và ba cột thẻ việc, chỉ để trang trí */
+  /* Bảng kế hoạch trên tường trái: lịch của tháng này lấy từ Planner, ba cột thẻ việc để trang trí */
+  let redrawBoard = () => {};
   {
     const canvas = document.createElement('canvas');
     canvas.width = 880;
@@ -567,16 +569,27 @@ let jeffBot = null;
       g.textAlign = 'left';
       g.fillStyle = room.color;
       g.font = '600 50px "Chakra Petch", sans-serif';
-      g.fillText('Kế hoạch', 34, 68);
-      /* Lịch tháng: 7 cột, 5 hàng, vài ô đã có việc */
-      const marked = [3, 9, 10, 16, 22, 24, 30];
-      for (let r = 0; r < 5; r++) for (let c = 0; c < 7; c++) {
-        const n = r * 7 + c;
-        g.fillStyle = marked.includes(n) ? room.color : '#16253d';
-        g.globalAlpha = marked.includes(n) ? 0.85 : 1;
-        g.fillRect(34 + c * 54, 100 + r * 62, 46, 54);
+      const today = new Date(), year = today.getFullYear(), month = today.getMonth();
+      g.fillText('Tháng ' + (month + 1) + ', ' + year, 34, 68);
+      /* Lịch tháng thật: ô hôm nay sáng nhất, ngày còn việc trong Planner có màu của phòng */
+      const lead = (new Date(year, month, 1).getDay() + 6) % 7, count = new Date(year, month + 1, 0).getDate();
+      const busy = new Set();
+      try {
+        (JSON.parse(localStorage.getItem('xuong.kehoach.viec')) || []).forEach((t) => {
+          if (!t || t.done || typeof t.date !== 'string') return;
+          const p = t.date.split('-');
+          if (Number(p[0]) === year && Number(p[1]) === month + 1) busy.add(Number(p[2]));
+        });
+      } catch (e) { /* bỏ qua */ }
+      const cell = 310 / Math.ceil((lead + count) / 7);
+      g.font = '600 22px "Saira", sans-serif';
+      for (let d = 1; d <= count; d++) {
+        const n = lead + d - 1, cx = 34 + (n % 7) * 54, cy = 100 + Math.floor(n / 7) * cell, isNow = d === today.getDate();
+        g.fillStyle = isNow ? '#ffffff' : busy.has(d) ? room.color : '#16253d';
+        g.fillRect(cx, cy, 46, cell - 8);
+        g.fillStyle = isNow || busy.has(d) ? '#0a1220' : '#7f90aa';
+        g.fillText(String(d), cx + 6, cy + 24);
       }
-      g.globalAlpha = 1;
       /* Ba cột thẻ việc */
       [['#4fdcff', 3], ['#f2c879', 2], ['#86e28a', 4]].forEach(([color, count], col) => {
         const x = 450 + col * 138;
@@ -596,6 +609,8 @@ let jeffBot = null;
       tex.needsUpdate = true;
     };
     draw();
+    redrawBoard = draw;
+    document.addEventListener('tp:planner', draw);
     if (document.fonts && document.fonts.load) document.fonts.load('600 50px "Chakra Petch"').then(draw, () => {});
     const [, bz] = P(0, 692);
     box(house, 0.06, 1.24, 2.34, x0 + 0.11, 1.0, bz, dark);
@@ -604,7 +619,7 @@ let jeffBot = null;
     board.rotation.y = Math.PI / 2;
     house.add(board);
   }
-  /* Đồng hồ treo tường cạnh bảng */
+  /* Đồng hồ treo tường cạnh bảng, kim chạy theo giờ thật */
   {
     const [, cz] = P(0, 616);
     const face = new THREE.Mesh(new THREE.CircleGeometry(0.19, 40), new THREE.MeshBasicMaterial({ color: '#0c111b' }));
@@ -615,8 +630,26 @@ let jeffBot = null;
     rim.position.copy(face.position);
     rim.rotation.y = Math.PI / 2;
     house.add(rim);
-    box(house, 0.01, 0.13, 0.016, x0 + 0.12, 1.36, cz, lit).castShadow = false;
-    box(house, 0.01, 0.016, 0.1, x0 + 0.12, 1.3, cz + 0.05, lit).castShadow = false;
+    /* Mỗi kim quay quanh tâm mặt đồng hồ. Nhìn từ trong phòng, chiều kim đồng hồ là quay âm quanh trục x. */
+    const hand = (len, wide) => {
+      const pivot = new THREE.Group();
+      pivot.position.set(x0 + 0.12, 1.3, cz);
+      box(pivot, 0.01, len, wide, 0, len / 2 - 0.012, 0, lit).castShadow = false;
+      house.add(pivot);
+      return pivot;
+    };
+    const hourHand = hand(0.1, 0.02), minuteHand = hand(0.15, 0.014), secondHand = hand(0.16, 0.006);
+    let lastSecond = -1, lastDate = new Date().getDate();
+    plannerTick = () => {
+      const d = new Date(), s = d.getSeconds();
+      if (s === lastSecond) return;
+      lastSecond = s;
+      const turn = Math.PI * 2, minutes = d.getMinutes() + s / 60;
+      secondHand.rotation.x = -turn * s / 60;
+      minuteHand.rotation.x = -turn * minutes / 60;
+      hourHand.rotation.x = -turn * ((d.getHours() % 12) + minutes / 60) / 12;
+      if (d.getDate() !== lastDate) { lastDate = d.getDate(); redrawBoard(); }
+    };
   }
 
   /* Bàn làm việc sát tường phải: màn hình, bàn phím, sổ, ghế */
@@ -1205,7 +1238,7 @@ const FRAME = {
   cong: { look: P(760, 265), off: [-1.2, 4.6, 5.4], y: 1.1 },
   hoc: { look: P(165, 420), off: [3, 3.6, 7.4], y: 0.6 },
   /* Máy quay đứng bên phải tường trái của phòng để thấy được bảng kế hoạch */
-  kehoach: { look: P(262, 690), off: [4.6, 3.8, 8.4], y: 0.6 },
+  kehoach: { look: P(205, 690), off: [4.6, 3.8, 8.4], y: 0.6 },
   /* Ngắm lệch sang trái để căn bếp nằm bên phải thẻ thông tin */
   bep: { look: P(585, 690), off: [-1.5, 5.6, 11], y: 0.6 },
   garage: { look: P(1060, 340), off: [-1.4, 1.5, 8.4], y: 1.1 },
@@ -1567,6 +1600,7 @@ function frame(now) {
   else if (walker.state() === 'dance') walker.idle();
   walker.update(dt);
   if (jeffBot) jeffBot.update(dt);
+  if (plannerTick) plannerTick();
 
   if (composer) composer.render(); else renderer.render(scene, camera);
 

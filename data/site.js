@@ -311,8 +311,8 @@ window.SITE = {
   /* Các khu khác của Phòng Thực Nghiệm. */
   /* Phòng Kế Hoạch. Planner là chức năng chính của phòng: lịch, việc cần làm, nhắc giờ. */
   planning: {
-    intro: 'Planner của Xưởng: lịch tháng, việc cần làm và nhắc giờ. Chọn một ngày, ghi việc, đặt giờ để được nhắc.',
-    about: 'Planner gộp lịch, danh sách việc và nhắc giờ vào một chỗ. Mỗi việc có ngày, giờ, mức ưu tiên, kiểu lặp và kiểu nhắc. Việc chỉ lưu trên trình duyệt này, không gửi đi đâu. Lời nhắc chỉ chạy khi trang đang mở.'
+    intro: 'Planner của Xưởng: trang kế hoạch tuần có lịch hẹn, bảy ngày, việc cần làm và ghi chú. Ngày giờ chạy theo đồng hồ thật.',
+    about: 'Planner gộp trang kế hoạch tuần, lịch tháng, danh sách việc, ghi chú và nhắc giờ vào một chỗ. Mỗi việc có ngày, giờ, mức ưu tiên, kiểu lặp và kiểu nhắc. Việc chỉ lưu trên trình duyệt này, không gửi đi đâu. Lời nhắc chỉ chạy khi trang đang mở.'
   },
 
   /* Phòng Bếp, nơi J.E.F.F ở. Thông tin về J.E.F.F lấy từ basement.agents bên dưới. */

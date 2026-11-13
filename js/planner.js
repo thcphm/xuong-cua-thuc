@@ -1,12 +1,13 @@
-/* Phòng Kế Hoạch: Planner gồm lịch tháng, việc cần làm và nhắc giờ.
-   Mỗi việc có ngày, giờ (không bắt buộc), mức ưu tiên, kiểu lặp và kiểu nhắc.
+/* Phòng Kế Hoạch: Planner gồm trang kế hoạch tuần (lịch hẹn, bảy ngày, việc cần làm, ghi chú),
+   lịch tháng và nhắc giờ. Ngày giờ lấy theo đồng hồ máy người dùng và tự cập nhật.
+   Mỗi việc có ngày và giờ (không bắt buộc), mức ưu tiên, kiểu lặp và kiểu nhắc.
    Việc lưu trên trình duyệt, không gửi đi đâu. Nhắc giờ chỉ chạy khi trang đang mở. */
 (function () {
   'use strict';
   var panel = document.getElementById('khPanel');
   if (!panel) return;
   var SITE = window.SITE || {};
-  var KEY = 'xuong.kehoach.viec', SET = 'xuong.kehoach.caidat';
+  var KEY = 'xuong.kehoach.viec', SET = 'xuong.kehoach.caidat', NOTE = 'xuong.kehoach.ghichu';
   var DAYS = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
   var DOW = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
   var REPEAT = { day: 'lặp mỗi ngày', week: 'lặp mỗi tuần', month: 'lặp mỗi tháng' };
@@ -34,24 +35,21 @@
   function addDays(s, n) { var d = parse(s); d.setDate(d.getDate() + n); return ymd(d); }
   function daysIn(y, m) { return new Date(y, m + 1, 0).getDate(); }
   /* Tuần bắt đầu từ thứ Hai */
-  function week() {
-    var d = new Date();
-    d.setDate(d.getDate() - (d.getDay() + 6) % 7);
-    var out = [];
-    for (var i = 0; i < 7; i++) { out.push(ymd(d)); d.setDate(d.getDate() + 1); }
-    return out;
-  }
+  function monday(s) { var d = parse(s); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return ymd(d); }
+  function week(from) { var out = []; for (var i = 0; i < 7; i++) out.push(addDays(from, i)); return out; }
 
   /* Dữ liệu */
   var tasks = [];
   try {
     (JSON.parse(localStorage.getItem(KEY)) || []).forEach(function (t) {
-      if (!t || typeof t.title !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(t.date)) return;
-      var time = /^\d{2}:\d{2}$/.test(t.time) ? t.time : '';
+      if (!t || typeof t.title !== 'string') return;
+      /* Việc không có ngày nằm ở ô Việc cần làm của trang tuần */
+      var day = /^\d{4}-\d{2}-\d{2}$/.test(t.date) ? t.date : '';
+      var time = day && /^\d{2}:\d{2}$/.test(t.time) ? t.time : '';
       tasks.push({
-        id: String(t.id), title: t.title.slice(0, 120), date: t.date, time: time, done: !!t.done,
+        id: String(t.id), title: t.title.slice(0, 120), date: day, time: time, done: !!t.done,
         prio: t.prio === 0 || t.prio === 2 ? t.prio : 1,
-        repeat: REPEAT[t.repeat] ? t.repeat : '',
+        repeat: day && REPEAT[t.repeat] ? t.repeat : '',
         remind: time && REMIND[t.remind] ? Number(t.remind) : -1,
         fired: typeof t.fired === 'string' ? t.fired : '',
         snooze: Number(t.snooze) || 0
@@ -60,7 +58,14 @@
   } catch (e) { /* bỏ qua */ }
   var settings = { sound: true };
   try { var s0 = JSON.parse(localStorage.getItem(SET)); if (s0 && s0.sound === false) settings.sound = false; } catch (e) { /* bỏ qua */ }
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(tasks)); } catch (e) { /* trình duyệt chặn lưu trữ: vẫn chạy, chỉ không nhớ */ } }
+  /* Ghi chú theo tuần, khóa là ngày thứ Hai của tuần */
+  var notes = {};
+  try { var n0 = JSON.parse(localStorage.getItem(NOTE)); if (n0 && typeof n0 === 'object') Object.keys(n0).forEach(function (k) { if (typeof n0[k] === 'string') notes[k] = n0[k].slice(0, 2000); }); } catch (e) { /* bỏ qua */ }
+  function saveNotes() { try { localStorage.setItem(NOTE, JSON.stringify(notes)); } catch (e) { /* bỏ qua */ } }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(tasks)); } catch (e) { /* trình duyệt chặn lưu trữ: vẫn chạy, chỉ không nhớ */ }
+    document.dispatchEvent(new CustomEvent('tp:planner'));
+  }
   function saveSettings() { try { localStorage.setItem(SET, JSON.stringify(settings)); } catch (e) { /* bỏ qua */ } }
 
   function byTime(a, b) { var x = a.time || '99', y = b.time || '99'; return x < y ? -1 : x > y ? 1 : b.prio - a.prio; }
@@ -76,7 +81,7 @@
   }
   /* Việc lặp có rơi vào một ngày sau ngày đang ghi không */
   function occurs(t, day) {
-    if (!t.repeat || t.done || day <= t.date) return false;
+    if (!t.repeat || t.done || !t.date || day <= t.date) return false;
     if (t.repeat === 'day') return true;
     var a = parse(t.date), b = parse(day);
     if (t.repeat === 'week') return Math.round((b - a) / 864e5) % 7 === 0;
@@ -89,7 +94,7 @@
   }
   /* Đánh dấu xong. Việc lặp không đóng lại mà chuyển sang lần kế tiếp. */
   function setDone(t, done) {
-    if (done && t.repeat) { t.date = nextDate(t); t.snooze = 0; } else { t.done = done; if (done) t.snooze = 0; }
+    if (done && t.repeat && t.date) { t.date = nextDate(t); t.snooze = 0; } else { t.done = done; if (done) t.snooze = 0; }
     save();
     render();
   }
@@ -191,7 +196,7 @@
   var form = document.getElementById('khForm'), title = document.getElementById('khTitle'), date = document.getElementById('khDate'), time = document.getElementById('khTime');
   var prio = document.getElementById('khPrio'), repeat = document.getElementById('khRepeat'), remind = document.getElementById('khRemind');
   var more = document.getElementById('khMore'), opts = document.getElementById('khOpts'), submit = document.getElementById('khSubmit'), editing = document.getElementById('khEditing');
-  var selected = today(), viewY = new Date().getFullYear(), viewM = new Date().getMonth(), editId = '';
+  var selected = today(), weekStart = monday(today()), viewY = new Date().getFullYear(), viewM = new Date().getMonth(), editId = '';
   date.value = selected;
   function openOpts(on) { opts.hidden = !on; more.setAttribute('aria-expanded', on ? 'true' : 'false'); }
   more.addEventListener('click', function () { openOpts(opts.hidden); });
@@ -227,19 +232,24 @@
     if (!raw) { title.focus(); return; }
     var q = editId ? { title: raw, date: '', time: '' } : quick(raw);
     var at = time.value || q.time;
+    /* Bỏ trống ngày: việc vào ô Việc cần làm. Có giờ mà không có ngày thì tính là hôm nay. */
+    var day = q.date || date.value || (at ? today() : '');
     var data = {
-      title: q.title.slice(0, 120), date: q.date || date.value || today(), time: at,
-      prio: Number(prio.value), repeat: repeat.value, remind: at ? Number(remind.value) : -1
+      title: q.title.slice(0, 120), date: day, time: at,
+      prio: Number(prio.value), repeat: day ? repeat.value : '', remind: at ? Number(remind.value) : -1
     };
     var task = tasks.filter(function (t) { return t.id === editId; })[0];
     if (!task) { task = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), done: false }; tasks.push(task); }
     Object.keys(data).forEach(function (k) { task[k] = data[k]; });
     settle(task);
     save();
-    selected = task.date;
-    var d = parse(selected);
-    viewY = d.getFullYear();
-    viewM = d.getMonth();
+    if (task.date) {
+      selected = task.date;
+      weekStart = monday(selected);
+      var d = parse(selected);
+      viewY = d.getFullYear();
+      viewM = d.getMonth();
+    }
     resetForm();
     render();
     title.focus();
@@ -264,13 +274,13 @@
   function row(task, withDate, ghost) {
     var li = el('li', 'kh-task p' + task.prio + (task.done ? ' done' : '') + (ghost ? ' ghost' : ''));
     var bits = [];
-    if (withDate) bits.push(short(task.date));
+    if (withDate && task.date) bits.push(short(task.date));
     if (task.time) bits.push(task.time);
     if (task.repeat) bits.push(REPEAT[task.repeat]);
     if (task.remind >= 0) bits.push(task.snooze ? 'đã hoãn' : REMIND[task.remind]);
     var text = el('span', 'kh-text');
     text.append(el('span', 'kh-name', task.title));
-    if (bits.length) text.append(el('span', 'kh-meta' + (withDate && !task.done && task.date < today() ? ' late' : ''), bits.join(', ')));
+    if (bits.length) text.append(el('span', 'kh-meta' + (withDate && !task.done && task.date && task.date < today() ? ' late' : ''), bits.join(', ')));
     if (ghost) { li.append(text); return li; }
     var label = el('label');
     var box = el('input');
@@ -307,9 +317,10 @@
   }
 
   /* Lịch tháng */
-  var calBox = document.getElementById('khCal'), todayBox = document.getElementById('khToday'), weekBox = document.getElementById('khWeek'), allBox = document.getElementById('khAll'), bellBox = document.getElementById('khBell');
+  var calBox = document.getElementById('khCal'), todayBox = document.getElementById('khToday'), sheetBox = document.getElementById('khSheet'), allBox = document.getElementById('khAll'), bellBox = document.getElementById('khBell');
   function pick(day, focus) {
     selected = day;
+    weekStart = monday(day);
     var d = parse(day);
     viewY = d.getFullYear();
     viewM = d.getMonth();
@@ -368,6 +379,124 @@
     else calBox.append(el('p', 'bep-note', 'Ngày này chưa có việc. Gõ ở ô trên để thêm.'));
   }
 
+  /* Trang kế hoạch tuần: tiêu đề và ngày giờ, lịch hẹn, bảy ngày, việc cần làm, ghi chú */
+  var clock = null, lastDay = today();
+  function stamp(t) { var d = parse(t.date), p = t.time.split(':'); d.setHours(Number(p[0]), Number(p[1]), 0, 0); return d.getTime(); }
+  function clockText() {
+    var d = new Date();
+    return DAYS[d.getDay()] + ', ' + d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear() + ', ' + two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds());
+  }
+  function bar(text) { return el('h3', 'kh-bar', text); }
+  function renderSheet(now) {
+    /* Đang gõ dở ở ô việc hoặc ô ghi chú thì giữ lại chỗ gõ sau khi vẽ lại */
+    var was = document.activeElement, keep = was && (was.id === 'khNote' || was.id === 'khTodo') ? { id: was.id, value: was.value, at: was.selectionStart } : null;
+    sheetBox.replaceChildren();
+    var days = week(weekStart), a = parse(days[0]), b = parse(days[6]);
+
+    var head = el('div', 'kh-sheet-head');
+    clock = el('p', 'kh-clock', clockText());
+    head.append(el('h2', '', 'Kế hoạch tuần'), clock);
+    var fields = el('div', 'kh-fields');
+    function field(name, value) { var f = el('span', 'kh-field'); f.append(el('span', '', name), el('b', '', value)); return f; }
+    function go(n) { weekStart = n ? addDays(weekStart, n) : monday(today()); render(); }
+    var prev = button('bep-step', '‹', function () { go(-7); }), next = button('bep-step', '›', function () { go(7); });
+    prev.setAttribute('aria-label', 'Tuần trước');
+    next.setAttribute('aria-label', 'Tuần sau');
+    fields.append(
+      field('Tháng', a.getMonth() === b.getMonth() ? String(a.getMonth() + 1) : (a.getMonth() + 1) + ' - ' + (b.getMonth() + 1)),
+      field('Năm', a.getFullYear() === b.getFullYear() ? String(a.getFullYear()) : a.getFullYear() + ' - ' + b.getFullYear()),
+      button('bep-mini', 'Tuần này', function () { go(0); }), prev, next
+    );
+    head.append(fields);
+    sheetBox.append(head);
+
+    /* Lịch hẹn: việc có giờ trong tuần, bấm để sửa */
+    var appt = tasks.filter(function (t) { return t.time && !t.done && t.date >= days[0] && t.date <= days[6]; }).sort(byDate);
+    var grid = el('div', 'kh-appt');
+    appt.forEach(function (t) {
+      var d = parse(t.date), at = stamp(t);
+      var slot = button('kh-slot' + (at < Date.now() ? ' past' : ''), '', function () { edit(t); });
+      slot.dataset.at = String(at);
+      slot.setAttribute('aria-label', 'Sửa lịch hẹn ' + t.title);
+      slot.append(el('span', 'kh-slot-at', DOW[(d.getDay() + 6) % 7] + ' ' + d.getDate() + '/' + (d.getMonth() + 1) + ', ' + t.time), el('span', 'kh-slot-name', t.title));
+      grid.append(slot);
+    });
+    for (var i = appt.length; i < 4 || i % 2; i++) grid.append(el('span', 'kh-slot empty'));
+    sheetBox.append(bar('Lịch hẹn'), grid);
+
+    var cols = el('div', 'kh-cols'), wk = el('div', 'kh-week');
+    days.forEach(function (day, n) {
+      var got = onDay(day), d = parse(day);
+      var line = el('div', 'kh-wday' + (day === now ? ' now' : '') + (day === selected ? ' sel' : ''));
+      var tab = button('kh-wtab', '', function () { pick(day, false); title.focus(); });
+      tab.setAttribute('aria-label', 'Thêm việc vào ' + short(day) + (day === now ? ', hôm nay' : ''));
+      tab.append(el('b', '', DOW[n]), el('span', '', d.getDate() + '/' + (d.getMonth() + 1)));
+      var body = el('div', 'kh-wbody');
+      if (got.real.length || got.ghost.length) body.append(list(got.real, false, got.ghost));
+      line.append(tab, body);
+      wk.append(line);
+    });
+
+    var side = el('div', 'kh-side');
+    var todo = tasks.filter(function (t) { return !t.date; }).sort(function (x, y) { return (x.done ? 1 : 0) - (y.done ? 1 : 0) || y.prio - x.prio; });
+    var box = el('section', 'kh-box');
+    box.append(bar('Việc cần làm'));
+    if (todo.length) box.append(list(todo, false));
+    else box.append(el('p', 'bep-note', 'Việc chưa gắn ngày ghi ở đây.'));
+    var mini = el('form', 'kh-mini'), input = el('input');
+    input.id = 'khTodo';
+    input.type = 'text';
+    input.maxLength = 120;
+    input.placeholder = 'Thêm việc';
+    input.autocomplete = 'off';
+    input.setAttribute('aria-label', 'Thêm việc chưa gắn ngày');
+    var add = el('button', 'bep-mini', 'Thêm');
+    add.type = 'submit';
+    mini.append(input, add);
+    mini.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var text = input.value.trim();
+      if (!text) { input.focus(); return; }
+      tasks.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), title: text.slice(0, 120), date: '', time: '', prio: 1, repeat: '', remind: -1, done: false, fired: '', snooze: 0 });
+      save();
+      render();
+      document.getElementById('khTodo').focus();
+    });
+    box.append(mini);
+    var noteBox = el('section', 'kh-box');
+    var note = el('textarea', 'kh-note');
+    note.id = 'khNote';
+    note.maxLength = 2000;
+    note.rows = 5;
+    note.placeholder = 'Ghi chú của tuần này';
+    note.setAttribute('aria-label', 'Ghi chú của tuần');
+    note.value = notes[weekStart] || '';
+    note.addEventListener('input', function () { if (note.value) notes[weekStart] = note.value; else delete notes[weekStart]; saveNotes(); });
+    noteBox.append(bar('Ghi chú'), note);
+    side.append(box, noteBox);
+    cols.append(wk, side);
+    sheetBox.append(cols);
+
+    if (keep) {
+      var back = document.getElementById(keep.id);
+      if (keep.id === 'khTodo') back.value = keep.value;
+      back.focus();
+      try { back.setSelectionRange(keep.at, keep.at); } catch (e) { /* bỏ qua */ }
+    }
+  }
+  /* Đồng hồ thật: mỗi giây cập nhật giờ và lịch hẹn đã qua, sang ngày mới thì vẽ lại cả Planner */
+  setInterval(function () {
+    if (clock) clock.textContent = clockText();
+    var t = Date.now();
+    Array.prototype.forEach.call(sheetBox.querySelectorAll('.kh-slot[data-at]'), function (s) { s.classList.toggle('past', Number(s.dataset.at) < t); });
+    var day = today();
+    if (day === lastDay) return;
+    if (weekStart === monday(lastDay)) weekStart = monday(day);
+    if (selected === lastDay) { selected = day; if (!editId) date.value = day; }
+    lastDay = day;
+    render();
+  }, 1000);
+
   function renderBell() {
     bellBox.replaceChildren();
     var info = SITE.planning || {};
@@ -409,7 +538,7 @@
   function render() {
     var now = today();
     var open = tasks.filter(function (t) { return !t.done; }).sort(byDate);
-    var late = open.filter(function (t) { return t.date < now; });
+    var late = open.filter(function (t) { return t.date && t.date < now; });
     var due = tasks.filter(function (t) { return t.date === now; }).sort(byTime);
     var left = due.filter(function (t) { return !t.done; }).length + late.length;
     document.getElementById('khCount').textContent = left ? String(left) : '';
@@ -423,19 +552,7 @@
     if (late.length) block(todayBox, 'Quá hạn', late, true);
     block(todayBox, late.length ? 'Hôm nay' : '', due, false, late.length ? 'Hôm nay chưa có việc nào.' : '');
 
-    weekBox.replaceChildren();
-    var days = week(), all = 0, fin = 0;
-    days.forEach(function (day) { tasks.forEach(function (t) { if (t.date === day) { all++; if (t.done) fin++; } }); });
-    weekBox.append(el('p', 'bep-lead', all ? 'Tuần này xong ' + fin + '/' + all + ' việc.' : 'Tuần này chưa có việc nào.'));
-    meter(weekBox, fin, all);
-    days.forEach(function (day) {
-      var got = onDay(day);
-      var box = el('div', 'kh-day' + (day === now ? ' now' : ''));
-      box.append(el('h3', '', short(day) + (day === now ? ' (hôm nay)' : '')));
-      if (got.real.length || got.ghost.length) box.append(list(got.real, false, got.ghost));
-      else box.append(el('p', 'bep-note', 'Trống'));
-      weekBox.append(box);
-    });
+    renderSheet(now);
 
     allBox.replaceChildren();
     var done = tasks.filter(function (t) { return t.done; }).sort(byDate).reverse();
