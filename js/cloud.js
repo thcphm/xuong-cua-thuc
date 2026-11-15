@@ -1,7 +1,7 @@
 /* Nối phiên đăng nhập với Firebase: tài khoản, đồng bộ tiến độ, quản trị.
    Chỉ tải khi cần đăng nhập, nên khách không tốn thêm dữ liệu. */
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, getDocs, collection, addDoc, query, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js';
 
 const app = initializeApp(window.FIREBASE_CONFIG);
@@ -32,6 +32,23 @@ export async function signIn(key, password) {
     throw err;
   }
   return { uid: cred.user.uid, name: snap.exists() ? snap.data().name : key };
+}
+/* Đăng nhập bằng tài khoản Google. Lần đầu thì tạo hồ sơ với tên hiển thị của Google, cắt còn 24 ký tự.
+   Firestore chỉ lưu tên đó. Email của tài khoản Google nằm trong Firebase Authentication, chủ Xưởng xem được ở console. */
+export async function signInGoogle() {
+  const cred = await signInWithPopup(auth, new GoogleAuthProvider());
+  const ref = doc(db, 'profiles', cred.user.uid);
+  const snap = await getDoc(ref);
+  if (snap.exists() && snap.data().blocked === true) {
+    await signOut(auth);
+    const err = new Error('blocked');
+    err.code = 'tp/blocked';
+    throw err;
+  }
+  if (snap.exists()) return { uid: cred.user.uid, name: snap.data().name };
+  const name = ((cred.user.displayName || '').trim() || 'Bạn').slice(0, 24);
+  await setDoc(ref, { name, blocked: false, at: Date.now() });
+  return { uid: cred.user.uid, name };
 }
 export const logOut = () => signOut(auth);
 export function watch(fn) { return onAuthStateChanged(auth, fn); }

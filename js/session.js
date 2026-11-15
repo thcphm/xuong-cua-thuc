@@ -14,7 +14,7 @@ window.Session = (function () {
   const write = (k, v) => { try { raw.set.call(box, k, v); return true; } catch (e) { return false; } };
   const erase = (k) => { try { raw.remove.call(box, k); } catch (e) { /* bỏ qua */ } };
   const keyOf = (name) => name.trim().normalize('NFC').toLocaleLowerCase('vi');
-  const loadCloud = () => import('./cloud.js?v=20261110i');
+  const loadCloud = () => import('./cloud.js?v=20261115c');
 
   let user = null;
   try { user = JSON.parse(read(CURRENT) || 'null'); } catch (e) { /* phiên hỏng thì coi như chưa đăng nhập */ }
@@ -116,6 +116,11 @@ window.Session = (function () {
     'auth/weak-password': 'Mật khẩu cần ít nhất 6 ký tự.',
     'auth/too-many-requests': 'Thử sai quá nhiều lần. Đợi vài phút rồi thử lại.',
     'auth/network-request-failed': 'Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.',
+    'auth/popup-closed-by-user': 'Bạn đã đóng cửa sổ Google trước khi đăng nhập xong.',
+    'auth/cancelled-popup-request': 'Bạn đã đóng cửa sổ Google trước khi đăng nhập xong.',
+    'auth/popup-blocked': 'Trình duyệt chặn cửa sổ đăng nhập. Cho phép cửa sổ bật lên rồi thử lại.',
+    'auth/operation-not-allowed': 'Đăng nhập bằng Google chưa được bật cho Xưởng.',
+    'auth/unauthorized-domain': 'Địa chỉ trang này chưa được phép đăng nhập bằng Google.',
     'tp/blocked': 'Tài khoản này đã bị khóa.'
   };
   const messageOf = (e) => MESSAGES[e && e.code] || 'Chưa đăng nhập được. Thử lại nhé.';
@@ -129,6 +134,16 @@ window.Session = (function () {
     try {
       const cloud = await loadCloud(), key = keyOf(name);
       await enter(cloud, await cloud.signIn(key, password), key);
+      return '';
+    } catch (e) { return messageOf(e); }
+  }
+  /* Tài khoản Google mang khóa riêng "google:<uid>". Tên tài khoản thường không chứa dấu hai chấm,
+     nên khóa này không bao giờ trùng tên admin hay tên của ai khác. */
+  async function loginGoogle() {
+    try {
+      const cloud = await loadCloud();
+      const info = await cloud.signInGoogle();
+      await enter(cloud, info, 'google:' + info.uid);
       return '';
     } catch (e) { return messageOf(e); }
   }
@@ -196,14 +211,24 @@ window.Session = (function () {
       h('label', { htmlFor: 'gateName' }, 'Tên tài khoản'), name,
       h('label', { htmlFor: 'gatePass' }, 'Mật khẩu'), pass,
       msg, submit);
+    const google = h('button', { type: 'button', class: 'gate-guest gate-google', onclick: async () => {
+      google.disabled = true;
+      msg.textContent = '';
+      msg.textContent = await loginGoogle();
+      google.disabled = false;
+    } }, 'Đăng nhập bằng Google');
+    /* Tải sẵn phần Firebase: cửa sổ Google phải mở ngay khi bấm, chờ tải lâu thì trình duyệt chặn */
+    loadCloud().catch(() => {});
     gate = h('div', { class: 'gate', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Đăng nhập' },
       h('div', { class: 'gate-card' },
         h('h1', null, 'Xưởng của Thức'),
         h('p', { class: 'gate-sub' }, 'Lưu tiến độ và dùng trên mọi máy.'),
         h('div', { class: 'gate-tabs' }, tabLogin, tabNew),
         form,
+        h('p', { class: 'gate-or' }, 'hoặc'),
+        google,
         h('button', { type: 'button', class: 'gate-guest', onclick: closeGate }, 'Để sau'),
-        h('p', { class: 'gate-note' }, 'Tiến độ và nhật ký lưu trên máy chủ, chủ Xưởng có thể xem. Mật khẩu không lấy lại được, và đừng dùng mật khẩu của tài khoản quan trọng.')));
+        h('p', { class: 'gate-note' }, 'Tiến độ và nhật ký lưu trên máy chủ, chủ Xưởng có thể xem. Đăng nhập bằng Google thì Xưởng nhận tên hiển thị và email của tài khoản đó. Mật khẩu không lấy lại được, và đừng dùng mật khẩu của tài khoản quan trọng.')));
     gate.addEventListener('pointerdown', (e) => { if (e.target === gate) closeGate(); });
     document.addEventListener('keydown', onGateKey);
     document.body.append(gate);

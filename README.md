@@ -95,6 +95,7 @@ Bấm vào X.M.A.S để mở menu: fact hôm nay, thời tiết hôm nay, đi t
 ## Tài khoản và admin
 
 - Tài khoản và tiến độ lưu trên Firebase (Authentication, Firestore), dùng được trên mọi máy. Mật khẩu không lấy lại được.
+- Có thể đăng nhập bằng tài khoản Google (Firebase Authentication, nhà cung cấp Google phải được bật trong Firebase console). Firestore chỉ lưu tên hiển thị; email của tài khoản Google nằm trong danh sách người dùng của Firebase Authentication.
 - Tên tài khoản được đổi thành địa chỉ nội bộ `<sha256>@xuong.example.com` vì Firebase cần dạng email. Không có thư nào được gửi đi.
 - Admin là tài khoản có tên trùng `admin` trong `data/site.js`. Quyền thật nằm ở `firestore.rules`: đổi tên admin thì phải sửa email trong file đó và đăng lại luật trên Firebase console.
 - Khách dùng được mọi phòng nhưng tiến độ mất khi tải lại trang.
