@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chính sách riêng tư, Xưởng của Thức</title>
+<meta name="description" content="Xưởng của Thức lưu gì, gửi dữ liệu đi đâu và cách yêu cầu xóa.">
+<meta name="theme-color" content="#05070d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-26 -30 160 160'%3E%3Crect x='-26' y='-30' width='160' height='160' rx='30' fill='%2305070d'/%3E%3Cpath fill='%234fdcff' fill-rule='evenodd' d='M0 0H78A30 30 0 0 1 78 60H62V100H48V14H34V100H20V14H0Z M62 14V46H76A16 16 0 0 0 76 14Z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Saira:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root { --night: #05070d; --line: #2a3b57; --muted: #94a7c2; --text: #dfe8f3; --brand: #4fdcff; --sans: "Saira", "Segoe UI", system-ui, sans-serif; --display: "Chakra Petch", "Segoe UI", system-ui, sans-serif; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--night); color: var(--text); font: 400 17px/1.6 var(--sans); }
+main { max-width: 68ch; margin: 0 auto; padding: 28px 20px 64px; }
+a { color: var(--brand); }
+a:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+h1 { margin: 18px 0 6px; font: 700 34px/1.15 var(--display); }
+h2 { margin: 34px 0 8px; font: 600 21px/1.25 var(--display); color: var(--brand); }
+p { margin: 0 0 12px; }
+ul { margin: 0 0 12px; padding-left: 22px; }
+li { margin-bottom: 6px; }
+.lead, .date { color: var(--muted); }
+.date { font-size: 15px; }
+</style>
+</head>
+<body>
+<main>
+  <a href="./">Về Xưởng của Thức</a>
+  <h1>Chính sách riêng tư</h1>
+  <p class="date">Cập nhật ngày 15 tháng 11 năm 2026.</p>
+  <p class="lead">Xưởng của Thức là trang cá nhân của Thức, một dự án học tập, không bán hàng và không chạy quảng cáo. Trang này nói rõ Xưởng lưu gì, gửi dữ liệu đi đâu và cách yêu cầu xóa.</p>
+
+  <h2>Khi bạn không đăng nhập</h2>
+  <p>Xưởng không lưu gì về bạn trên máy chủ. Tiến độ trong các phòng chỉ nằm trong thẻ trình duyệt đang mở và mất khi bạn tải lại trang. Xưởng không dùng công cụ theo dõi hay phân tích lượt truy cập.</p>
+
+  <h2>Khi bạn có tài khoản</h2>
+  <p>Tài khoản và tiến độ được lưu trên Firebase của Google (Authentication và Firestore).</p>
+  <ul>
+    <li><strong>Tài khoản tên và mật khẩu:</strong> Xưởng lưu tên bạn chọn. Mật khẩu do Firebase giữ dưới dạng đã băm, chủ Xưởng không xem được.</li>
+    <li><strong>Đăng nhập bằng Google:</strong> Xưởng nhận tên hiển thị và địa chỉ email của tài khoản Google đó. Xưởng không nhận mật khẩu Google, danh bạ hay dữ liệu nào khác.</li>
+    <li><strong>Tiến độ:</strong> bài đã làm, cây đã trồng, thẻ ghi nhớ, nhật ký phòng học và các lựa chọn tương tự.</li>
+  </ul>
+  <p>Chủ Xưởng xem được tên tài khoản và tiến độ, và có thể khóa tài khoản hoặc xóa tiến độ. Dữ liệu này không được bán hay chia sẻ cho ai khác.</p>
+
+  <h2>Góp ý về game</h2>
+  <p>Khi bạn gửi góp ý, Xưởng lưu số sao, nội dung góp ý và tên bạn ghi (hoặc tên tài khoản). Chỉ chủ Xưởng đọc được.</p>
+
+  <h2>Dịch vụ bên ngoài mà trang gọi tới</h2>
+  <p>Một số tính năng cần lấy dữ liệu từ nơi khác. Khi đó trình duyệt của bạn kết nối thẳng tới dịch vụ ấy, và dịch vụ ấy thấy địa chỉ IP của bạn như mọi trang web khác.</p>
+  <ul>
+    <li><strong>YouTube:</strong> tìm và phát nhạc ở Phòng Nhạc.</li>
+    <li><strong>Open Library, Internet Archive, Wikisource:</strong> tải sách ở Phòng Sách.</li>
+    <li><strong>Open-Meteo:</strong> thời tiết. Nếu bạn bấm "Vị trí của tôi" và cho phép, toạ độ của bạn được làm tròn (lệch cỡ 1 km) rồi gửi tới Open-Meteo. Xưởng không lưu toạ độ.</li>
+    <li><strong>Wandbox:</strong> một số ngôn ngữ ở Phòng Công Nghệ được gửi tới wandbox.org để biên dịch. Đừng dán mật khẩu hay dữ liệu riêng vào code.</li>
+    <li><strong>Hugging Face:</strong> tải mô hình AI cho Garage AI. Mô hình chạy trên máy bạn, nội dung bạn nhập không được gửi đi.</li>
+    <li><strong>Nhận dạng giọng nói:</strong> ở trang X.M.A.S, khi bạn bật micro, trình duyệt gửi âm thanh tới hãng làm trình duyệt để chuyển thành chữ. Xưởng không lưu âm thanh.</li>
+    <li><strong>Google Fonts, jsDelivr, gstatic:</strong> tải phông chữ và thư viện code.</li>
+  </ul>
+
+  <h2>Dữ liệu lưu trong trình duyệt</h2>
+  <p>Xưởng dùng bộ nhớ của trình duyệt (localStorage) để nhớ phiên đăng nhập và giữ một bản tiến độ cho trang mở nhanh. Xưởng không dùng cookie quảng cáo.</p>
+
+  <h2>Xóa dữ liệu</h2>
+  <p>Muốn xóa tài khoản và toàn bộ tiến độ, hãy liên hệ chủ Xưởng qua <a href="https://github.com/thcphm">GitHub thcphm</a>. Yêu cầu sẽ được xử lí bằng tay.</p>
+
+  <h2>Thay đổi</h2>
+  <p>Khi Xưởng thêm tính năng có dùng dữ liệu của bạn, trang này sẽ được cập nhật và đổi ngày ở trên.</p>
+</main>
+</body>
+</html>

@@ -251,7 +251,7 @@ window.Session = (function () {
         h('p', { class: 'gate-or' }, 'hoặc'),
         google,
         h('button', { type: 'button', class: 'gate-guest', onclick: closeGate }, 'Để sau'),
-        h('p', { class: 'gate-note' }, 'Tiến độ và nhật ký lưu trên máy chủ, chủ Xưởng có thể xem. Đăng nhập bằng Google thì Xưởng nhận tên hiển thị và email của tài khoản đó. Mật khẩu không lấy lại được, và đừng dùng mật khẩu của tài khoản quan trọng.')));
+        h('p', { class: 'gate-note' }, 'Tiến độ và nhật ký lưu trên máy chủ, chủ Xưởng có thể xem. Đăng nhập bằng Google thì Xưởng nhận tên hiển thị và email của tài khoản đó. Mật khẩu không lấy lại được, và đừng dùng mật khẩu của tài khoản quan trọng.', ' ', h('a', { href: 'chinh-sach.html', target: '_blank', rel: 'noopener' }, 'Chính sách riêng tư'))));
     gate.addEventListener('pointerdown', (e) => { if (e.target === gate) closeGate(); });
     document.addEventListener('keydown', onGateKey);
     document.body.append(gate);

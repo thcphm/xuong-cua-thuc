@@ -1382,6 +1382,7 @@ body[data-room=""], body[data-room=""] * { -webkit-user-select: none; user-selec
 .gate-main:disabled { opacity: .6; }
 .gate-guest { width: 100%; min-height: 44px; margin-top: 10px; background: none; border: 1px solid var(--line); border-radius: 8px; color: var(--text); font: 500 15px var(--sans); transition: transform 160ms var(--ease-out); }
 .gate-guest:hover { border-color: var(--brand); }
+.gate-note a { color: var(--brand); }
 .gate-or { margin: 12px 0 2px; color: var(--muted); font-size: 13px; text-align: center; }
 .gate-google { margin-top: 0; border-color: var(--brand); font-family: var(--display); font-weight: 600; }
 .gate-google:disabled { opacity: .6; }
