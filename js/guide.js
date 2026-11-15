@@ -171,7 +171,8 @@ function fact() {
   say('Fact hôm nay: ' + list[day % list.length], { anim: 'think', actions: [{ label: 'Hay đó', run: hush }, { label: 'Quay lại', run: menu }] });
 }
 
-/* Thời tiết hôm nay, lấy từ Open-Meteo. Không gửi thông tin gì của người dùng, chỉ gửi toạ độ thành phố. */
+/* Thời tiết hôm nay, lấy từ Open-Meteo. Chọn thành phố thì chỉ gửi toạ độ thành phố.
+   Chọn "Vị trí của tôi" thì trình duyệt hỏi quyền, rồi gửi toạ độ đã làm tròn (sai lệch cỡ 1 km), không lưu lại. */
 const CITIES = [
   { name: 'TP. Hồ Chí Minh', lat: 10.82, lon: 106.63 },
   { name: 'Hà Nội', lat: 21.03, lon: 105.85 },
@@ -186,25 +187,37 @@ const skyText = (code) => { const hit = SKY.find(([codes]) => codes.includes(cod
 const weatherCache = {};
 function weatherMenu() {
   const actions = CITIES.map((city) => ({ label: city.name, run: () => weather(city) }));
+  if (navigator.geolocation) actions.unshift({ label: 'Vị trí của tôi', run: weatherHere });
   actions.push({ label: 'Quay lại', run: menu });
   say('Bạn muốn xem thời tiết ở đâu?', { actions, anim: 'point' });
 }
+/* Lấy vị trí hiện tại của người xem. Chỉ chạy khi họ bấm, trình duyệt tự hỏi quyền. */
+function weatherHere() {
+  const pickCity = [{ label: 'Chọn thành phố', run: weatherMenu }, { label: 'Thôi', run: hush }];
+  say('Để mình xem bạn đang ở đâu...', { anim: 'think', hold: 0 });
+  navigator.geolocation.getCurrentPosition(
+    (pos) => weather({ name: 'Chỗ bạn đang đứng', lat: +pos.coords.latitude.toFixed(2), lon: +pos.coords.longitude.toFixed(2), here: true }),
+    (err) => say(err && err.code === 1 ? 'Bạn chưa cho mình xem vị trí. Chọn một thành phố nhé.' : 'Mình chưa xác định được vị trí của bạn. Chọn một thành phố nhé.', { anim: 'think', actions: pickCity }),
+    { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 }
+  );
+}
 function weather(city) {
-  const again = [{ label: 'Thành phố khác', run: weatherMenu }, { label: 'Xong', run: hush }];
+  const again = [{ label: 'Nơi khác', run: weatherMenu }, { label: 'Xong', run: hush }];
   const tell = (d) => say(
     city.name + ' lúc này ' + Math.round(d.current.temperature_2m) + ' độ, ' + skyText(d.current.weather_code) +
     '. Hôm nay thấp nhất ' + Math.round(d.daily.temperature_2m_min[0]) + ' độ, cao nhất ' + Math.round(d.daily.temperature_2m_max[0]) +
     ' độ, khả năng mưa ' + Math.round(d.daily.precipitation_probability_max[0]) + '%. Nguồn: Open-Meteo.',
     { anim: 'think', actions: again }
   );
-  const kept = weatherCache[city.name];
+  const spot = city.name + ':' + city.lat + ',' + city.lon;
+  const kept = weatherCache[spot];
   if (kept && Date.now() - kept.at < 30 * 60000) { tell(kept.data); return; }
   say('Để mình xem thời tiết ở ' + city.name + '...', { anim: 'think', hold: 0 });
   const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + city.lat + '&longitude=' + city.lon +
-    '&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FBangkok&forecast_days=1';
+    '&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=' + (city.here ? 'auto' : 'Asia%2FBangkok') + '&forecast_days=1';
   fetch(url)
     .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then((data) => { weatherCache[city.name] = { at: Date.now(), data }; tell(data); })
+    .then((data) => { weatherCache[spot] = { at: Date.now(), data }; tell(data); })
     .catch(() => say('Mình chưa lấy được thời tiết. Kiểm tra mạng rồi thử lại nhé.', { anim: 'think', actions: [{ label: 'Thử lại', run: () => weather(city) }, { label: 'Thôi', run: hush }] }));
 }
 function tip() {

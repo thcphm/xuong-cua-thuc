@@ -90,7 +90,7 @@ X.M.A.S là trợ lí tổng của trang. Các agent chuyên việc (T.O.M, J.E.
 Bấm vào X.M.A.S để mở menu: fact hôm nay, thời tiết hôm nay, đi tới phòng, mẹo.
 
 - Fact nằm trong `data/facts.js`, mỗi ngày một câu, hết danh sách thì quay vòng.
-- Thời tiết lấy từ [Open-Meteo](https://open-meteo.com/) (CC BY 4.0), không cần API key. Danh sách thành phố ở `CITIES` trong `js/guide.js`.
+- Thời tiết lấy từ [Open-Meteo](https://open-meteo.com/) (CC BY 4.0), không cần API key. Danh sách thành phố ở `CITIES` trong `js/guide.js`. Nút "Vị trí của tôi" dùng định vị của trình duyệt: chỉ chạy khi người xem bấm và cho phép, toạ độ được làm tròn hai chữ số thập phân trước khi gửi tới Open-Meteo, không lưu lại.
 
 ## Tài khoản và admin
 
