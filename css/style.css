@@ -1390,6 +1390,8 @@ body[data-room=""], body[data-room=""] * { -webkit-user-select: none; user-selec
 .session-name { max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--brand); font-weight: 600; }
 .session-box button { min-height: 40px; padding: 0; background: none; border: 0; color: var(--muted); font-size: 14px; text-decoration: underline; }
 .session-box button:hover { color: var(--text); }
+/* Nút liên kết Google chỉ hiện ở sảnh, thanh trên cùng không đủ chỗ */
+.topbar .session-link { display: none; }
 .topbar .session-box { margin-left: auto; flex: none; }
 .topbar .mini-player + .session-box { margin-left: 12px; }
 .topbar .mini-player[hidden] + .session-box { margin-left: auto; }

@@ -14,7 +14,7 @@ window.Session = (function () {
   const write = (k, v) => { try { raw.set.call(box, k, v); return true; } catch (e) { return false; } };
   const erase = (k) => { try { raw.remove.call(box, k); } catch (e) { /* bỏ qua */ } };
   const keyOf = (name) => name.trim().normalize('NFC').toLocaleLowerCase('vi');
-  const loadCloud = () => import('./cloud.js?v=20261115c');
+  const loadCloud = () => import('./cloud.js?v=20261115e');
 
   let user = null;
   try { user = JSON.parse(read(CURRENT) || 'null'); } catch (e) { /* phiên hỏng thì coi như chưa đăng nhập */ }
@@ -121,6 +121,10 @@ window.Session = (function () {
     'auth/popup-blocked': 'Trình duyệt chặn cửa sổ đăng nhập. Cho phép cửa sổ bật lên rồi thử lại.',
     'auth/operation-not-allowed': 'Đăng nhập bằng Google chưa được bật cho Xưởng.',
     'auth/unauthorized-domain': 'Địa chỉ trang này chưa được phép đăng nhập bằng Google.',
+    'auth/credential-already-in-use': 'Tài khoản Google này đã được dùng cho một tài khoản khác của Xưởng. Chủ Xưởng cần xóa tài khoản đó trong Firebase console trước.',
+    'auth/email-already-in-use': 'Tài khoản Google này đã được dùng cho một tài khoản khác của Xưởng.',
+    'auth/provider-already-linked': 'Tài khoản này đã liên kết Google rồi.',
+    'tp/signed-out': 'Phiên đăng nhập đã hết. Đăng nhập lại rồi thử liên kết.',
     'tp/blocked': 'Tài khoản này đã bị khóa.'
   };
   const messageOf = (e) => MESSAGES[e && e.code] || 'Chưa đăng nhập được. Thử lại nhé.';
@@ -143,9 +147,28 @@ window.Session = (function () {
     try {
       const cloud = await loadCloud();
       const info = await cloud.signInGoogle();
-      await enter(cloud, info, 'google:' + info.uid);
+      /* Tài khoản tên và mật khẩu đã liên kết Google thì giữ khóa theo tên, nhờ vậy quyền admin vẫn còn */
+      await enter(cloud, info, info.linked ? keyOf(info.name) : 'google:' + info.uid);
       return '';
     } catch (e) { return messageOf(e); }
+  }
+  /* Liên kết Google cho tài khoản tên và mật khẩu đang đăng nhập */
+  const isGoogleOnly = () => !!user && user.key.indexOf('google:') === 0;
+  async function linkGoogle(button) {
+    button.disabled = true;
+    let text = '';
+    try {
+      const cloud = cloudRef || await loadCloud();
+      await cloud.linkGoogle();
+      user.google = true;
+      text = 'Đã liên kết. Từ giờ bạn đăng nhập bằng Google cũng vào tài khoản này.';
+    } catch (e) {
+      if (e && e.code === 'auth/provider-already-linked') user.google = true;
+      text = MESSAGES[e && e.code] || 'Chưa liên kết được. Thử lại nhé.';
+    }
+    if (user.google) write(CURRENT, JSON.stringify(user));
+    paintBoxes();
+    alert(text);
   }
   async function register(name, password) {
     const problem = nameProblem(name);
@@ -241,6 +264,7 @@ window.Session = (function () {
       node.replaceChildren(...(user ? [
         h('span', { class: 'session-name' }, user.name),
         isAdmin() ? h('button', { type: 'button', onclick: showAdmin }, 'Quản trị') : null,
+        !isGoogleOnly() && !user.google ? h('button', { type: 'button', class: 'session-link', onclick: (e) => linkGoogle(e.currentTarget) }, 'Liên kết Google') : null,
         h('button', { type: 'button', onclick: logout }, 'Đăng xuất')
       ] : [
         h('button', { type: 'button', class: 'session-login', onclick: () => showGate('login') }, 'Đăng nhập'),
@@ -290,6 +314,8 @@ window.Session = (function () {
     loadCloud().then(async (cloud) => {
       cloudRef = cloud;
       if (cloud.currentUid() !== user.uid || await cloud.isBlocked(user.uid)) { clearSession(); location.reload(); return; }
+      /* Đã liên kết Google ở máy khác thì ẩn nút liên kết ở máy này */
+      if (!user.google && cloud.hasGoogle()) { user.google = true; write(CURRENT, JSON.stringify(user)); paintBoxes(); }
       if (await merge(cloud, user.uid)) location.reload();
       if (dirty.size) { clearTimeout(flushTimer); flushTimer = setTimeout(flush, FLUSH_MS); }
     }).catch(() => { /* mất mạng: dùng bản trên máy, lần sau đồng bộ */ });

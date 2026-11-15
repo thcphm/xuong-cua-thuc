@@ -1,7 +1,7 @@
 /* Nối phiên đăng nhập với Firebase: tài khoản, đồng bộ tiến độ, quản trị.
    Chỉ tải khi cần đăng nhập, nên khách không tốn thêm dữ liệu. */
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, linkWithPopup } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, getDocs, collection, addDoc, query, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js';
 
 const app = initializeApp(window.FIREBASE_CONFIG);
@@ -45,11 +45,19 @@ export async function signInGoogle() {
     err.code = 'tp/blocked';
     throw err;
   }
-  if (snap.exists()) return { uid: cred.user.uid, name: snap.data().name };
+  /* linked: đây là tài khoản tên và mật khẩu đã gắn thêm Google, không phải tài khoản Google thuần */
+  const linked = cred.user.providerData.some((p) => p.providerId === 'password');
+  if (snap.exists()) return { uid: cred.user.uid, name: snap.data().name, linked };
   const name = ((cred.user.displayName || '').trim() || 'Bạn').slice(0, 24);
   await setDoc(ref, { name, blocked: false, at: Date.now() });
-  return { uid: cred.user.uid, name };
+  return { uid: cred.user.uid, name, linked };
 }
+/* Gắn tài khoản Google vào tài khoản đang đăng nhập. Sau đó đăng nhập bằng Google sẽ vào đúng tài khoản này. */
+export async function linkGoogle() {
+  if (!auth.currentUser) { const err = new Error('signed out'); err.code = 'tp/signed-out'; throw err; }
+  await linkWithPopup(auth.currentUser, new GoogleAuthProvider());
+}
+export const hasGoogle = () => !!auth.currentUser && auth.currentUser.providerData.some((p) => p.providerId === 'google.com');
 export const logOut = () => signOut(auth);
 export function watch(fn) { return onAuthStateChanged(auth, fn); }
 export async function isBlocked(uid) {
