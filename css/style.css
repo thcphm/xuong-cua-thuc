@@ -1000,7 +1000,39 @@ body[data-room="kehoach"], .room[data-room="kehoach"], .room-list a[data-room="k
 
 /* Trang kế hoạch tuần: tiêu đề và ngày giờ, lịch hẹn, bảy ngày bên trái, việc cần làm và ghi chú bên phải */
 .kh-room .bep-panel { width: 100%; container-type: inline-size; }
-@media (min-width: 901px) { .has-3d .room-view.kh-room { width: min(52vw, 720px); } }
+/* Màn hình rộng: planner chiếm cả trang như Phòng Công Nghệ, không nằm trong một khung cuộn ở góc */
+@media (min-width: 901px) {
+  .has-3d .room-view.kh-room { width: 100%; max-width: 1380px; margin: 0 auto; padding-top: 20px; }
+  body[data-room="kehoach"].has-3d::before { background: rgba(5,7,13,.88); }
+  .kh-room .room-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 28px; }
+  .kh-room .room-head h1 { font: 600 clamp(30px, 3.4vw, 44px)/1.1 var(--display); }
+  .kh-room .room-head p { margin-top: 0; }
+  .kh-room .bep-panel { max-height: none; min-height: 0; margin-top: 16px; overflow: visible; }
+  .kh-room .bep-tabs { position: static; border-radius: 14px 14px 0 0; }
+  .kh-room #khToday, .kh-room #khAll, .kh-room #khBell { max-width: 860px; }
+}
+/* Khung planner đủ rộng: ô nhập trên một hàng, lịch hẹn bốn cột, việc cần làm và ghi chú thành cột bên phải */
+@container (min-width: 900px) {
+  .kh-room .kh-form { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+  .kh-room .kh-opts, .kh-room .kh-editing { grid-column: 1 / -1; }
+  .kh-room .kh-appt { grid-template-columns: repeat(4, 1fr); }
+  .kh-room .kh-cols { grid-template-columns: minmax(0, 1fr) 300px; align-items: start; }
+  .kh-room .kh-cell { min-height: 84px; }
+  .kh-room .kh-note { min-height: 180px; }
+}
+/* Khung rất rộng: bảy ngày thành bảy cột như một tờ kế hoạch tuần */
+@container (min-width: 1150px) {
+  .kh-room .kh-week { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+  .kh-room .kh-wday { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; min-height: 340px; }
+  .kh-room .kh-wtab { grid-auto-flow: column; justify-content: center; align-items: baseline; gap: 8px; min-height: 44px; }
+  .kh-room .kh-wbody { padding: 0; }
+  .kh-room .kh-wbody .kh-task { flex-wrap: wrap; justify-content: flex-end; align-items: flex-start; gap: 0 2px; padding: 0 2px 2px 6px; }
+  .kh-room .kh-wbody .kh-task label { flex: 1 1 100%; align-items: flex-start; min-height: 0; padding-top: 8px; }
+  .kh-room .kh-wbody .kh-task input { margin-top: 2px; }
+  .kh-room .kh-wbody .kh-name { overflow-wrap: break-word; }
+  .kh-room .kh-wbody .kh-text { padding: 0 0 2px; }
+  .kh-room .kh-wbody .kh-name { font-size: 14px; }
+}
 /* .now ở Phòng Nhạc có margin-top, không áp vào ô hôm nay của Planner */
 .kh-cell.now, .kh-wday.now { margin-top: 0; }
 .kh-sheet-head { display: grid; gap: 8px; padding-bottom: 10px; border-bottom: 2px solid var(--light); }
