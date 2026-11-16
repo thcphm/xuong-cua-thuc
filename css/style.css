@@ -1011,28 +1011,6 @@ body[data-room="kehoach"], .room[data-room="kehoach"], .room-list a[data-room="k
   .kh-room .bep-tabs { position: static; border-radius: 14px 14px 0 0; }
   .kh-room #khToday, .kh-room #khAll, .kh-room #khBell { max-width: 860px; }
 }
-/* Khung planner đủ rộng: ô nhập trên một hàng, lịch hẹn bốn cột, việc cần làm và ghi chú thành cột bên phải */
-@container (min-width: 900px) {
-  .kh-room .kh-form { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
-  .kh-room .kh-opts, .kh-room .kh-editing { grid-column: 1 / -1; }
-  .kh-room .kh-appt { grid-template-columns: repeat(4, 1fr); }
-  .kh-room .kh-cols { grid-template-columns: minmax(0, 1fr) 300px; align-items: start; }
-  .kh-room .kh-cell { min-height: 84px; }
-  .kh-room .kh-note { min-height: 180px; }
-}
-/* Khung rất rộng: bảy ngày thành bảy cột như một tờ kế hoạch tuần */
-@container (min-width: 1150px) {
-  .kh-room .kh-week { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
-  .kh-room .kh-wday { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; min-height: 340px; }
-  .kh-room .kh-wtab { grid-auto-flow: column; justify-content: center; align-items: baseline; gap: 8px; min-height: 44px; }
-  .kh-room .kh-wbody { padding: 0; }
-  .kh-room .kh-wbody .kh-task { flex-wrap: wrap; justify-content: flex-end; align-items: flex-start; gap: 0 2px; padding: 0 2px 2px 6px; }
-  .kh-room .kh-wbody .kh-task label { flex: 1 1 100%; align-items: flex-start; min-height: 0; padding-top: 8px; }
-  .kh-room .kh-wbody .kh-task input { margin-top: 2px; }
-  .kh-room .kh-wbody .kh-name { overflow-wrap: break-word; }
-  .kh-room .kh-wbody .kh-text { padding: 0 0 2px; }
-  .kh-room .kh-wbody .kh-name { font-size: 14px; }
-}
 /* .now ở Phòng Nhạc có margin-top, không áp vào ô hôm nay của Planner */
 .kh-cell.now, .kh-wday.now { margin-top: 0; }
 .kh-sheet-head { display: grid; gap: 8px; padding-bottom: 10px; border-bottom: 2px solid var(--light); }
@@ -1049,8 +1027,6 @@ button.kh-slot:hover { border-color: var(--light); }
 .kh-slot-at { color: var(--light); font-size: 12.5px; }
 .kh-slot-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .kh-slot.past { opacity: .5; }
-.kh-cols { display: grid; gap: 10px; margin-top: 12px; }
-@container (min-width: 520px) { .kh-cols { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); } }
 .kh-week { display: grid; gap: 5px; align-content: start; }
 .kh-wday { display: grid; grid-template-columns: 52px minmax(0, 1fr); min-height: 52px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 .kh-wday.sel { border-color: var(--light); }
@@ -1689,3 +1665,67 @@ body[data-room="nghi"], .room[data-room="nghi"], .room-list a[data-room="nghi"],
 .nghi-allow { min-height: 40px; margin-top: 4px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: none; color: var(--text); font: 500 14px var(--sans); }
 .nghi-allow:hover { border-color: #ff9fb2; }
 .nghi-allow[hidden] { display: none; }
+
+/* Trang tuần kiểu sổ kế hoạch: trang trái thống kê, trang phải bảy tờ giấy ghi chú */
+.kh-spread { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+.kh-left { display: contents; }
+.kh-stats { order: 1; } .kh-right { order: 2; } .kh-apptbox { order: 3; } .kh-todobox { order: 4; }
+.kh-spread .kh-box { margin: 0; }
+.kh-stats { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 14px; align-items: center; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.02); }
+.kh-donut { position: relative; width: 104px; height: 104px; }
+.kh-donut svg { display: block; width: 100%; height: 100%; }
+.kh-ring-track { fill: none; stroke: var(--line); stroke-width: 10; }
+.kh-ring-done { fill: none; stroke: var(--light); stroke-width: 10; stroke-linecap: round; }
+.kh-donut-text { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; text-align: center; }
+.kh-donut-num { font: 700 24px/1 var(--display); }
+.kh-donut-sub { max-width: 72px; margin-top: 3px; color: var(--muted); font-size: 11px; line-height: 1.25; }
+.kh-chart-cap { margin: 0 0 2px; color: var(--muted); font: 600 13px var(--display); }
+.kh-bars-plot svg { display: block; width: 100%; height: auto; max-height: 120px; }
+.kh-bar-done { fill: var(--light); }
+.kh-bar-open { fill: #6f86ad; }
+.kh-bar-zero { fill: var(--line); }
+.kh-bar-val { fill: var(--text); font: 600 9px var(--sans); text-anchor: middle; }
+.kh-bar-day { fill: var(--muted); font: 500 9px var(--sans); text-anchor: middle; }
+.kh-bar-day.now { fill: var(--text); font-weight: 700; }
+.kh-legend { display: flex; gap: 14px; margin: 2px 0 0; color: var(--muted); font-size: 12px; }
+.kh-legend i { display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius: 3px; vertical-align: -1px; }
+.kh-legend i.done { background: var(--light); }
+.kh-legend i.open { background: #6f86ad; }
+.kh-apptbox .kh-appt { grid-template-columns: 1fr; margin-bottom: 2px; }
+.kh-week .kh-notecard { margin-top: 5px; }
+
+/* Màn hình rộng: hai trang sổ nằm cạnh nhau, vừa một màn hình */
+@container (min-width: 900px) {
+  .kh-room .kh-form { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+  .kh-room .kh-opts, .kh-room .kh-editing { grid-column: 1 / -1; }
+  .kh-room .kh-sheet-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; padding-bottom: 8px; }
+  .kh-room .kh-sheet-head h2 { font-size: 22px; text-align: left; }
+  .kh-room .kh-clock { color: var(--muted); text-align: left; }
+  .kh-room .kh-fields { margin-left: auto; }
+  .kh-room .kh-spread { display: grid; grid-template-columns: 320px minmax(0, 1fr); align-items: start; gap: 16px; }
+  .kh-room .kh-left { display: flex; flex-direction: column; gap: 10px; }
+  .kh-room .kh-apptbox .kh-appt, .kh-room .kh-todobox .kh-list { max-height: 140px; overflow-y: auto; }
+  .kh-room .kh-right { padding: 18px 14px 14px; border: 1px solid var(--line); border-radius: 12px; background-color: #0b1424; background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px); background-size: 22px 22px; }
+  .kh-room .kh-week { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px 14px; }
+  .kh-room .kh-wday, .kh-room .kh-week .kh-notecard { position: relative; height: 212px; margin: 0; border-radius: 4px; background: #111b30; box-shadow: 0 6px 14px rgba(0,0,0,.35); overflow: visible; }
+  .kh-room .kh-wday { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  /* Mẩu băng keo trên đầu mỗi tờ */
+  .kh-room .kh-wday::before, .kh-room .kh-week .kh-notecard::before { content: ''; position: absolute; top: -8px; left: 50%; z-index: 1; width: 58px; height: 15px; translate: -50% 0; rotate: -3deg; border-radius: 2px; background: color-mix(in srgb, var(--light) 42%, transparent); pointer-events: none; }
+  .kh-room .kh-wday:nth-child(even)::before { rotate: 4deg; }
+  .kh-room .kh-wtab { grid-auto-flow: column; justify-content: start; align-items: baseline; gap: 8px; min-height: 44px; padding: 12px 10px 6px; border-bottom: 1px dashed var(--line); background: none; }
+  .kh-room .kh-wtab b { font: 700 19px var(--display); }
+  .kh-room .kh-wtab span { color: var(--muted); }
+  .kh-room .kh-wtab:hover { background: rgba(255,255,255,.04); }
+  .kh-room .kh-wday.now { border-color: var(--light); }
+  .kh-room .kh-wday.now .kh-wtab { background: none; color: var(--light); }
+  .kh-room .kh-wbody { min-height: 0; padding: 0 4px 4px 0; overflow-y: auto; }
+  .kh-room .kh-wbody .kh-task { flex-wrap: wrap; justify-content: flex-end; gap: 0 2px; min-height: 0; padding: 0 2px 2px 6px; }
+  .kh-room .kh-wbody .kh-task label { flex: 1 1 100%; align-items: flex-start; min-height: 0; padding-top: 8px; }
+  .kh-room .kh-wbody .kh-task input { margin-top: 2px; }
+  .kh-room .kh-wbody .kh-task .kh-edit, .kh-room .kh-wbody .kh-task .bep-x { min-height: 28px; }
+  .kh-room .kh-wbody .kh-text { padding: 0; }
+  .kh-room .kh-wbody .kh-name { font-size: 14px; }
+  .kh-room .kh-week .kh-notecard { display: flex; flex-direction: column; padding-bottom: 8px; border: 1px solid var(--line); }
+  .kh-room .kh-week .kh-notecard .kh-note { flex: 1; min-height: 0; resize: none; }
+  .kh-room .kh-cell { min-height: 84px; }
+}

@@ -387,6 +387,54 @@
     return DAYS[d.getDay()] + ', ' + d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear() + ', ' + two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds());
   }
   function bar(text) { return el('h3', 'kh-bar', text); }
+  /* Biểu đồ tròn: phần việc đã xong trong tuần */
+  function donut(done, total) {
+    var pct = total ? Math.round(done / total * 100) : 0, C = 2 * Math.PI * 40;
+    var box = el('div', 'kh-donut');
+    box.setAttribute('role', 'img');
+    box.setAttribute('aria-label', total ? 'Đã xong ' + done + ' trên ' + total + ' việc của tuần, ' + pct + ' phần trăm' : 'Tuần này chưa có việc nào');
+    box.innerHTML = '<svg viewBox="0 0 100 100" aria-hidden="true"><circle class="kh-ring-track" cx="50" cy="50" r="40"/>' +
+      (done ? '<circle class="kh-ring-done" cx="50" cy="50" r="40" stroke-dasharray="' + (C * done / total).toFixed(1) + ' ' + C.toFixed(1) + '" transform="rotate(-90 50 50)"/>' : '') + '</svg>';
+    var text = el('div', 'kh-donut-text');
+    text.setAttribute('aria-hidden', 'true');
+    text.append(el('b', 'kh-donut-num', pct + '%'), el('span', 'kh-donut-sub', total ? done + '/' + total + ' việc xong' : 'Chưa có việc'));
+    box.append(text);
+    return box;
+  }
+  /* Biểu đồ cột: số việc từng ngày, phần dưới là việc đã xong */
+  function bars(days, real, now) {
+    var wrap = el('div', 'kh-bars');
+    wrap.append(el('p', 'kh-chart-cap', 'Việc từng ngày'));
+    var max = 1, svg = '', said = [];
+    real.forEach(function (r) { max = Math.max(max, r.length); });
+    real.forEach(function (r, i) {
+      var t = r.length, d = r.filter(function (x) { return x.done; }).length, x = i * 30 + 7, base = 86;
+      var h = t / max * 62, dh = d / max * 62, cx = x + 8, day = parse(days[i]);
+      var tip = DOW[i] + ' ' + day.getDate() + '/' + (day.getMonth() + 1) + ': ' + (t ? t + ' việc, xong ' + d : 'chưa có việc');
+      said.push(tip);
+      svg += '<g><title>' + tip + '</title>';
+      if (!t) svg += '<rect class="kh-bar-zero" x="' + x + '" y="' + (base - 2) + '" width="16" height="2" rx="1"/>';
+      else {
+        if (t > d) svg += '<rect class="kh-bar-open" x="' + x + '" y="' + (base - h).toFixed(1) + '" width="16" height="' + Math.max(2, h - dh - (d ? 2 : 0)).toFixed(1) + '" rx="3"/>';
+        if (d) svg += '<rect class="kh-bar-done" x="' + x + '" y="' + (base - dh).toFixed(1) + '" width="16" height="' + dh.toFixed(1) + '" rx="3"/>';
+        svg += '<text class="kh-bar-val" x="' + cx + '" y="' + (base - h - 5).toFixed(1) + '">' + d + '/' + t + '</text>';
+      }
+      svg += '<text class="kh-bar-day' + (days[i] === now ? ' now' : '') + '" x="' + cx + '" y="102">' + DOW[i] + '</text></g>';
+    });
+    var chart = el('div', 'kh-bars-plot');
+    chart.setAttribute('role', 'img');
+    chart.setAttribute('aria-label', 'Số việc từng ngày. ' + said.join('. '));
+    chart.innerHTML = '<svg viewBox="0 0 210 108" aria-hidden="true">' + svg + '</svg>';
+    var legend = el('p', 'kh-legend');
+    legend.setAttribute('aria-hidden', 'true');
+    var a = el('span'), b = el('span');
+    a.append(el('i', 'done'), document.createTextNode('Đã xong'));
+    b.append(el('i', 'open'), document.createTextNode('Chưa xong'));
+    legend.append(a, b);
+    wrap.append(chart, legend);
+    return wrap;
+  }
+
   function renderSheet(now) {
     /* Đang gõ dở ở ô việc hoặc ô ghi chú thì giữ lại chỗ gõ sau khi vẽ lại */
     var was = document.activeElement, keep = was && (was.id === 'khNote' || was.id === 'khTodo') ? { id: was.id, value: was.value, at: was.selectionStart } : null;
@@ -410,21 +458,34 @@
     head.append(fields);
     sheetBox.append(head);
 
+    /* Số việc từng ngày trong tuần, chỉ đếm việc thật (không đếm lần lặp sắp tới) */
+    var real = days.map(function (day) { return onDay(day).real; });
+    var total = 0, doneAll = 0;
+    real.forEach(function (r) { total += r.length; doneAll += r.filter(function (t) { return t.done; }).length; });
+    var stats = el('section', 'kh-stats');
+    stats.setAttribute('aria-label', 'Thống kê tuần');
+    stats.append(donut(doneAll, total), bars(days, real, now));
+
     /* Lịch hẹn: việc có giờ trong tuần, bấm để sửa */
     var appt = tasks.filter(function (t) { return t.time && !t.done && t.date >= days[0] && t.date <= days[6]; }).sort(byDate);
-    var grid = el('div', 'kh-appt');
-    appt.forEach(function (t) {
-      var d = parse(t.date), at = stamp(t);
-      var slot = button('kh-slot' + (at < Date.now() ? ' past' : ''), '', function () { edit(t); });
-      slot.dataset.at = String(at);
-      slot.setAttribute('aria-label', 'Sửa lịch hẹn ' + t.title);
-      slot.append(el('span', 'kh-slot-at', DOW[(d.getDay() + 6) % 7] + ' ' + d.getDate() + '/' + (d.getMonth() + 1) + ', ' + t.time), el('span', 'kh-slot-name', t.title));
-      grid.append(slot);
-    });
-    for (var i = appt.length; i < 4 || i % 2; i++) grid.append(el('span', 'kh-slot empty'));
-    sheetBox.append(bar('Lịch hẹn'), grid);
+    var apptBox = el('section', 'kh-box kh-apptbox');
+    apptBox.append(bar('Lịch hẹn'));
+    if (!appt.length) apptBox.append(el('p', 'bep-note', 'Tuần này chưa có lịch hẹn. Việc có giờ sẽ hiện ở đây.'));
+    else {
+      var grid = el('div', 'kh-appt');
+      appt.forEach(function (t) {
+        var d = parse(t.date), at = stamp(t);
+        var slot = button('kh-slot' + (at < Date.now() ? ' past' : ''), '', function () { edit(t); });
+        slot.dataset.at = String(at);
+        slot.setAttribute('aria-label', 'Sửa lịch hẹn ' + t.title);
+        slot.append(el('span', 'kh-slot-at', DOW[(d.getDay() + 6) % 7] + ' ' + d.getDate() + '/' + (d.getMonth() + 1) + ', ' + t.time), el('span', 'kh-slot-name', t.title));
+        grid.append(slot);
+      });
+      apptBox.append(grid);
+    }
 
-    var cols = el('div', 'kh-cols'), wk = el('div', 'kh-week');
+    /* Bảy ngày, mỗi ngày một tờ giấy ghi chú */
+    var wk = el('div', 'kh-week');
     days.forEach(function (day, n) {
       var got = onDay(day), d = parse(day);
       var line = el('div', 'kh-wday' + (day === now ? ' now' : '') + (day === selected ? ' sel' : ''));
@@ -437,9 +498,8 @@
       wk.append(line);
     });
 
-    var side = el('div', 'kh-side');
     var todo = tasks.filter(function (t) { return !t.date; }).sort(function (x, y) { return (x.done ? 1 : 0) - (y.done ? 1 : 0) || y.prio - x.prio; });
-    var box = el('section', 'kh-box');
+    var box = el('section', 'kh-box kh-todobox');
     box.append(bar('Việc cần làm'));
     if (todo.length) box.append(list(todo, false));
     else box.append(el('p', 'bep-note', 'Việc chưa gắn ngày ghi ở đây.'));
@@ -463,7 +523,9 @@
       document.getElementById('khTodo').focus();
     });
     box.append(mini);
-    var noteBox = el('section', 'kh-box');
+
+    /* Ghi chú của tuần: tờ thứ tám, nằm cạnh bảy ngày */
+    var noteBox = el('section', 'kh-box kh-notecard');
     var note = el('textarea', 'kh-note');
     note.id = 'khNote';
     note.maxLength = 2000;
@@ -473,9 +535,14 @@
     note.value = notes[weekStart] || '';
     note.addEventListener('input', function () { if (note.value) notes[weekStart] = note.value; else delete notes[weekStart]; saveNotes(); });
     noteBox.append(bar('Ghi chú'), note);
-    side.append(box, noteBox);
-    cols.append(wk, side);
-    sheetBox.append(cols);
+    wk.append(noteBox);
+
+    /* Hai trang sổ: trang trái thống kê, lịch hẹn, việc cần làm; trang phải bảy ngày */
+    var spread = el('div', 'kh-spread'), leftPage = el('div', 'kh-page kh-left'), rightPage = el('div', 'kh-page kh-right');
+    leftPage.append(stats, apptBox, box);
+    rightPage.append(wk);
+    spread.append(leftPage, rightPage);
+    sheetBox.append(spread);
 
     if (keep) {
       var back = document.getElementById(keep.id);
