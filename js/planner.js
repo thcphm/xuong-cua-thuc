@@ -90,8 +90,49 @@
   function onDay(day) {
     var real = [], ghost = [];
     tasks.forEach(function (t) { if (t.date === day) real.push(t); else if (occurs(t, day)) ghost.push(t); });
+    outside.forEach(function (t) { if (t.date === day) real.push(t); });
     return { real: real.sort(byTime), ghost: ghost.sort(byTime) };
   }
+
+  /* Hạn nộp từ trang Quản lý ghi chú (T.O.M). Hai trang cùng địa chỉ thcphm.github.io nên dùng chung
+     kho dữ liệu của trình duyệt. Planner chỉ đọc, không sửa: muốn sửa thì mở trang ghi chú. */
+  var NOTES_APP = 'https://thcphm.github.io/quan-ly-ghi-chu-web/';
+  var outside = [];
+  function loadNotesDue() {
+    var idb = window.indexedDB;
+    if (!idb || !idb.databases) return;
+    idb.databases().then(function (list) {
+      if (!list.some(function (d) { return d.name === 'quan-ly-ghi-chu'; })) return;
+      var req = idb.open('quan-ly-ghi-chu');
+      /* Kho chưa có thì thôi, không được tự tạo, kẻo trang ghi chú không mở được kho của chính nó */
+      req.onupgradeneeded = function () { req.transaction.abort(); };
+      req.onerror = function () {};
+      req.onsuccess = function () {
+        var db = req.result;
+        if (!db.objectStoreNames.contains('files')) { db.close(); return; }
+        var get = db.transaction('files').objectStore('files').get('/du-lieu/thu-vien.json');
+        get.onsuccess = function () {
+          db.close();
+          var lib;
+          try { lib = JSON.parse(get.result || 'null'); } catch (e) { lib = null; }
+          if (!lib || !Array.isArray(lib.tasks)) return;
+          var names = {};
+          (lib.subjects || []).forEach(function (s) { if (s && s.id) names[s.id] = s.name || s.code || ''; });
+          var next = [];
+          lib.tasks.forEach(function (t) {
+            if (!t || typeof t.title !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(t.due || '')) return;
+            next.push({ id: 'gc:' + t.id, ext: true, title: t.title.slice(0, 120), date: t.due.slice(0, 10), time: t.due.slice(11, 16), done: !!t.done, prio: 1, repeat: '', remind: -1, subject: names[t.subjectId] || '' });
+          });
+          if (JSON.stringify(next) === JSON.stringify(outside)) return;
+          outside = next;
+          render();
+        };
+        get.onerror = function () { db.close(); };
+      };
+    }).catch(function () {});
+  }
+  /* Danh sách việc cần làm của Phòng Học */
+  function studyTasks() { return window.Study && window.Study.tasks ? window.Study.tasks.list() : null; }
   /* Đánh dấu xong. Việc lặp không đóng lại mà chuyển sang lần kế tiếp. */
   function setDone(t, done) {
     if (done && t.repeat && t.date) { t.date = nextDate(t); t.snooze = 0; } else { t.done = done; if (done) t.snooze = 0; }
@@ -271,7 +312,25 @@
 
   /* Một dòng việc: ô đánh dấu, tên, thông tin phụ, nút sửa, nút xóa.
      ghost: lần lặp sắp tới của một việc, chỉ để xem. */
+  function extRow(task, withDate) {
+    var li = el('li', 'kh-task kh-ext' + (task.done ? ' done' : ''));
+    var bits = [];
+    if (withDate) bits.push(short(task.date));
+    bits.push('hạn ' + task.time);
+    if (task.subject) bits.push(task.subject);
+    var text = el('span', 'kh-text');
+    text.append(el('span', 'kh-name', task.title), el('span', 'kh-meta', bits.join(', ')));
+    var mark = el('span', 'kh-src', task.done ? 'Đã xong' : 'Ghi chú');
+    var go = el('a', 'kh-edit', 'Mở');
+    go.href = NOTES_APP;
+    go.target = '_blank';
+    go.rel = 'noopener';
+    go.setAttribute('aria-label', 'Mở trang ghi chú để sửa hạn nộp ' + task.title);
+    li.append(mark, text, go);
+    return li;
+  }
   function row(task, withDate, ghost) {
+    if (task.ext) return extRow(task, withDate);
     var li = el('li', 'kh-task p' + task.prio + (task.done ? ' done' : '') + (ghost ? ' ghost' : ''));
     var bits = [];
     if (withDate && task.date) bits.push(short(task.date));
@@ -467,7 +526,7 @@
     stats.append(donut(doneAll, total), bars(days, real, now));
 
     /* Lịch hẹn: việc có giờ trong tuần, bấm để sửa */
-    var appt = tasks.filter(function (t) { return t.time && !t.done && t.date >= days[0] && t.date <= days[6]; }).sort(byDate);
+    var appt = tasks.concat(outside).filter(function (t) { return t.time && !t.done && t.date >= days[0] && t.date <= days[6]; }).sort(byDate);
     var apptBox = el('section', 'kh-box kh-apptbox');
     apptBox.append(bar('Lịch hẹn'));
     if (!appt.length) apptBox.append(el('p', 'bep-note', 'Tuần này chưa có lịch hẹn. Việc có giờ sẽ hiện ở đây.'));
@@ -475,9 +534,9 @@
       var grid = el('div', 'kh-appt');
       appt.forEach(function (t) {
         var d = parse(t.date), at = stamp(t);
-        var slot = button('kh-slot' + (at < Date.now() ? ' past' : ''), '', function () { edit(t); });
+        var slot = button('kh-slot' + (at < Date.now() ? ' past' : '') + (t.ext ? ' ext' : ''), '', function () { if (t.ext) window.open(NOTES_APP, '_blank', 'noopener'); else edit(t); });
         slot.dataset.at = String(at);
-        slot.setAttribute('aria-label', 'Sửa lịch hẹn ' + t.title);
+        slot.setAttribute('aria-label', (t.ext ? 'Mở trang ghi chú: hạn nộp ' : 'Sửa lịch hẹn ') + t.title);
         slot.append(el('span', 'kh-slot-at', DOW[(d.getDay() + 6) % 7] + ' ' + d.getDate() + '/' + (d.getMonth() + 1) + ', ' + t.time), el('span', 'kh-slot-name', t.title));
         grid.append(slot);
       });
@@ -501,8 +560,27 @@
     var todo = tasks.filter(function (t) { return !t.date; }).sort(function (x, y) { return (x.done ? 1 : 0) - (y.done ? 1 : 0) || y.prio - x.prio; });
     var box = el('section', 'kh-box kh-todobox');
     box.append(bar('Việc cần làm'));
+    var study = studyTasks();
     if (todo.length) box.append(list(todo, false));
-    else box.append(el('p', 'bep-note', 'Việc chưa gắn ngày ghi ở đây.'));
+    if (study && study.length) {
+      var sl = el('ul', 'kh-list kh-study');
+      study.forEach(function (t, i) {
+        var li = el('li', 'kh-task' + (t.done ? ' done' : ''));
+        var label = el('label'), check = el('input');
+        check.type = 'checkbox';
+        check.checked = t.done;
+        check.addEventListener('change', function () { window.Study.tasks.setDone(i, check.checked); });
+        var text = el('span', 'kh-text');
+        text.append(el('span', 'kh-name', t.text), el('span', 'kh-meta', 'Phòng Học'));
+        label.append(check, text);
+        var x = button('bep-x', '×', function () { window.Study.tasks.remove(i); });
+        x.setAttribute('aria-label', 'Xóa việc ' + t.text);
+        li.append(label, x);
+        sl.append(li);
+      });
+      box.append(sl);
+    }
+    if (!todo.length && !(study && study.length)) box.append(el('p', 'bep-note', 'Việc chưa gắn ngày ghi ở đây, dùng chung với Phòng Học.'));
     var mini = el('form', 'kh-mini'), input = el('input');
     input.id = 'khTodo';
     input.type = 'text';
@@ -517,10 +595,16 @@
       e.preventDefault();
       var text = input.value.trim();
       if (!text) { input.focus(); return; }
-      tasks.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), title: text.slice(0, 120), date: '', time: '', prio: 1, repeat: '', remind: -1, done: false, fired: '', snooze: 0 });
-      save();
-      render();
-      document.getElementById('khTodo').focus();
+      /* Ghi vào danh sách của Phòng Học, để hai phòng cùng thấy */
+      if (window.Study && window.Study.tasks) window.Study.tasks.add(text);
+      else {
+        tasks.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), title: text.slice(0, 120), date: '', time: '', prio: 1, repeat: '', remind: -1, done: false, fired: '', snooze: 0 });
+        save();
+        render();
+      }
+      var again = document.getElementById('khTodo');
+      again.value = '';
+      again.focus();
     });
     box.append(mini);
 
@@ -637,7 +721,9 @@
   document.getElementById('khIntro').textContent = (SITE.planning || {}).intro || '';
   render();
   check();
+  loadNotesDue();
   setInterval(check, 20000);
+  document.addEventListener('tp:study-tasks', render);
   /* Quay lại trang hoặc sang ngày mới khi trang vẫn mở: vẽ lại và soát lời nhắc */
-  document.addEventListener('visibilitychange', function () { if (!document.hidden) { render(); check(); } });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) { render(); check(); loadNotesDue(); } });
 })();

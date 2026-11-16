@@ -30,6 +30,13 @@ window.Study = (function () {
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {}
   }
+  /* Danh sách việc cần làm dùng chung với Phòng Kế Hoạch: đổi ở đâu thì cả hai nơi cùng vẽ lại */
+  var taskViews = [];
+  function tasksChanged() {
+    save();
+    taskViews.forEach(function (draw) { draw(); });
+    document.dispatchEvent(new Event('tp:study-tasks'));
+  }
 
   var $ = function (id) { return document.getElementById(id); };
   function el(tag, className, text) {
@@ -417,8 +424,7 @@ window.Study = (function () {
       if (!input.value.trim()) return;
       data.tasks.push({ text: input.value.trim(), done: false });
       input.value = '';
-      save();
-      draw();
+      tasksChanged();
     });
     function draw() {
       list.replaceChildren();
@@ -429,12 +435,13 @@ window.Study = (function () {
         var check = el('input');
         check.type = 'checkbox';
         check.checked = task.done;
-        check.addEventListener('change', function () { task.done = check.checked; save(); draw(); });
+        check.addEventListener('change', function () { task.done = check.checked; tasksChanged(); });
         label.append(check, el('span', '', task.text));
-        li.append(label, button('Xoá', 'w-close', function () { data.tasks.splice(i, 1); save(); draw(); }));
+        li.append(label, button('Xoá', 'w-close', function () { data.tasks.splice(i, 1); tasksChanged(); }));
         list.append(li);
       });
     }
+    taskViews.push(draw);
     draw();
     body.append(list, form);
   }
@@ -610,5 +617,11 @@ window.Study = (function () {
     });
   }
 
-  return { init: init, enter: enter, click: click, refreshTitle: paintTimer };
+  var tasks = {
+    list: function () { return data.tasks.map(function (t) { return { text: t.text, done: !!t.done }; }); },
+    add: function (text) { data.tasks.push({ text: String(text).slice(0, 120), done: false }); tasksChanged(); },
+    setDone: function (i, done) { if (data.tasks[i]) { data.tasks[i].done = !!done; tasksChanged(); } },
+    remove: function (i) { if (data.tasks[i]) { data.tasks.splice(i, 1); tasksChanged(); } }
+  };
+  return { init: init, enter: enter, click: click, refreshTitle: paintTimer, tasks: tasks };
 })();

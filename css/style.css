@@ -1691,6 +1691,11 @@ body[data-room="nghi"], .room[data-room="nghi"], .room-list a[data-room="nghi"],
 .kh-legend i { display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius: 3px; vertical-align: -1px; }
 .kh-legend i.done { background: var(--light); }
 .kh-legend i.open { background: #6f86ad; }
+.kh-src { flex: none; align-self: center; padding: 2px 6px; border: 1px solid var(--line); border-radius: 6px; color: var(--muted); font-size: 11px; }
+.kh-task.kh-ext { gap: 8px; border-left-style: dotted; }
+.kh-task.kh-ext .kh-text { flex: 1; }
+.kh-task.kh-ext a.kh-edit { display: inline-flex; align-items: center; text-decoration: none; }
+.kh-slot.ext .kh-slot-at::after { content: ', hạn nộp'; }
 .kh-apptbox .kh-appt { grid-template-columns: 1fr; margin-bottom: 2px; }
 .kh-week .kh-notecard { margin-top: 5px; }
 
@@ -1727,5 +1732,9 @@ body[data-room="nghi"], .room[data-room="nghi"], .room-list a[data-room="nghi"],
   .kh-room .kh-wbody .kh-name { font-size: 14px; }
   .kh-room .kh-week .kh-notecard { display: flex; flex-direction: column; padding-bottom: 8px; border: 1px solid var(--line); }
   .kh-room .kh-week .kh-notecard .kh-note { flex: 1; min-height: 0; resize: none; }
+  .kh-room .kh-wbody .kh-ext { flex-wrap: wrap; gap: 0 6px; padding: 6px 2px 4px 8px; }
+  .kh-room .kh-wbody .kh-ext .kh-src { order: 0; }
+  .kh-room .kh-wbody .kh-ext a.kh-edit { order: 1; margin-left: auto; min-height: 28px; }
+  .kh-room .kh-wbody .kh-ext .kh-text { order: 2; flex: 1 1 100%; }
   .kh-room .kh-cell { min-height: 84px; }
 }

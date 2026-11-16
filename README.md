@@ -62,6 +62,10 @@ Planner là chức năng chính của Phòng Kế Hoạch, gộp lịch, việc 
 
 Việc lưu trong `localStorage` của trình duyệt, không gửi đi đâu. Giao diện ở `js/planner.js`.
 
+- Màn hình rộng: trang tuần là hai trang sổ. Trang trái có biểu đồ tròn (phần việc đã xong trong tuần), biểu đồ cột (việc từng ngày), Lịch hẹn, Việc cần làm. Trang phải là bảy tờ ghi chú cho bảy ngày và một tờ Ghi chú.
+- Việc cần làm chưa gắn ngày dùng chung với danh sách Việc cần làm của Phòng Học (`Study.tasks` trong `js/study.js`).
+- Hạn nộp của trang Quản lý ghi chú (T.O.M) hiện trên các ngày và trong Lịch hẹn, chỉ để xem. Hai trang cùng địa chỉ `thcphm.github.io` nên Planner đọc được kho IndexedDB `quan-ly-ghi-chu` của trang kia; muốn sửa thì bấm Mở để sang trang ghi chú.
+
 ## Phòng nghỉ và I.C.A.R.E
 
 Phòng nghỉ là khối nối bên trái Phòng Học, nơi I.C.A.R.E ở. I.C.A.R.E nhắc bốn việc trong lúc bạn ngồi làm việc: nghỉ mắt, đứng dậy, uống nước, vận động.
